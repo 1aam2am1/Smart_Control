@@ -1,0 +1,3 @@
+#include "icona.h"
+
+IDI_IKONA ICON "icona.ico"

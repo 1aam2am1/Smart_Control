@@ -1,0 +1,51 @@
+#include "Asynchronous_write.h"
+#include <functional>
+#include <queue>
+#include <SFML/System.hpp>
+
+Asynchronous_write::Asynchronous_write()
+        : thread_work(true) {
+    thr = std::thread(std::bind(&Asynchronous_write::Infinite_loop_function, this));
+}
+
+Asynchronous_write::~Asynchronous_write() {
+    {
+        std::unique_lock<std::mutex> lock(this->mutex);
+        thread_work = 0;
+    }
+    cv.notify_all();
+
+    thr.detach();
+}
+
+void Asynchronous_write::add(message m) {
+    {
+        std::unique_lock<std::mutex> lock(this->mutex);
+        queue_message.push(m);
+    }
+    cv.notify_one();
+}
+
+Asynchronous_write &Asynchronous_write::getSingleton() {
+    static Asynchronous_write r;
+
+    return r;
+}
+
+void Asynchronous_write::Infinite_loop_function() {
+    while (this->thread_work || !queue_message.empty()) {
+        message m;
+        {
+            std::unique_lock<std::mutex> lock(this->mutex);
+
+            this->cv.wait(lock, [&] { return !queue_message.empty() | !this->thread_work; });
+
+            if (!this->thread_work) { return; }
+
+            m = queue_message.front();
+            queue_message.pop();
+        }
+        fprintf(m.file, "%.*s", (int) m.str.size(), m.str.c_str());
+        fflush(m.file);
+    }
+}
