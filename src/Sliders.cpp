@@ -172,6 +172,8 @@ void Sliders::callback(const tgui::Callback &callback) {
         dynamic_cast<tgui::Button *>(callback.widget)->setTextColor(sf::Color(255, 0, 0, 255));
         this->get<tgui::Panel>("p" + Game_api::convertInt(callback.id % 100))->show();
 
+        this->get<tgui::Button>("t1")->hide();
+        this->get<tgui::Button>("t2")->hide();
         return;
     }
     if (callback.id / 100 == 2) ///slider

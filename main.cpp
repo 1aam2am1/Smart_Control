@@ -262,5 +262,18 @@ void load(tgui::Gui *gui, const Argv_options &op) {
     } else {
         gui->get<tgui::Checkbox>("MODBUS", true)->check();
     }
+
+
+    ///< Odzysk ciepla
+    gui->get<tgui::Label>("Label1", true)->hide();
+    gui->get<tgui::EditBox>("odz_1", true)->hide();
+    gui->get<tgui::Label>("Label1 (2)", true)->hide();
+    gui->get<tgui::EditBox>("odz_2", true)->hide();
+    gui->get<tgui::Label>("Label1 (2) (2)", true)->hide();
+
+    gui->get<tgui::Button>("przy_2", true)->hide();
+    gui->get<tgui::Button>("przy_3", true)->hide();
+    gui->get<tgui::Button>("przy_7", true)->hide();
+
 }
 
