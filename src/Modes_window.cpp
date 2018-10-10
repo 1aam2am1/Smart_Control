@@ -8,9 +8,9 @@ Modes_window::Modes_window()
                 {"Wietrzenie",                       1,  12,  "12h"},
                 {"Sen",                              1,  12,  "12h"},
                 {"Urlop",                            1,  30,  "30d"},
-                {"Ograniczenie wydajnosci centrali", 50, 100, "100%"}
+                //{"Ograniczenie wydajnosci centrali", 50, 100, "100%"}
 } {
-    this->setSize(315, 250);
+    this->setSize(315, 50 * modes.size());
 }
 
 Modes_window::~Modes_window() = default;
@@ -28,10 +28,10 @@ Modes_data_struct Modes_window::getChanged() {
 
     result.urlop_value = Game_api::convertString(this->get<tgui::EditBox>("e3")->getText());
     result.urlop_en = this->get<tgui::Checkbox>("c3")->isChecked();
-
+/*
     result.max_went_value = Game_api::convertString(this->get<tgui::EditBox>("e4")->getText());
     result.max_went_en = this->get<tgui::Checkbox>("c4")->isChecked();
-
+*/
 
     return result;
 }
