@@ -5,8 +5,8 @@
 
 Sliders::Sliders()
         : scroll{{"Max temperatura",         -20, 80,  0},
-                 {"Bypass minimum",          -20, 40,  2},
-                 {"Bypass maximum",          -20, 40,  3},
+                 {"Bypass czerpnia",         -20, 40,  2},
+                 {"Bypass wyrzutnia",        -20, 40,  3},
                  {"Odmrazanie",              -20, 40,  4},
                  {"Dogrzewanie",             -20, 40,  5},
                  {"Czas odmrazania",         1,   60,  14},
@@ -24,8 +24,8 @@ Sliders::Sliders()
 
                  {"Moc wentylacji (reczny)", 0,   100, 1},
                  {"Odmrazanie standard",     -40, 40,  16},
-                 {"Nastawa potencjometru",   0,   100, 46},///46
-                 {"Dodatkowy 2",             0,   100, -1}
+                 {"Nastawa potencjometru",   0,   100, 46},
+                 {"Cholodzenie",             13,  26,  -1}
 } {
 
 }
@@ -84,7 +84,7 @@ id 100+ = tab
 void Sliders::initialize(Container *const container) {
     this->Panel::initialize(container);
 
-    const std::string nazwy[3] = {"Ustawienia 1", "Serwa", "Ust. dodatkowe"};
+    const std::string nazwy[3] = {"Ustawienia", "Serwa", "Ust. dodatkowe"};
 
     for (uint32_t i = 0; i < 3; ++i) {
         tgui::Button::Ptr b1 = WidgetSingleton<tgui::Button>::get(*this, "t" + Game_api::convertInt(i));

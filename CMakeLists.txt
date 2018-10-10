@@ -34,29 +34,15 @@ find_package(TGUI 0.6 REQUIRED)
 include_directories(${TGUI_INCLUDE_DIR})
 
 
-# Generate version flags
-find_package(Git)
-execute_process(COMMAND ${GIT_EXECUTABLE} status --porcelain
-        OUTPUT_VARIABLE BUILD_STATE
-        ERROR_QUIET OUTPUT_STRIP_TRAILING_WHITESPACE)
+# a custom target that is always built
+add_custom_target(svnheader ALL
+        DEPENDS svn_header ${CMAKE_CURRENT_SOURCE_DIR}/version.cpp.in) # svn_header is nothing more than a unique string
 
-execute_process(COMMAND ${GIT_EXECUTABLE} describe --always --abbrev=0 --dirty --tags
-        OUTPUT_VARIABLE _GIT_DESCRIBE
-        ERROR_QUIET OUTPUT_STRIP_TRAILING_WHITESPACE)
-
-execute_process(COMMAND ${GIT_EXECUTABLE} rev-parse HEAD
-        OUTPUT_VARIABLE _GIT_HASH
-        ERROR_QUIET OUTPUT_STRIP_TRAILING_WHITESPACE)
-
-string(TIMESTAMP _TIME "%Y-%m-%d %H:%M:%S")
-
-if (BUILD_STATE)
-    set(DIRTY "-dirty")
-else ()
-    set(DIRTY "")
-endif ()
-
-configure_file("${CMAKE_SOURCE_DIR}/version.cpp.in" "${CMAKE_BINARY_DIR}/version.cpp" @ONLY)
+# creates version.cpp using cmake script
+add_custom_command(OUTPUT svn_header ${CMAKE_CURRENT_BINARY_DIR}/version.cpp
+        COMMAND ${CMAKE_COMMAND} -DSOURCE_DIR=${CMAKE_CURRENT_SOURCE_DIR}
+        -P ${CMAKE_CURRENT_SOURCE_DIR}/CVersion.cmake)
+#configure_file("${CMAKE_SOURCE_DIR}/version.cpp.in" "${CMAKE_BINARY_DIR}/version.cpp" @ONLY)
 set(VERSION_SOURCES version.h "${CMAKE_BINARY_DIR}/version.cpp")
 
 
@@ -71,6 +57,7 @@ file(GLOB_RECURSE GENERATED_HEADERS ${CMAKE_SOURCE_DIR}/include/*.h)
 file(GLOB_RECURSE GENERATED_RC_FILES ${CMAKE_SOURCE_DIR}/include/*.rc)
 
 add_executable(${EXECUTABLE_NAME} main.cpp ${VERSION_SOURCES} ${GENERATED_SOURCES} ${GENERATED_RC_FILES} ${GENERATED_HEADERS})
-
+set_target_properties(${EXECUTABLE_NAME} PROPERTIES OUTPUT_NAME "${EXECUTABLE_NAME}")
+set_property(TARGET ${EXECUTABLE_NAME} PROPERTY WIN32_EXECUTABLE true)
 
 target_link_libraries(${EXECUTABLE_NAME} ${TGUI_LIBRARY} sfml-graphics)

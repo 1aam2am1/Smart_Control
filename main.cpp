@@ -29,8 +29,8 @@ int main(int argc, char **argv) {
     options.process(argc, argv);
     window.create(sf::VideoMode(static_cast<uint32_t>(options.getOptions().size.x),
                                 static_cast<uint32_t>(options.getOptions().size.y)),
-                  "Smart Control " + Version::GIT_TAG +
-                  (Version::GIT_DIRTY.empty() ? "" : (Version::GIT_DIRTY + " " + Version::GIT_SHA + " " +
+                  "Smart Control " + Version::GIT_TAG + " " +
+                  (Version::GIT_DIRTY.empty() ? "" : (Version::GIT_SHA + " " +
                                                       Version::DATE)),
                   sf::Style::Default);
     window.setView(sf::View(sf::FloatRect(0, 0, 1200, 820)));
@@ -52,8 +52,7 @@ int main(int argc, char **argv) {
         com = std::make_shared<P_SIMPLE>();
     }
     if (options.getOptions().version) {
-        Console::printf("Version: %s\n", (Version::GIT_TAG +
-                                          Version::GIT_DIRTY + " " +
+        Console::printf("Version: %s\n", (Version::GIT_TAG + " " +
                                           Version::GIT_SHA + " " +
                                           Version::DATE).c_str());
     }

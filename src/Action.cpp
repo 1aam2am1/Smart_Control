@@ -53,6 +53,17 @@ void Action::setData(const Action_data_struct &dane) {
     ///Temp Powietrza
     this->get<tgui::EditBox>("eh4")->setText(Game_api::convertInt(dane.temp + 14));
 
+    ///Temp en
+    {
+        auto ch = this->get<tgui::Checkbox>("ec4");
+
+        if (dane.temp_en) {
+            ch->check();
+        } else {
+            ch->uncheck();
+        }
+    }
+
     ///150%
     {
         auto ch = this->get<tgui::Checkbox>("150%");
@@ -101,6 +112,8 @@ Action_data_struct Action::getData() {
     i = Game_api::convertString(this->get<tgui::EditBox>("eh4")->getText()) - 14;
     result.temp = i < 12 ? i : 12;
 
+    result.temp_en = this->get<tgui::Checkbox>("ec4")->isChecked();
+
     result.max_moc = this->get<tgui::Checkbox>("150%")->isChecked();
 
     return result;
@@ -140,16 +153,38 @@ void Action::initialize(Container *const container) {
         l1->setTextColor(sf::Color(0, 0, 0, 255));
         l1->setTextSize(12);
 
-        tgui::EditBox::Ptr box1 = WidgetSingleton<tgui::EditBox>::get(*this, "eh" + Game_api::convertInt(i));
-        //box->load(THEME_CONFIG_FILE);
-        box1->setPosition(5, 32 + i * 30);
-        box1->setSize(37, 15);
-        box1->setNumbersOnly(true);
-        if (i != 2 && i != 3) { box1->setMaximumCharacters(2); } else { box1->setMaximumCharacters(3); }
-        box1->setAlignment(tgui::EditBox::Alignment::Right);
-        //box->setText(Game_api::convertInt(scroll[scroll_id].minimum));
-        box1->bindCallback(tgui::EditBox::ReturnKeyPressed | tgui::Widget::Unfocused);
-        box1->setCallbackId(10 + i * 2);
+        if (i < 4) {
+            tgui::EditBox::Ptr box1 = WidgetSingleton<tgui::EditBox>::get(*this, "eh" + Game_api::convertInt(i));
+            //box->load(THEME_CONFIG_FILE);
+            box1->setPosition(5, 32 + i * 30);
+            box1->setSize(37, 15);
+            box1->setNumbersOnly(true);
+            if (i != 2 && i != 3) { box1->setMaximumCharacters(2); } else { box1->setMaximumCharacters(3); }
+            box1->setAlignment(tgui::EditBox::Alignment::Right);
+            //box->setText(Game_api::convertInt(scroll[scroll_id].minimum));
+            box1->bindCallback(tgui::EditBox::ReturnKeyPressed | tgui::Widget::Unfocused);
+            box1->setCallbackId(10 + i * 2);
+        } else {
+            tgui::Checkbox::Ptr ch = WidgetSingleton<tgui::Checkbox>::get(*this, "ec" + Game_api::convertInt(i));
+            //ch->load(THEME_CONFIG_FILE);
+            ch->setPosition(5, 33 + i * 30);
+            ch->setSize(14, 14);
+            ch->setTextColor(sf::Color(0, 0, 0, 255));
+            ch->bindCallback(tgui::Checkbox::Checked | tgui::Checkbox::Unchecked);
+            ch->setCallbackId(100);
+
+            tgui::EditBox::Ptr box1 = WidgetSingleton<tgui::EditBox>::get(*this, "eh" + Game_api::convertInt(i));
+            //box->load(THEME_CONFIG_FILE);
+            box1->setPosition(25, 32 + i * 30);
+            box1->setSize(37, 15);
+            box1->setNumbersOnly(true);
+            if (i != 2 && i != 3) { box1->setMaximumCharacters(2); } else { box1->setMaximumCharacters(3); }
+            box1->setAlignment(tgui::EditBox::Alignment::Right);
+            //box->setText(Game_api::convertInt(scroll[scroll_id].minimum));
+            box1->bindCallback(tgui::EditBox::ReturnKeyPressed | tgui::Widget::Unfocused);
+            box1->setCallbackId(10 + i * 2);
+        }
+
 
         if (i < 2) {
             tgui::Label::Ptr colon1 = WidgetSingleton<tgui::Label>::get(*this);
@@ -176,7 +211,7 @@ void Action::initialize(Container *const container) {
     //ch->load(THEME_CONFIG_FILE);
     ch->setPosition(5, 175);
     ch->setSize(14, 14);
-    ch->setText("150%");
+    ch->setText("Tryb boost");
     ch->setTextColor(sf::Color(0, 0, 0, 255));
     ch->setTextSize(12);
     ch->bindCallback(tgui::Checkbox::Checked | tgui::Checkbox::Unchecked);
