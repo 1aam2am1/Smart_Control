@@ -1,6 +1,9 @@
 #ifndef MODES_DATA_STRUCT_H
 #define MODES_DATA_STRUCT_H
 
+#include <cstdint>
+
+
 #pragma pack(push, 1)
 union Modes_data_struct {
     struct {
@@ -14,8 +17,8 @@ union Modes_data_struct {
         unsigned urlop_en :1;
         unsigned max_went_value :7;
         unsigned max_went_en :1;
-        unsigned owc_value :7;
-        unsigned owc_en :1;
+        //unsigned owc_value :7;
+        //unsigned owc_en :1;
     };
 
     uint8_t data[5];

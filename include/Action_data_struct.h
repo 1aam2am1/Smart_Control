@@ -1,6 +1,8 @@
 #ifndef ACTION_DATA_STRUCT_H
 #define ACTION_DATA_STRUCT_H
 
+#include <cstdint>
+
 
 #pragma pack(push, 1)
 union Action_data_struct {
@@ -14,7 +16,8 @@ union Action_data_struct {
         unsigned minutes :6;
         unsigned :2;
         unsigned temp :4;
-        unsigned :4;
+        unsigned :3;
+        unsigned temp_en :1;
     };
 
     uint8_t data[6];

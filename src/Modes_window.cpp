@@ -4,7 +4,7 @@
 #include "WidgetSingleton.h"
 
 Modes_window::Modes_window()
-        : modes{{"Tryb boost",                       1,  60,  "1h"},
+        : modes{{"Tryb boost",                       1,  60,  "60m"},
                 {"Wietrzenie",                       1,  12,  "12h"},
                 {"Sen",                              1,  12,  "12h"},
                 {"Urlop",                            1,  30,  "30d"},
@@ -39,7 +39,7 @@ Modes_data_struct Modes_window::getChanged() {
 void Modes_window::setModesData(const Modes_data_struct &data) {
     this->unbindGlobalCallback();
 
-    for (uint32_t j = 0; j < 5; ++j) {
+    for (uint32_t j = 0; j < modes.size(); ++j) {
         uint32_t value = data.data[j] & 0b01111111;
 
         this->get<tgui::EditBox>("e" + Game_api::convertInt(j))->
