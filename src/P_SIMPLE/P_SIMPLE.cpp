@@ -765,7 +765,7 @@ int recive(HANDLE hCom, std::string &r_data, std::vector<uint8_t> &result, sf::T
 
         newcom.ReadTotalTimeoutConstant = time.asMilliseconds();
         if (newcom.ReadTotalTimeoutConstant == 0) { newcom.ReadTotalTimeoutConstant = 1; }
-        newcom.ReadIntervalTimeout = 0;
+        newcom.ReadIntervalTimeout = 1;
         newcom.ReadTotalTimeoutMultiplier = 0;
 
         SetCommTimeouts(hCom, &newcom);
