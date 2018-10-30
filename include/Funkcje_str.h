@@ -101,7 +101,7 @@ namespace Game_api {
 
         template<typename T>
         inline T &shift_bit_prawo(T &co, const int8_t &ile) {
-            return shift_bit_r(co, -ile);
+            return shift_bit_lewo(co, -ile);
         }
     }
 

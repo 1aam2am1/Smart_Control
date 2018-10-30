@@ -46,7 +46,6 @@ private:
 
     std::string temponary_data;
     std::map<int, int> parsed_data;
-    std::string send_data;
 
     sf::Clock recive_clock;
 

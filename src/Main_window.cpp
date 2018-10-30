@@ -1,7 +1,6 @@
 #include "Main_window.h"
 #include "TGUI/TGUI.hpp"
 #include "Funkcje_str.h"
-#include "WidgetSingleton.h"
 #include "Sliders.h"
 #include <memory>
 #include "Przelacznik_b.h"

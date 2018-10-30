@@ -245,7 +245,7 @@ bool rs232::write(std::string informacja) {
                 crc8(reinterpret_cast<const uint8_t *>(informacja.c_str()), informacja.size())); ///suma crc
     }
 
-    std::string informacja2 = "#" + informacja + ";" + '\r' + '\n';
+    std::string informacja2 = "#" + informacja + ";\r\n";
     if (this->hCom != INVALID_HANDLE_VALUE) {
         COMSTAT statsread; //status
         DWORD RS_send;   //ilosc bitow odczytanych

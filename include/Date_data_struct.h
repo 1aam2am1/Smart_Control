@@ -1,6 +1,8 @@
 #ifndef DATE_DATA_STRUCT_H
 #define DATE_DATA_STRUCT_H
 
+#include <cstdint>
+
 
 #pragma pack(push, 1)
 union Date_data_struct {

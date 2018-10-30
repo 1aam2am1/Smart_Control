@@ -10,14 +10,15 @@
 
 static File_Communication_log communication_log;
 
-P_SIMPLE::P_SIMPLE(bool usb)
+P_SIMPLE::P_SIMPLE(bool u)
         : hCom(INVALID_HANDLE_VALUE),
           needCalendarData(true),
           needSendCalendarActive(false),
           needSendCalendarDay(0),
           needSendModesData(false),
           needSendDateData(false),
-          needReceiveDateData(false) {
+          needReceiveDateData(false),
+          usb(u) {
     Event e;
     e.type = Event::Create;
     event.push(e);
