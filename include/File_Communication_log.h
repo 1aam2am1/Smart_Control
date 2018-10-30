@@ -53,8 +53,6 @@ private:
     FILE *file;
     tm open_time;
     std::string last_write;
-
-    bool w_write_bool;
 };
 
 #endif // FILE_COMMUNICATION_LOG_H
