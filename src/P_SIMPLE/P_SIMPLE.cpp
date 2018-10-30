@@ -411,16 +411,18 @@ void P_SIMPLE::main() {
                         if ((result[4] & 7) == 6) { rzadanie_danych = true; }//stan sterownika zostal zmieniony
                         if (result[1] == 255) { break; }//brodcast nie potrzebny dalej
 
-                        Console::printf("Rzadanie danych: %s\n", rzadanie_danych ? "true" : "false");
                         bool calendar = (needCalendarData | needSendCalendarActive | needSendCalendarDay |
                                          needSendModesData | needSendDateData | needReceiveDateData);
-                        Console::printf("Rzadanie kalendarza: %s\n", calendar ? "true" : "false");
-                        Console::printf("needCalendarData: %s\n", needCalendarData ? "true" : "false");
-                        Console::printf("needSendCalendarActive: %s\n", needSendCalendarActive ? "true" : "false");
-                        Console::printf("needSendCalendarDay: %s\n", needSendCalendarDay ? "true" : "false");
-                        Console::printf("needSendModesData: %s\n", needSendModesData ? "true" : "false");
-                        Console::printf("needSendDateData: %s\n", needSendDateData ? "true" : "false");
-                        Console::printf("needReceiveDateData: %s\n", needReceiveDateData ? "true" : "false");
+                        Console::Printf_block::beginWrite()
+                                .printf("Rzadanie danych: %s\n", rzadanie_danych ? "true" : "false")
+                                .printf("Rzadanie kalendarza: %s\n", calendar ? "true" : "false")
+                                .printf("needCalendarData: %s\n", needCalendarData ? "true" : "false")
+                                .printf("needSendCalendarActive: %s\n", needSendCalendarActive ? "true" : "false")
+                                .printf("needSendCalendarDay: %s\n", needSendCalendarDay ? "true" : "false")
+                                .printf("needSendModesData: %s\n", needSendModesData ? "true" : "false")
+                                .printf("needSendDateData: %s\n", needSendDateData ? "true" : "false")
+                                .printf("needReceiveDateData: %s\n", needReceiveDateData ? "true" : "false")
+                                .endWrite();
 // TODO (Michał Marszałek#1#09/16/18): Zwin ramke chce dane i che wyslac oraz kalendarz
 
                         if (rzadanie_danych && !calendar)///ja pragne dane

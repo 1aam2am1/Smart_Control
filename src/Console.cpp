@@ -3,6 +3,8 @@
 #include <cstdio>
 #include <fcntl.h>
 #include <fstream>
+#include <include/Console.h>
+
 #include "Asynchronous_write.h"
 
 
@@ -102,3 +104,36 @@ void Console::fprintf(FILE *file, const char *str, ...) {
     Asynchronous_write::getSingleton().add(m);
 }
 
+Console::Printf_block::Printf_block() = default;
+
+
+Console::Printf_block Console::Printf_block::beginWrite() {
+    return {};
+}
+
+Console::Printf_block &Console::Printf_block::printf(const char *str, ...) {
+    static std::vector<char> v(256);
+
+    va_list v1;
+    va_start(v1, str);
+
+    while (vsnprintf(&v[0], v.size(), str, v1) < 0) {
+        v.resize(v.size() * 2);
+    }
+
+    va_end(v1);
+
+    message += &v[0];
+
+    return *this;
+}
+
+Console::Printf_block Console::Printf_block::endWrite() {
+    Asynchronous_write::message m;
+    m.file = stdout;
+    m.str = std::move(this->message);
+    this->message.clear();
+    Asynchronous_write::getSingleton().add(m);
+
+    return *this;
+}
