@@ -65,7 +65,7 @@ private:
 
     uint8_t thread_work = 0;
 
-    int writeCom(const std::vector<char> &);
+    int writeCom(std::vector<char>);
 
     int writeCom(const std::string &);
 

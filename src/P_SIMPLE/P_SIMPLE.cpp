@@ -34,6 +34,8 @@ bool P_SIMPLE::connect(std::string port) {
     send_data.clear();
     processed_data.clear();
     act_data.clear();
+    bool old_thread_work = thread_work;
+    thread_work = 0;
 
 
     bool fSuccess_COM;
@@ -42,7 +44,7 @@ bool P_SIMPLE::connect(std::string port) {
 
     if (this->hCom != INVALID_HANDLE_VALUE) { CloseHandle(this->hCom); }
 
-    hCom = CreateFile(("\\\\.\\" + port).c_str(), GENERIC_READ | GENERIC_WRITE, 0, NULL, OPEN_EXISTING,
+    hCom = CreateFile((R"(\\.\)" + port).c_str(), GENERIC_READ | GENERIC_WRITE, 0, NULL, OPEN_EXISTING,
                       FILE_ATTRIBUTE_NORMAL, NULL); //otwieranie portu
 
     if (hCom == INVALID_HANDLE_VALUE) {
@@ -77,8 +79,9 @@ bool P_SIMPLE::connect(std::string port) {
         return false;
     }
 
-    if (thread_work == 1) {
-        thread_work = 0;
+    if (old_thread_work == 1) {
+        PurgeComm(this->hCom, PURGE_RXABORT);
+
         for (int32_t i = 0; i < 10 && thread_work != 3; ++i) ///koniec watku
         {
             mutex.unlock();
@@ -103,13 +106,15 @@ bool P_SIMPLE::connect(std::string port) {
     return true; //koniec ustawienia portu
 }
 
-// TODO (Michał Marszałek#1#09/28/18): thread_work as shared atomic pointer. Pointer null=>thread.detach()=>fast close
 void P_SIMPLE::close() /// =>w watku jest to samo :)
 {
     mutex.lock();
 
     if (thread_work == 1) {
         thread_work = 0;
+
+        PurgeComm(this->hCom, PURGE_RXABORT);
+
         for (int32_t i = 0; i < 10 && thread_work != 3; ++i) ///koniec watku
         {
             mutex.unlock();
@@ -239,16 +244,22 @@ int P_SIMPLE::writeCom(const std::string &data) {
     return writeCom(v);
 }
 
-int P_SIMPLE::writeCom(const std::vector<char> &data) {
-    std::vector<char> data2;
-    data2.reserve(data.size());
-// TODO (Michał Marszałek#1#09/22/17): Zamien na komiowanie dwu wskaznikowe i resize
-    for (uint32_t i = 0; i < data.size(); ++i) {
-        if (data[i] != ' ') { data2.push_back(data[i]); }
+int P_SIMPLE::writeCom(std::vector<char> data) {
+    {
+        uint32_t j = 0;
+        for (uint32_t i = 0; i < data.size(); ++i) {
+            if (data[i] != ' ') {
+                if (i != j) { data[j] = data[i]; }
+                ++j;
+            }
+        }
+        data.resize(j);
     }
-    if (!data2.size() || data2.back() != '\r') { data2.push_back('\r'); }
 
-    last_message = data2; ///kopiuj ostatnia wiadomosc
+
+    if (!data.size() || data.back() != '\r') { data.push_back('\r'); }
+
+    last_message = data; ///kopiuj ostatnia wiadomosc
 
     sf::Lock lock(mutex);
     if (hCom != INVALID_HANDLE_VALUE) {
@@ -262,14 +273,14 @@ int P_SIMPLE::writeCom(const std::vector<char> &data) {
             return -2;
         }
 
-        if (!WriteFile(hCom, data2.data(), data2.size(), &RS_send, nullptr)) {
+        if (!WriteFile(hCom, data.data(), data.size(), &RS_send, nullptr)) {
             return -2;
         }
 
         FlushFileBuffers(hCom);
 
-        communication_log.w_write(data2.data(), RS_send);
-        Console::printf("Data write: %.*s\n", (int) RS_send, data2.data());
+        communication_log.w_write(data.data(), RS_send);
+        Console::printf("Data write: %.*s\n", (int) RS_send, data.data());
 
         return static_cast<int>(RS_send);
     }
@@ -299,6 +310,8 @@ void P_SIMPLE::main() {
 
     while (thread_work == 1) {
         int re = recive(hCom, temponary_data, result, sf::milliseconds(20));
+
+        if (thread_work != 1) { break; }
 
         switch (re) {
             case -2: ///blad hCom
@@ -432,10 +445,10 @@ void P_SIMPLE::main() {
                         } else if (rzadanie_danych && calendar) {
                             // TODO (Michał Marszałek#1#09/14/18): Change to static meseage
                             std::vector<char> message;
-                            std::vector<uint8_t> info;
+                            std::vector<uint8_t> info = {0x30, 0x00};
 
-                            info.push_back(0x30);///need calendar data
-                            info.push_back(0x00);///errors
+                            //info.push_back(0x30);///need calendar data
+                            //info.push_back(0x00);///errors
 
                             create_message(0x66, 0x00, info, message);
                             writeCom(message);
@@ -443,8 +456,10 @@ void P_SIMPLE::main() {
                             std::vector<char> message;
                             std::vector<uint8_t> info;
 
-                            info.push_back(0x20 + (send_data.size() ? 0x01
-                                                                    : 0x00));///need calendar data | mam dane do wyslania
+                            info.resize(2 + 2 * processed_data.size());
+
+                            info[0] = 0x20 + (send_data.size() ? 0x01
+                                                               : 0x00);///need calendar data | mam dane do wyslania
 
                             if (!send_data.empty())///mam dane do wyslania
                             {
@@ -454,16 +469,15 @@ void P_SIMPLE::main() {
                                 send_data.clear();
 
                                 {
-                                    info.reserve(2 + 2 * processed_data.size());
-
+                                    uint32_t j = 1;
                                     for (auto &it : processed_data)///dodawanie danych
                                     {
-                                        info.push_back(it.first);
-                                        info.push_back(it.second);
+                                        info[j++] = it.first;
+                                        info[j++] = it.second;
                                     }
                                 }
                             }
-                            info.push_back(0x00);///errors
+                            info.back() = 0x00;///errors
 
                             create_message(0x66, 0x00, info, message);
 
@@ -494,6 +508,10 @@ void P_SIMPLE::main() {
 
                         std::vector<char> message;
                         std::vector<uint8_t> info;
+
+                        info.reserve(16); //13
+                        info.resize(2);
+
                         if (!needSendCalendarActive) {
                             this->calendar_data.first = result[4];
 
@@ -502,16 +520,16 @@ void P_SIMPLE::main() {
                             event.push(e);
                         }
 
-                        info.push_back(this->calendar_data.first);///en
+                        info[0] = this->calendar_data.first;///en
 
                         if (needCalendarData) {
-                            info.push_back(0xFF); ///what days
+                            info[1] = 0xFF; ///what days
                             needCalendarData = false;
                         } else if (needSendCalendarDay) {
-                            info.push_back(needSendCalendarDay); ///what days
+                            info[1] = needSendCalendarDay; ///what days
                             needSendCalendarDay = 0;
                         } else {
-                            info.push_back(0x01); ///what days
+                            info[1] = 0x01; ///what days
                         }
 
                         if (!needSendModesData) {
@@ -566,10 +584,11 @@ void P_SIMPLE::main() {
                         if ((result[2] - 3) % 6) { Console::printf("Error save calendar data\n"); }
 
                         calendar_data.second[result[4]].clear();
+                        calendar_data.second[result[4]].resize(how_much >= 0 ? how_much : 0);
                         for (uint32_t i = 0; i < how_much; ++i) {
                             Action_data_struct data;
                             memcpy(data.data, &result[5 + i * 6], 6);///kopiowanie danych do miejsca +1
-                            calendar_data.second[result[4]].push_back(data);
+                            calendar_data.second[result[4]][i] = data;
                         }
                         //calendar_data.second[result[4]].resize(how_much);
 
@@ -620,12 +639,13 @@ void P_SIMPLE::main() {
                         send_data.clear();
 
                         {
-                            info.reserve(2 * processed_data.size());
+                            info.resize(2 * processed_data.size());
 
+                            uint32_t j = 0;
                             for (auto &it : processed_data)///dodawanie danych
                             {
-                                info.push_back(it.first);
-                                info.push_back(it.second);
+                                info[j++] = it.first;
+                                info[j++] = it.second;
                             }
                             processed_data.clear(); ///!!! ja nie pragne potwierdzenia
                         }
@@ -712,7 +732,7 @@ void calculate(const std::string &str, std::vector<uint8_t> &result) {
         uint16_t wartosc;///hhx => warning uint8_t :/
         sscanf(str.c_str() + 2 * i, "%2hx", &wartosc);///co dwa znaki
 
-        result.push_back(static_cast<unsigned char &&>(wartosc));
+        result[i] = (static_cast<unsigned char &&>(wartosc));
     }
 }
 

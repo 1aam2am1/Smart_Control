@@ -26,7 +26,7 @@ bool rs232::connect(std::string port) {
 
     if (this->hCom != INVALID_HANDLE_VALUE) { CloseHandle(this->hCom); }
 
-    hCom = CreateFile(("\\\\.\\" + port).c_str(), GENERIC_READ | GENERIC_WRITE, 0, nullptr, OPEN_EXISTING,
+    hCom = CreateFile((R"(\\.\)" + port).c_str(), GENERIC_READ | GENERIC_WRITE, 0, nullptr, OPEN_EXISTING,
                       FILE_ATTRIBUTE_NORMAL, nullptr); //otwieranie portu
 
     if (hCom == INVALID_HANDLE_VALUE) {
@@ -58,6 +58,8 @@ bool rs232::connect(std::string port) {
 
     if (thread_work == 1) {
         thread_work = 0;
+
+        PurgeComm(this->hCom, PURGE_RXABORT);
         for (int32_t i = 0; i < 10 && thread_work != 3; ++i) ///koniec watku
         {
             sf::sleep(sf::milliseconds(20));
@@ -84,6 +86,8 @@ void rs232::close() /// =>w watku jest to samo :)
 
     if (thread_work == 1) {
         thread_work = 0;
+
+        PurgeComm(this->hCom, PURGE_RXABORT);
         for (int32_t i = 0; i < 10 && thread_work != 3; ++i) ///koniec watku
         {
             mutex.unlock();
@@ -154,6 +158,7 @@ void rs232::main() {
             haveData();
         }
 
+        if (!thread_work) { break; }
         sf::sleep(sf::milliseconds(20));
     }
 
