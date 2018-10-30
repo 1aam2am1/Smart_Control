@@ -9,7 +9,7 @@
 
 class P_SIMPLE : public Device {
 public:
-    P_SIMPLE();
+    P_SIMPLE(bool usb = false);
 
     virtual ~P_SIMPLE();
 
@@ -57,7 +57,7 @@ private:
 
     bool needSendModesData;
     bool needSendDateData;
-    bool needReciveDateData;
+    bool needReceiveDateData;
     Modes_data_struct modes_data;
     Date_data_struct date_data;
 
@@ -70,6 +70,8 @@ private:
     int writeCom(const std::string &);
 
     std::vector<char> last_message;
+
+    bool usb;
 };
 
 #endif // P_SIMPLE_H

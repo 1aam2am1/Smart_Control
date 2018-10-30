@@ -9,13 +9,14 @@
 bool Argv_options::process(int argc, char **argv) {
     const option long_options[] =
             {
-                    {"geometry", required_argument, nullptr, 'g'},
-                    {"rs232",    no_argument,       nullptr, 'r'},
-                    {"modbus",   no_argument,       nullptr, 'm'},
-                    {"console",  no_argument,       nullptr, 'c'},
-                    {"help",     no_argument,       nullptr, 'h'},
-                    {"version",  no_argument,       nullptr, 'v'},
-                    {nullptr,    0,                 nullptr, 0}
+                    {"geometry",   required_argument, nullptr, 'g'},
+                    {"rs232",      no_argument,       nullptr, 'r'},
+                    {"modbus",     no_argument,       nullptr, 'm'},
+                    {"modbus_usb", no_argument,       nullptr, 'u'},
+                    {"console",    no_argument,       nullptr, 'c'},
+                    {"help",       no_argument,       nullptr, 'h'},
+                    {"version",    no_argument,       nullptr, 'v'},
+                    {nullptr,      0,                 nullptr, 0}
             };
     int opcje_kolidujace_rs232_modbus = 0;
 
@@ -41,18 +42,20 @@ bool Argv_options::process(int argc, char **argv) {
                     int y = Game_api::convertString(str);
                     options.size = sf::Vector2i(x, y);
                 } else {
-                    Console::printf("Option -g as --geometry required widthXhight\n");
+                    Console::printf("Option -g as --geometry required widthXheight\n");
                 }
             }
                 break;
             case 'r':
-            case 'm': {
+            case 'm':
+            case 'u': {
                 opcje_kolidujace_rs232_modbus += 1;
                 if (opcje_kolidujace_rs232_modbus >= 2) {
-                    Console::printf("Options -r or -m as --rs232 --modbus can use only one time\n");
+                    Console::printf("Options -r -m or -u as --rs232 --modbus --modbus_usb can use only one time\n");
                 }
-                if (c == 'r') { options.rs232 = true; }
-                if (c == 'm') { options.rs232 = false; }
+                if (c == 'r') { options.tryb = Argv_options::Options::rs232; }
+                if (c == 'm') { options.tryb = Argv_options::Options::modbus; }
+                if (c == 'u') { options.tryb = Argv_options::Options::modbus_usb; }
             }
                 break;
             case 'c':

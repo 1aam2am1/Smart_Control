@@ -44,12 +44,15 @@ int main(int argc, char **argv) {
         }
         Console::printf("\n");
     }
-    if (options.getOptions().rs232) {
+    if (options.getOptions().tryb == Argv_options::Options::rs232) {
         Console::printf("Uruchomono program z interfejsem: rs232\n");
         com = std::make_shared<rs232>();
-    } else {
+    } else if (options.getOptions().tryb == Argv_options::Options::modbus) {
         Console::printf("Uruchomono program z interfejsem: P_SIMPLE\n");
         com = std::make_shared<P_SIMPLE>();
+    } else {
+        Console::printf("Uruchomono program z interfejsem: P_SIMPLE_USB\n");
+        com = std::make_shared<P_SIMPLE>(1);
     }
     if (options.getOptions().version) {
         Console::printf("Version: %s\n", (Version::GIT_TAG + " " +
@@ -169,7 +172,8 @@ int main(int argc, char **argv) {
                     start_refresh_clock = false;
                 }
 
-                if (send_bool && (!options.getOptions().rs232 || send_clock.getElapsedTime() > sf::seconds(0.5f))) {
+                if (send_bool && (options.getOptions().tryb == Argv_options::Options::modbus ||
+                                  send_clock.getElapsedTime() > sf::seconds(0.5f))) {
                     auto i = gui.get<Menu>("menu")->getChanged();
                     auto data = gui.get<Menu>("menu")->getCalendar()->getChanged();
                     auto data1 = gui.get<Menu>("menu")->getModes()->getChanged();
@@ -207,21 +211,33 @@ int main(int argc, char **argv) {
                 send_bool = true;
             }
             if (callback.id == 1 && callback.trigger == Menu::MODBUSChanged) {
-                if (callback.checked && options.getOptions().rs232) {
+                /*if (callback.checked && options.getOptions().tryb == Argv_options::Options::rs232) {
                     com = std::make_shared<P_SIMPLE>();
 
                     auto op = options.getOptions();
-                    op.rs232 = false;
+                    op.tryb = Argv_options::Options::modbus;
                     options.setOptions(op);
+                }*/
+                auto op = options.getOptions();
+
+                if (!callback.checked) {
+                    switch (options.getOptions().tryb) {
+                        case Argv_options::Options::rs232:
+                            op.tryb = Argv_options::Options::modbus;
+                            com = std::make_shared<P_SIMPLE>();
+                            break;
+                        case Argv_options::Options::modbus:
+                            op.tryb = Argv_options::Options::modbus_usb;
+                            com = std::make_shared<P_SIMPLE>(1);
+                            break;
+                        case Argv_options::Options::modbus_usb:
+                            op.tryb = Argv_options::Options::rs232;
+                            com = std::make_shared<rs232>();
+                            break;
+                    }
                 }
 
-                if (!callback.checked && !options.getOptions().rs232) {
-                    com = std::make_shared<rs232>();
-
-                    auto op = options.getOptions();
-                    op.rs232 = true;
-                    options.setOptions(op);
-                }
+                options.setOptions(op);
             }
             if (callback.id == 1 && callback.trigger == Menu::SaveLogs) {
                 gui.get<Logi>("logi", true)->save("Zapis.txt");
@@ -255,11 +271,14 @@ void load(tgui::Gui *gui, const Argv_options &op) {
             Menu::ValueChanged | Menu::COMChanged | Menu::MODBUSChanged | Menu::SaveLogs | Menu::GetCalendarData);
     menu->setCallbackId(1);
 
-
-    if (op.getOptions().rs232) {
-        gui->get<tgui::Checkbox>("MODBUS", true)->uncheck();
+    auto modbus = gui->get<tgui::Checkbox>("MODBUS", true);
+    modbus->check();
+    if (op.getOptions().tryb == Argv_options::Options::rs232) {
+        modbus->setText("RS232");
+    } else if (op.getOptions().tryb == Argv_options::Options::modbus) {
+        modbus->setText("MODBUS");
     } else {
-        gui->get<tgui::Checkbox>("MODBUS", true)->check();
+        modbus->setText("USB");
     }
 }
 

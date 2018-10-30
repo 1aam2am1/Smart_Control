@@ -10,14 +10,14 @@
 
 static File_Communication_log communication_log;
 
-P_SIMPLE::P_SIMPLE()
+P_SIMPLE::P_SIMPLE(bool usb)
         : hCom(INVALID_HANDLE_VALUE),
           needCalendarData(true),
           needSendCalendarActive(false),
           needSendCalendarDay(0),
           needSendModesData(false),
           needSendDateData(false),
-          needReciveDateData(false) {
+          needReceiveDateData(false) {
     Event e;
     e.type = Event::Create;
     event.push(e);
@@ -58,7 +58,12 @@ bool P_SIMPLE::connect(std::string port) {
     }
 
     //ustawienie naszej konfiguracji
-    dcb.BaudRate = CBR_9600;     // predkosc transmisji
+    if (!usb) {
+        dcb.BaudRate = CBR_9600;     // predkosc transmisji
+    } else {
+        dcb.BaudRate = CBR_115200;     // predkosc transmisji
+    }
+
     dcb.ByteSize = 8;             // ilosc bitow danych
     dcb.Parity = NOPARITY;        // brak bitu parzystosci
     dcb.StopBits = ONESTOPBIT;    // jeden bity stopu
@@ -282,7 +287,7 @@ int recive(HANDLE hCom, std::string &r_data, std::vector<uint8_t> &result, sf::T
 void P_SIMPLE::main() {
     sf::Clock clock;
     sf::Clock second120clock;
-    sf::Clock needReciveDateDataClock;
+    sf::Clock needReceiveDateDataClock;
     std::string temponary_data;
     std::vector<uint8_t> result;
 
@@ -338,8 +343,8 @@ void P_SIMPLE::main() {
                     second120clock.restart();
                     //boot = false;
                 }
-                if (needReciveDateDataClock.getElapsedTime() > sf::seconds(60)) {
-                    needReciveDateData = true;
+                if (needReceiveDateDataClock.getElapsedTime() > sf::seconds(60)) {
+                    needReceiveDateData = true;
                 }
                 break;
             case 1:///wiadmosc jest poprawna
@@ -408,14 +413,14 @@ void P_SIMPLE::main() {
 
                         Console::printf("Rzadanie danych: %s\n", rzadanie_danych ? "true" : "false");
                         bool calendar = (needCalendarData | needSendCalendarActive | needSendCalendarDay |
-                                         needSendModesData | needSendDateData | needReciveDateData);
+                                         needSendModesData | needSendDateData | needReceiveDateData);
                         Console::printf("Rzadanie kalendarza: %s\n", calendar ? "true" : "false");
                         Console::printf("needCalendarData: %s\n", needCalendarData ? "true" : "false");
                         Console::printf("needSendCalendarActive: %s\n", needSendCalendarActive ? "true" : "false");
                         Console::printf("needSendCalendarDay: %s\n", needSendCalendarDay ? "true" : "false");
                         Console::printf("needSendModesData: %s\n", needSendModesData ? "true" : "false");
                         Console::printf("needSendDateData: %s\n", needSendDateData ? "true" : "false");
-                        Console::printf("needReciveDateData: %s\n", needReciveDateData ? "true" : "false");
+                        Console::printf("needReceiveDateData: %s\n", needReceiveDateData ? "true" : "false");
 // TODO (Michał Marszałek#1#09/16/18): Zwin ramke chce dane i che wyslac oraz kalendarz
 
                         if (rzadanie_danych && !calendar)///ja pragne dane
@@ -534,8 +539,8 @@ void P_SIMPLE::main() {
 
 
                             needSendDateData = false;
-                            needReciveDateData = false;
-                            needReciveDateDataClock.restart();
+                            needReceiveDateData = false;
+                            needReceiveDateDataClock.restart();
                         } else {
                             memcpy(date_data.data, &result[6], 6);
 
@@ -543,8 +548,8 @@ void P_SIMPLE::main() {
                             e.type = Event::TimeData;
                             event.push(e);
 
-                            needReciveDateData = false;
-                            needReciveDateDataClock.restart();
+                            needReceiveDateData = false;
+                            needReceiveDateDataClock.restart();
                         }
 
                         create_message(0x66, 0x00, info, message);
