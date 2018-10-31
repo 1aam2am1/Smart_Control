@@ -49,14 +49,14 @@ bool P_SIMPLE::connect(std::string port) {
                       FILE_ATTRIBUTE_NORMAL, NULL); //otwieranie portu
 
     if (hCom == INVALID_HANDLE_VALUE) {
-        fprintf(stderr, "CreateFile failed with error %lu.\n", GetLastError());
+        Console::printf(Console::ERROR_MESSAGE, "CreateFile failed with error %lu.\n", GetLastError());
         return false;
     }
 
     //pobranie aktualnych ustawien portu
     fSuccess_COM = GetCommState(hCom, &dcb);
     if (!fSuccess_COM) {
-        fprintf(stderr, "GetCommState failed with error %lu.\n", GetLastError());
+        Console::printf(Console::ERROR_MESSAGE, "GetCommState failed with error %lu.\n", GetLastError());
         return false;
     }
 
@@ -76,7 +76,7 @@ bool P_SIMPLE::connect(std::string port) {
 
     fSuccess_COM = SetCommState(hCom, &dcb);
     if (!fSuccess_COM) {
-        fprintf(stderr, "SetCommState failed with error %lu.\n", GetLastError());
+        Console::printf(Console::ERROR_MESSAGE, "SetCommState failed with error %lu.\n", GetLastError());
         return false;
     }
 
@@ -98,7 +98,7 @@ bool P_SIMPLE::connect(std::string port) {
     thread_work = 1;
     wsk = std::thread(std::bind(&P_SIMPLE::main, this));
 
-    Console::printf("Polaczono z: %s\n", port.c_str());
+    Console::printf(Console::MESSAGE, "Polaczono z: %s\n", port.c_str());
 
     Event e;
     e.type = Event::Open;
@@ -140,7 +140,7 @@ void P_SIMPLE::close() /// =>w watku jest to samo :)
 
     mutex.unlock();
 
-    Console::printf("Port zostal rozlaczony\n");
+    Console::printf(Console::MESSAGE, "Port zostal rozlaczony\n");
 }
 
 std::map<int, int> P_SIMPLE::getData() {
@@ -154,7 +154,7 @@ std::map<int, int> P_SIMPLE::getData() {
 void P_SIMPLE::toSendData(const std::map<int, int> &dane) {
     sf::Lock lock(mutex);
 
-    Console::printf("P_SIMPLE::toSendData:\n");
+    Console::printf(Console::FUNCTION_LOG, "P_SIMPLE::toSendData:\n");
 
     for (auto it = dane.begin(); it != dane.end(); ++it) {
         auto it_act = act_data.find(it->first);
@@ -162,7 +162,7 @@ void P_SIMPLE::toSendData(const std::map<int, int> &dane) {
         {
             if (it_act->second != static_cast<uint8_t>(it->second))///jezeli nowe sa rozne od aktualnych
             {
-                Console::printf("%i -> %i %i\n", it->first, it_act->second, it->second);
+                Console::printf(Console::DATA_FUNCTION_LOG, "%i -> %i %i\n", it->first, it_act->second, it->second);
                 send_data[it->first] = it->second;
             } else {
                 auto it_send = send_data.find(it->first);
@@ -173,7 +173,7 @@ void P_SIMPLE::toSendData(const std::map<int, int> &dane) {
                 }
             }
         } else {
-            Console::printf("%i -> %i\n", it->first, it->second);
+            Console::printf(Console::DATA_FUNCTION_LOG, "%i -> %i\n", it->first, it->second);
             send_data[it->first] = it->second;
         }
     }
@@ -234,7 +234,7 @@ Date_data_struct P_SIMPLE::getDateData() {
 
 void P_SIMPLE::sendDateData(const Date_data_struct &d) {
     sf::Lock lock(mutex);
-    Console::printf("P_SIMPLE::sendDateData:\n");
+    Console::printf(Console::FUNCTION_LOG, "P_SIMPLE::sendDateData:\n");
     this->date_data = d;
     needSendDateData = true;
 }
@@ -281,7 +281,7 @@ int P_SIMPLE::writeCom(std::vector<char> data) {
         FlushFileBuffers(hCom);
 
         communication_log.w_write(data.data(), RS_send);
-        Console::printf("Data write: %.*s\n", (int) RS_send, data.data());
+        Console::printf(Console::LOG, "Data write: %.*s\n", (int) RS_send, data.data());
 
         return static_cast<int>(RS_send);
     }
@@ -317,7 +317,7 @@ void P_SIMPLE::main() {
         switch (re) {
             case -2: ///blad hCom
             { ///close :)
-                Console::printf("Blad portu\n");
+                Console::printf(Console::ERROR_MESSAGE, "Blad portu\n");
 
                 mutex.lock(); ///1
 
@@ -337,7 +337,7 @@ void P_SIMPLE::main() {
             }
                 break;
             case -1: ///blad crc
-                Console::printf("Blad crc\n");
+                Console::printf(Console::ERROR_MESSAGE, "Blad crc\n");
 
                 clock.restart();
 
@@ -362,15 +362,15 @@ void P_SIMPLE::main() {
                 }
                 break;
             case 1:///wiadmosc jest poprawna
-                Console::printf("Przetwarzanie wiadmosci\n");
+                Console::printf(Console::DATA_FUNCTION_LOG, "Przetwarzanie wiadmosci\n");
 
                 clock.restart();
 
-                Console::printf("Adres: %02x\n", result[1]);
+                Console::printf(Console::DATA_FUNCTION_LOG, "Adres: %02x\n", result[1]);
 
                 if (result[1] == 31 || result[1] == 255) ///pytanie do mnie i adres rozgloszeniowy
                 {
-                    Console::printf("Wiadmosc do mnie\n");
+                    Console::printf(Console::DATA_FUNCTION_LOG, "Wiadmosc do mnie\n");
                     sf::Lock lock(mutex);
 
                     if (result[1] == 31) {
@@ -389,14 +389,14 @@ void P_SIMPLE::main() {
 
                     if (result[3] == 0x00)///reset
                     {
-                        Console::printf("Reset\n");
+                        Console::printf(Console::DATA_FUNCTION_LOG, "Reset\n");
 
                         Event e;
                         e.type = Event::Reset;
                         event.push(e);
                     } else if (result[3] == 0x01)///searching devices
                     {
-                        Console::printf("Wyszukiwanie urzadzen\n");
+                        Console::printf(Console::DATA_FUNCTION_LOG, "Wyszukiwanie urzadzen\n");
 
                         second120clock.restart();
                     } else if (result[3] == 0x10)///odpowiedz
@@ -405,11 +405,11 @@ void P_SIMPLE::main() {
 
                         if (result[4] == 0x01) ///blad komunikacji crc
                         {
-                            Console::printf("Ponowne wysylanie wiadmosci\n");
+                            Console::printf(Console::DATA_FUNCTION_LOG, "Ponowne wysylanie wiadmosci\n");
 
                             writeCom(last_message);
                         } else if (result[4] == 0x00) {
-                            Console::printf("Potwierdzenie otrzymania danych\n");
+                            Console::printf(Console::DATA_FUNCTION_LOG, "Potwierdzenie otrzymania danych\n");
 
                             if (!processed_data.empty()) {
                                 for (auto &it : processed_data)///dodawanie danych
@@ -428,14 +428,22 @@ void P_SIMPLE::main() {
                         bool calendar = (needCalendarData | needSendCalendarActive | needSendCalendarDay |
                                          needSendModesData | needSendDateData | needReceiveDateData);
                         Console::Printf_block::beginWrite()
-                                .printf("Rzadanie danych: %s\n", rzadanie_danych ? "true" : "false")
-                                .printf("Rzadanie kalendarza: %s\n", calendar ? "true" : "false")
-                                .printf("needCalendarData: %s\n", needCalendarData ? "true" : "false")
-                                .printf("needSendCalendarActive: %s\n", needSendCalendarActive ? "true" : "false")
-                                .printf("needSendCalendarDay: %s\n", needSendCalendarDay ? "true" : "false")
-                                .printf("needSendModesData: %s\n", needSendModesData ? "true" : "false")
-                                .printf("needSendDateData: %s\n", needSendDateData ? "true" : "false")
-                                .printf("needReceiveDateData: %s\n", needReceiveDateData ? "true" : "false")
+                                .printf(Console::DATA_FUNCTION_LOG, "Rzadanie danych: %s\n",
+                                        rzadanie_danych ? "true" : "false")
+                                .printf(Console::DATA_FUNCTION_LOG, "Rzadanie kalendarza: %s\n",
+                                        calendar ? "true" : "false")
+                                .printf(Console::DATA_FUNCTION_LOG, "needCalendarData: %s\n",
+                                        needCalendarData ? "true" : "false")
+                                .printf(Console::DATA_FUNCTION_LOG, "needSendCalendarActive: %s\n",
+                                        needSendCalendarActive ? "true" : "false")
+                                .printf(Console::DATA_FUNCTION_LOG, "needSendCalendarDay: %s\n",
+                                        needSendCalendarDay ? "true" : "false")
+                                .printf(Console::DATA_FUNCTION_LOG, "needSendModesData: %s\n",
+                                        needSendModesData ? "true" : "false")
+                                .printf(Console::DATA_FUNCTION_LOG, "needSendDateData: %s\n",
+                                        needSendDateData ? "true" : "false")
+                                .printf(Console::DATA_FUNCTION_LOG, "needReceiveDateData: %s\n",
+                                        needReceiveDateData ? "true" : "false")
                                 .endWrite();
 // TODO (Michał Marszałek#1#09/16/18): Zwin ramke chce dane i che wyslac oraz kalendarz
 
@@ -464,7 +472,7 @@ void P_SIMPLE::main() {
 
                             if (!send_data.empty())///mam dane do wyslania
                             {
-                                Console::printf("Mam dane do wyslania\n");
+                                Console::printf(Console::DATA_FUNCTION_LOG, "Mam dane do wyslania\n");
 
                                 processed_data = std::move(send_data);
                                 send_data.clear();
@@ -485,14 +493,14 @@ void P_SIMPLE::main() {
                             writeCom(message);
                         } else///podtrzymanie komunikacji
                         {
-                            Console::printf("Podtrzymanie komunikacji\n");
+                            Console::printf(Console::DATA_FUNCTION_LOG, "Podtrzymanie komunikacji\n");
 
                             writeCom(
                                     {"66 00 03 01 00 20"});///66 rozpoczecie 00 adres 03 dlugosc 01 1bit gotowy 00 errors 20 crc
                         }
                     } else if (result[3] == 0x30)///kalendarz
                     {
-                        Console::printf("Kalendarz podstawowa odpowiedz\n");
+                        Console::printf(Console::DATA_FUNCTION_LOG, "Kalendarz podstawowa odpowiedz\n");
 /*
                     if(!(result[5] & 1)) ///timer can't be start
                     {
@@ -579,10 +587,12 @@ void P_SIMPLE::main() {
                         needSendCalendarActive = false;
                     } else if (result[3] == 0x31)///save calendar data
                     {
-                        Console::printf("Zapisz dni kalendarza\n");
+                        Console::printf(Console::DATA_FUNCTION_LOG, "Zapisz dni kalendarza\n");
 
                         uint32_t how_much = (result[2] - 3) / 6;
-                        if ((result[2] - 3) % 6) { Console::printf("Error save calendar data\n"); }
+                        if ((result[2] - 3) % 6) {
+                            Console::printf(Console::ERROR_MESSAGE, "Error save calendar data\n");
+                        }
 
                         calendar_data.second[result[4]].clear();
                         calendar_data.second[result[4]].resize(how_much >= 0 ? how_much : 0);
@@ -603,7 +613,7 @@ void P_SIMPLE::main() {
                                 {"66 00 03 10 00 08\r"}); ///66 rozpoczecie 00 adres 03 dlugosc 10 funkcja 00 ans 0C crc
                     } else if (result[3] == 0x32)///send calendar data
                     {
-                        Console::printf("Wyslij dzen: %i\n", result[4]);
+                        Console::printf(Console::DATA_FUNCTION_LOG, "Wyslij dzen: %i\n", result[4]);
 
                         std::vector<char> message;
                         std::vector<uint8_t> info;
@@ -620,10 +630,10 @@ void P_SIMPLE::main() {
                         writeCom(message);
                     } else if (result[3] == 0x40)///prosba o parametry (wszystkie)
                     {
-                        Console::printf("Prosba o parametry\n");
+                        Console::printf(Console::DATA_FUNCTION_LOG, "Prosba o parametry\n");
 
                         if (result[1] == 255) {
-                            Console::printf("Error brodcast prosi o parametry\n");
+                            Console::printf(Console::ERROR_MESSAGE, "Error brodcast prosi o parametry\n");
                             break;
                         }
                         std::vector<char> message;
@@ -657,7 +667,7 @@ void P_SIMPLE::main() {
 
                     } else if (result[3] == 0x50)///zapisz dane
                     {
-                        Console::printf("Zapisz dane\n");
+                        Console::printf(Console::DATA_FUNCTION_LOG, "Zapisz dane\n");
 
                         rzadanie_danych = false;
 
@@ -672,7 +682,7 @@ void P_SIMPLE::main() {
                             parsed_data[it.first] = it.second;///dane ktore odbiera gui
                             send_data.erase(it.first);///usuwam z danych do wyslania
                             act_data[it.first] = it.second;///dodaje do danych aktualnych
-                            Console::printf("%i -> %i\n", it.first, it.second);
+                            Console::printf(Console::DATA_FUNCTION_LOG, "%i -> %i\n", it.first, it.second);
                         }
 
                         Event e;
@@ -682,7 +692,7 @@ void P_SIMPLE::main() {
                         writeCom(
                                 {"66 00 03 10 00 08\r"}); ///66 rozpoczecie 00 adres 03 dlugosc 10 funkcja 00 ans 0C crc
                     } else {
-                        Console::printf("Funkcja %i brak implementacji\n", result[3]);
+                        Console::printf(Console::DATA_FUNCTION_LOG, "Funkcja %i brak implementacji\n", result[3]);
                     }
                 } else ///nie moj watek
                 {
@@ -696,7 +706,7 @@ void P_SIMPLE::main() {
                 }
                 break;
             default:
-                Console::printf("Cos poszlo nie tak %s %i\n", __FILE__, __LINE__);
+                Console::printf(Console::ERROR_MESSAGE, "Cos poszlo nie tak %s %i\n", __FILE__, __LINE__);
         }
     }
 
@@ -777,7 +787,7 @@ int receive(HANDLE hCom, std::string &r_data, std::vector<uint8_t> &result, sf::
 
             if (RS_read != 0) {
                 communication_log.r_write(wsk, RS_read);
-                Console::printf("Read: %.*s\n", (int) RS_read, wsk);
+                Console::printf(Console::LOG, "Read: %.*s\n", (int) RS_read, wsk);
             }
 
             r_data += std::string(wsk, RS_read);
@@ -806,7 +816,7 @@ int receive(HANDLE hCom, std::string &r_data, std::vector<uint8_t> &result, sf::
 
         if (RS_read != 0) {
             communication_log.r_write(tab.data(), RS_read);
-            Console::printf("Read: %.*s\n", (int) RS_read, tab.data());
+            Console::printf(Console::LOG, "Read: %.*s\n", (int) RS_read, tab.data());
         }
 
         r_data.append(tab.data(), RS_read);
@@ -843,7 +853,8 @@ int receive(HANDLE hCom, std::string &r_data, std::vector<uint8_t> &result, sf::
 
         int va = validate(str.substr(found2, found - found2 + 1), result); ///od 55 do \r wlacznie
         if (va != 0) {
-            Console::printf("Parsowanie: %s\n", str.substr(found2, found - found2 + 1).c_str());
+            Console::printf(Console::DATA_FUNCTION_LOG, "Parsowanie: %s\n",
+                            str.substr(found2, found - found2 + 1).c_str());
             ///ramka prawidłowa lub z błędnym crc
             SetCommTimeouts(hCom, &cto);
             return va;

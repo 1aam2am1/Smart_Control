@@ -72,7 +72,7 @@ void Console::printf(const char *str, ...) {
     Asynchronous_write::getSingleton().add(m);
 }
 
-static Console::Message_level message_level;
+static Console::Message_level message_level = Console::ALL;
 
 void Console::setMessage_level(Message_level level) {
     message_level = level;

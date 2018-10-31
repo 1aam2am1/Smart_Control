@@ -88,7 +88,7 @@ void File_Communication_log::open() {
     }
 
     if (!Game_api::plik::mkdir(directory)) {
-        Console::printf("File_communication directory cannot be created");
+        Console::printf(Console::ERROR_MESSAGE, "File_communication directory cannot be created");
     }
 
     char buffer[125];
@@ -102,7 +102,7 @@ void File_Communication_log::open() {
     file = fopen((directory + buffer).c_str(), "a");
 
     if (file == nullptr) {
-        Console::printf("File_communication file cannot be opened");
+        Console::printf(Console::ERROR_MESSAGE, "File_communication file cannot be opened");
         file = stdout;
     }
     open_time = buf;

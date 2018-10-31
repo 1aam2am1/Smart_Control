@@ -1,3 +1,4 @@
+#include <include/Console.h>
 #include "Parser.h"
 #include "Funkcje_str.h"
 
@@ -21,7 +22,7 @@ std::map<int, std::string> Parser::parseReceivedData(std::string dane) {
 
 std::string Parser::parseToSendData(const std::map<int, int> &dane) {
     if (static_cast<uint32_t>((dane.rbegin()->first - dane.begin()->first) + 1) != dane.size()) {
-        printf("Brak wszystkich danych z paskow ERROR\n");
+        Console::printf(Console::ERROR_MESSAGE, "Brak wszystkich danych z paskow ERROR\n");
 
         return "";
     }

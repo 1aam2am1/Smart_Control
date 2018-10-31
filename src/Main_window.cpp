@@ -186,7 +186,7 @@ void Main_window::callback(const tgui::Callback &callback) {
     {
         m_Callback.trigger = Main_window::ValueChanged;
     }
-    Console::printf("Callback id: %i, value: %i, text: %s\n", callback.id, callback.value,
+    Console::printf(Console::DATA_FUNCTION_LOG, "Callback id: %i, value: %i, text: %s\n", callback.id, callback.value,
                     callback.text.toAnsiString().c_str());
     addCallback();
 }

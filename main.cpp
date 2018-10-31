@@ -38,26 +38,26 @@ int main(int argc, char **argv) {
     if (options.getOptions().console) {
         Console::RedirectIOToConsole();
 
-        Console::printf("Program uruchomiono jako:\n");
+        Console::printf(Console::MESSAGE, "Program uruchomiono jako:\n");
         for (int32_t i = 0; i < argc; ++i) {
-            Console::printf("    %s\n", argv[i]);
+            Console::printf(Console::MESSAGE, "    %s\n", argv[i]);
         }
-        Console::printf("\n");
+        Console::printf(Console::MESSAGE, "\n");
     }
     if (options.getOptions().tryb == Argv_options::Options::rs232) {
-        Console::printf("Uruchomiono program z interfejsem: rs232\n");
+        Console::printf(Console::MESSAGE, "Uruchomiono program z interfejsem: rs232\n");
         com = std::make_shared<rs232>();
     } else if (options.getOptions().tryb == Argv_options::Options::modbus) {
-        Console::printf("Uruchomiono program z interfejsem: P_SIMPLE\n");
+        Console::printf(Console::MESSAGE, "Uruchomiono program z interfejsem: P_SIMPLE\n");
         com = std::make_shared<P_SIMPLE>();
     } else {
-        Console::printf("Uruchomiono program z interfejsem: P_SIMPLE_USB\n");
+        Console::printf(Console::MESSAGE, "Uruchomiono program z interfejsem: P_SIMPLE_USB\n");
         com = std::make_shared<P_SIMPLE>(1);
     }
     if (options.getOptions().version) {
-        Console::printf("Version: %s\n", (Version::GIT_TAG + " " +
-                                          Version::GIT_SHA + " " +
-                                          Version::DATE).c_str());
+        Console::printf(Console::MESSAGE, "Version: %s\n", (Version::GIT_TAG + " " +
+                                                            Version::GIT_SHA + " " +
+                                                            Version::DATE).c_str());
     }
 
     sf::Clock send_clock;

@@ -11,11 +11,13 @@ namespace Console {
     __attribute__ ((deprecated)) void printf(const char *, ...);
 
     enum Message_level {
-        NONE,               //< Write nothing in the console
-        MESSAGE,            //< Simple message for user read
-        FUNCTION_LOG,       //< Name of function executed
-        LOG,                //< Data for communication
-        ERROR_MESSAGE       //< Error in communication
+        NONE = 0,                //< Write nothing in the console
+        MESSAGE = 1,                //< Simple message for user read
+        FUNCTION_LOG = 1 << 1,           //< Name of function executed
+        DATA_FUNCTION_LOG = 1 << 2,           //< Data of function executed
+        LOG = 1 << 3,           //< Data for communication
+        ERROR_MESSAGE = 1 << 4,           //< Error in communication
+        ALL = (1 << 5) - 1
     };
 
     void setMessage_level(Message_level);

@@ -30,14 +30,14 @@ bool rs232::connect(std::string port) {
                       FILE_ATTRIBUTE_NORMAL, nullptr); //otwieranie portu
 
     if (hCom == INVALID_HANDLE_VALUE) {
-        fprintf(stderr, "CreateFile failed with error %lu.\n", GetLastError());
+        Console::printf(Console::ERROR_MESSAGE, "CreateFile failed with error %lu.\n", GetLastError());
         return false;
     }
 
     //pobranie aktualnych ustawien portu
     fSuccess_COM = GetCommState(hCom, &dcb);
     if (!fSuccess_COM) {
-        fprintf(stderr, "GetCommState failed with error %lu.\n", GetLastError());
+        Console::printf(Console::ERROR_MESSAGE, "GetCommState failed with error %lu.\n", GetLastError());
         return false;
     }
 
@@ -52,7 +52,7 @@ bool rs232::connect(std::string port) {
 
     fSuccess_COM = SetCommState(hCom, &dcb);
     if (!fSuccess_COM) {
-        fprintf(stderr, "SetCommState failed with error %lu.\n", GetLastError());
+        Console::printf(Console::ERROR_MESSAGE, "SetCommState failed with error %lu.\n", GetLastError());
         return false;
     }
 
@@ -71,7 +71,7 @@ bool rs232::connect(std::string port) {
     thread_work = 1;
     thr = std::thread(std::bind(&rs232::main, this));
 
-    Console::printf("Polaczono z: %s\n", port.c_str());
+    Console::printf(Console::MESSAGE, "Polaczono z: %s\n", port.c_str());
 
     Event e;
     e.type = Event::Open;
@@ -111,7 +111,7 @@ void rs232::close() /// =>w watku jest to samo :)
 
     mutex.unlock();
 
-    Console::printf("Port zostal rozlaczony\n");
+    Console::printf(Console::MESSAGE, "Port zostal rozlaczony\n");
 }
 
 std::map<int, int> rs232::getData() {
@@ -126,7 +126,7 @@ void rs232::toSendData(const std::map<int, int> &dane) {
     std::map<int, int> dane2 = dane;
     dane2.erase(46);
     if (static_cast<uint32_t>((dane2.rbegin()->first - dane2.begin()->first) + 1) != dane2.size()) {
-        Console::printf("Brak wszystkich danych z paskow ERROR\n");
+        Console::printf(Console::ERROR_MESSAGE, "Brak wszystkich danych z paskow ERROR\n");
 
         return;
     }
@@ -192,7 +192,7 @@ void rs232::haveData() {
         ReadFile(hCom, wsk, statsread.cbInQue, &RS_read, nullptr);
         str.assign(wsk, RS_read);
 
-        if (!str.empty()) { Console::printf("Read: %s\n", str.c_str()); }
+        if (!str.empty()) { Console::printf(Console::LOG, "Read: %s\n", str.c_str()); }
 
         free(wsk);
 
@@ -221,7 +221,7 @@ void rs232::haveData() {
         std::string temp;
         std::string value;
 
-        Console::printf("Parsowanie: %s\n", str.c_str());
+        Console::printf(Console::LOG, "Parsowanie: %s\n", str.c_str());
 
         while (!str.empty()) {
             temp = Game_api::wypisz(str, '='); //flaga
@@ -265,7 +265,7 @@ bool rs232::write(std::string informacja) {
 
         FlushFileBuffers(hCom);
 
-        Console::printf("Data write: %.*s\n", (int) RS_send, informacja2.c_str());
+        Console::printf(Console::LOG, "Data write: %.*s\n", (int) RS_send, informacja2.c_str());
 
         return true;
     } else {
