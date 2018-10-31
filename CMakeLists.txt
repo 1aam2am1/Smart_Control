@@ -27,7 +27,12 @@ set(SFML_STATIC_LIBRARIES TRUE)
 find_package(SFML 2 COMPONENTS graphics REQUIRED)
 include_directories(${SFML_DIR}/../../../include)
 
-set(TGUI_ROOT "C:/Dropbox/TGUI-0.6.10")
+if (NOT DEFINED $ENV{TGUI_ROOT})
+    set(TGUI_ROOT
+            "C:/Dropbox/TGUI-0.6.10"
+            "D:/Dropbox/TGUI-0.6.10")
+endif ()
+
 #Find any version 0.6 of tgui
 #See the FindSFML.cmake file for additional details and instructions
 find_package(TGUI 0.6 REQUIRED)
