@@ -294,13 +294,13 @@ void calculate(const std::string &message, std::vector<uint8_t> &result);
 
 void create_message(uint8_t begining, uint8_t adres, const std::vector<uint8_t> &info, std::vector<char> &result);
 
-int recive(HANDLE hCom, std::string &r_data, std::vector<uint8_t> &result, sf::Time time);
+int receive(HANDLE hCom, std::string &r_data, std::vector<uint8_t> &result, sf::Time time);
 
 void P_SIMPLE::main() {
     sf::Clock clock;
     sf::Clock second120clock;
     sf::Clock needReceiveDateDataClock;
-    std::string temponary_data;
+    std::string temporary_data;
     std::vector<uint8_t> result;
 
     bool boot = true;
@@ -310,7 +310,7 @@ void P_SIMPLE::main() {
 
 
     while (thread_work == 1) {
-        int re = recive(hCom, temponary_data, result, sf::milliseconds(20));
+        int re = receive(hCom, temporary_data, result, sf::milliseconds(20));
 
         if (thread_work != 1) { break; }
 
@@ -336,7 +336,7 @@ void P_SIMPLE::main() {
                 return;
             }
                 break;
-            case -1: ///bload crc
+            case -1: ///blad crc
                 Console::printf("Blad crc\n");
 
                 clock.restart();
@@ -403,7 +403,7 @@ void P_SIMPLE::main() {
                     {
                         if (result[1] == 255) { break; }
 
-                        if (result[4] == 0x01) ///blad komuniacji crc
+                        if (result[4] == 0x01) ///blad komunikacji crc
                         {
                             Console::printf("Ponowne wysylanie wiadmosci\n");
 
@@ -600,7 +600,7 @@ void P_SIMPLE::main() {
                         event.push(e);
 
                         writeCom(
-                                {"66 00 03 10 00 08\r"}); ///66 rozpoczecie 00 adres 03 dlugosc 10 funckja 00 ans 0C crc
+                                {"66 00 03 10 00 08\r"}); ///66 rozpoczecie 00 adres 03 dlugosc 10 funkcja 00 ans 0C crc
                     } else if (result[3] == 0x32)///send calendar data
                     {
                         Console::printf("Wyslij dzen: %i\n", result[4]);
@@ -680,9 +680,9 @@ void P_SIMPLE::main() {
                         event.push(e);
 
                         writeCom(
-                                {"66 00 03 10 00 08\r"}); ///66 rozpoczecie 00 adres 03 dlugosc 10 funckja 00 ans 0C crc
+                                {"66 00 03 10 00 08\r"}); ///66 rozpoczecie 00 adres 03 dlugosc 10 funkcja 00 ans 0C crc
                     } else {
-                        Console::printf("Funckja %i brak implementacji\n", result[3]);
+                        Console::printf("Funkcja %i brak implementacji\n", result[3]);
                     }
                 } else ///nie moj watek
                 {
@@ -760,7 +760,7 @@ void create_message(uint8_t begining, uint8_t adres, const std::vector<uint8_t> 
 
 }
 
-int recive(HANDLE hCom, std::string &r_data, std::vector<uint8_t> &result, sf::Time time) {
+int receive(HANDLE hCom, std::string &r_data, std::vector<uint8_t> &result, sf::Time time) {
     COMSTAT statsread;
     COMMTIMEOUTS cto;
     DWORD RS_read;

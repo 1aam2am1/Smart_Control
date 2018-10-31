@@ -49,7 +49,7 @@ private:
     std::map<int, int> processed_data;      ///dane aktualnie w procesie wysylania
     std::map<int, int> act_data;            ///dane aktualnie na paskach
 
-    CAL_STATE stateOfCalendar;              ///can the claendar be activated
+    CAL_STATE stateOfCalendar;              ///can the calendar be activated
     bool needCalendarData;                  ///do we need new calendar data
     bool needSendCalendarActive;            ///do we need send if the calendar is active
     uint8_t needSendCalendarDay;            ///what day do we need send ///CAL_QUER

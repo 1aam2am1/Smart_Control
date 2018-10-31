@@ -23,7 +23,7 @@ void Calendar::setCAL_STATE(const CAL_STATE &state) {
             message += "Zegar na plycie rozszerzen";
             break;
         case CAL_STATE::ETH_MODULE:
-            message += "Czas z modulu etherntowego";
+            message += "Czas z modulu ethernetowego";
             break;
         default:
             break;

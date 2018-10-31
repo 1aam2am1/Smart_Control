@@ -145,14 +145,14 @@ void rs232::toSendData(const std::map<int, int> &dane) {
 
 void rs232::main() {
     write("");
-    recive_clock.restart();
+    receive_clock.restart();
     while (thread_work) {
         {
             sf::Lock lock(mutex);
 
-            if (recive_clock.getElapsedTime() > sf::seconds(5)) {
+            if (receive_clock.getElapsedTime() > sf::seconds(5)) {
                 write("");
-                recive_clock.restart();
+                receive_clock.restart();
             }
 
             haveData();
@@ -196,26 +196,26 @@ void rs232::haveData() {
 
         free(wsk);
 
-        temponary_data += str;
-        recive_clock.restart();
+        temporary_data += str;
+        receive_clock.restart();
     }
 
     while (true) {
         str = "";
 
-        std::size_t found = temponary_data.find('#'); //pierwszy znak liczac od 0
+        std::size_t found = temporary_data.find('#'); //pierwszy znak liczac od 0
         if (found == std::string::npos) { return; }
 
-        temponary_data.erase(0, found); ///usuwamy wczesniejsze
+        temporary_data.erase(0, found); ///usuwamy wczesniejsze
 
-        std::size_t found2 = temponary_data.find(';'); //do ostatniego
+        std::size_t found2 = temporary_data.find(';'); //do ostatniego
         if (found2 == std::string::npos) { return; }
 
-        found = temponary_data.rfind('#', found2); ///znajdujemy od konca
+        found = temporary_data.rfind('#', found2); ///znajdujemy od konca
 
-        str.insert(0, temponary_data, found + 1, found2 - found - 1); ///pobieramy dane do str bez ;
+        str.insert(0, temporary_data, found + 1, found2 - found - 1); ///pobieramy dane do str bez ;
 
-        temponary_data.erase(0, found2 + 1); ///usuwamy wszystko do znaku ; wlacznie
+        temporary_data.erase(0, found2 + 1); ///usuwamy wszystko do znaku ; wlacznie
 
         ///parsowanie
         std::string temp;

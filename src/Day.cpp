@@ -169,7 +169,7 @@ void Day::callback(const tgui::Callback &callback) {
         }
         old_value_scrollbar = callback.value;
     }
-    if (callback.id == 4) ///value changed or deleate
+    if (callback.id == 4) ///value changed or delete
     {
         if (callback.trigger == Action::Delete) {
             this->delAction(callback.widget);

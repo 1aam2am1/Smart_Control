@@ -45,13 +45,13 @@ int main(int argc, char **argv) {
         Console::printf("\n");
     }
     if (options.getOptions().tryb == Argv_options::Options::rs232) {
-        Console::printf("Uruchomono program z interfejsem: rs232\n");
+        Console::printf("Uruchomiono program z interfejsem: rs232\n");
         com = std::make_shared<rs232>();
     } else if (options.getOptions().tryb == Argv_options::Options::modbus) {
-        Console::printf("Uruchomono program z interfejsem: P_SIMPLE\n");
+        Console::printf("Uruchomiono program z interfejsem: P_SIMPLE\n");
         com = std::make_shared<P_SIMPLE>();
     } else {
-        Console::printf("Uruchomono program z interfejsem: P_SIMPLE_USB\n");
+        Console::printf("Uruchomiono program z interfejsem: P_SIMPLE_USB\n");
         com = std::make_shared<P_SIMPLE>(1);
     }
     if (options.getOptions().version) {
