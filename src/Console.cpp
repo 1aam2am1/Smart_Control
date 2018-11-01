@@ -52,6 +52,7 @@ void Console::RedirectIOToConsole() {
     }
 }
 
+/*
 void Console::printf(const char *str, ...) {
     Asynchronous_write::message m;
     m.file = stdout;
@@ -71,7 +72,7 @@ void Console::printf(const char *str, ...) {
 
     Asynchronous_write::getSingleton().add(m);
 }
-
+*/
 static Console::Message_level message_level = Console::ALL;
 
 void Console::setMessage_level(Message_level level) {
@@ -107,6 +108,11 @@ Console::Printf_block Console::Printf_block::beginWrite() {
     return {};
 }
 
+Console::Printf_block::~Printf_block() {
+    if (!this->message.empty()) { this->endWrite(); }
+}
+
+/*
 Console::Printf_block &Console::Printf_block::printf(const char *str, ...) {
     va_list v1;
     va_start(v1, str);
@@ -121,7 +127,7 @@ Console::Printf_block &Console::Printf_block::printf(const char *str, ...) {
 
     return *this;
 }
-
+*/
 Console::Printf_block &Console::Printf_block::printf(Console::Message_level level, const char *str, ...) {
     if (!(message_level | level)) { return *this; }
 

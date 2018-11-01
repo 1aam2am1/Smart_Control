@@ -8,7 +8,7 @@
 namespace Console {
     void RedirectIOToConsole();
 
-    __attribute__ ((deprecated)) void printf(const char *, ...);
+    //__attribute__ ((deprecated)) void printf(const char *, ...);
 
     enum Message_level {
         NONE = 0,                //< Write nothing in the console
@@ -28,12 +28,17 @@ namespace Console {
     private:
         Printf_block();
 
+    public:
+        virtual ~Printf_block();
+
+    private:
+
         std::string message;
         std::vector<char> v;
     public:
         static Printf_block beginWrite();
 
-        __attribute__ ((deprecated)) Printf_block &printf(const char *, ...);
+        //__attribute__ ((deprecated)) Printf_block &printf(const char *, ...);
 
         Printf_block &printf(Message_level, const char *, ...);
 
