@@ -727,7 +727,7 @@ int validate(const std::string &str, std::vector<uint8_t> &result) {
 
 void calculate(const std::string &str, std::vector<uint8_t> &result) {
     result.clear();
-    result.reserve((str.size() - 1) / 2);
+    result.resize((str.size() - 1) / 2);
 
     for (uint32_t i = 0; i < ((str.length() - 1) / 2); ++i) {
         uint16_t wartosc;///hhx => warning uint8_t :/
