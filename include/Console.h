@@ -22,6 +22,8 @@ namespace Console {
 
     void setMessage_level(Message_level);
 
+    inline void setMessage_level(int i) { setMessage_level(static_cast<Message_level>(i)); };
+
     void printf(Message_level, const char *, ...);
 
     class Printf_block {

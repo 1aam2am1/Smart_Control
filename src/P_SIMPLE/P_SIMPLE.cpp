@@ -80,7 +80,7 @@ bool P_SIMPLE::connect(std::string port) {
         return false;
     }
 
-    fSuccess_COM = SetCommMask(hCom, EV_RXCHAR);
+    fSuccess_COM = SetCommMask(hCom, EV_RXCHAR | EV_RXFLAG);
     if (!fSuccess_COM) {
         Console::printf(Console::ERROR_MESSAGE, "SetCommMask failed with error %lu.\n", GetLastError());
         return false;
@@ -376,6 +376,17 @@ void P_SIMPLE::main() {
                 }
                 break;
             case 0: ///brak zadnej wiadmosci
+                if ((second120clock.getElapsedTime() > sf::seconds(130)) && !boot) {
+                    clock.restart();
+                    second120clock.restart();
+                    needReceiveDateDataClock.restart();
+                    boot = true;
+                    second120 = false;
+                    rzadanie_danych = true;
+                    this->needCalendarData = true;
+
+                    event.push({Event::DisConnected});
+                }
                 if (second120clock.getElapsedTime() < sf::seconds(120) && boot && second120) {
                     clock.restart();
                 }
@@ -404,6 +415,7 @@ void P_SIMPLE::main() {
                     if (result[1] == 31) {
                         boot = false;
                         second120 = false;
+                        second120clock.restart();
                         Event e{Event::Connected};
                         event.push(e);
                     }
@@ -803,14 +815,16 @@ int P_SIMPLE::receive(std::string &r_data, std::vector<uint8_t> &result, sf::Tim
     DWORD RS_read;
     DWORD dwRes;
     unsigned long Occured;//returns the type of an occured event
-
+    Console::printf(Console::LOG, "receive()\n");
     if (!FileEvent.hEvent) {
+        Console::printf(Console::LOG, "CreateEvent()\n");
         FileEvent.hEvent = CreateEvent(nullptr, true, false, nullptr);
         if (FileEvent.hEvent == nullptr) {
             Console::printf(Console::ERROR_MESSAGE, "R Error creating overlapped event handle %lu.\n", GetLastError());
             // Error creating overlapped event handle.
             return -2;
         }
+        Console::printf(Console::MESSAGE, "WaitCommEvent()\n");
         if (!WaitCommEvent(hCom, &Occured, &FileEvent)) {
             if (GetLastError() != ERROR_IO_PENDING) {
                 CloseHandle(FileEvent.hEvent);
@@ -822,16 +836,15 @@ int P_SIMPLE::receive(std::string &r_data, std::vector<uint8_t> &result, sf::Tim
 
     dwRes = WaitForSingleObject(FileEvent.hEvent, time.asMilliseconds());
 
-
+    Console::printf(Console::LOG, "WaitForSingleObject() %i\n", dwRes);
     switch (dwRes) {
         case WAIT_OBJECT_0: //the requested event happened
         {
-
+            Console::printf(Console::LOG, "WAIT_OBJECT_0\n");
             CloseHandle(FileEvent.hEvent);
             FileEvent.hEvent = nullptr;
 
             OVERLAPPED ReadState = {0};
-            std::array<char, 100> tab;
 
             ReadState.hEvent = CreateEvent(nullptr, true, false, nullptr);
             if (ReadState.hEvent == nullptr) {
@@ -844,9 +857,10 @@ int P_SIMPLE::receive(std::string &r_data, std::vector<uint8_t> &result, sf::Tim
             COMSTAT statsread;
 
             ClearCommError(hCom, nullptr, &statsread); //sprawdza status
-            if (statsread.cbInQue > 100) { statsread.cbInQue = 100; }
-
-            if (!ReadFile(hCom, tab.data(), statsread.cbInQue, &RS_read, &ReadState)) {
+            tab_receive_buffer.resize(statsread.cbInQue + 1);
+            Console::printf(Console::LOG, "ClearCommError %i\n", statsread.cbInQue);
+            if (!ReadFile(hCom, tab_receive_buffer.data(), statsread.cbInQue, &RS_read, &ReadState)) {
+                Console::printf(Console::LOG, "ReadFile()\n");
                 if (GetLastError() != ERROR_IO_PENDING) {
                     CloseHandle(ReadState.hEvent);
                     Console::printf(Console::ERROR_MESSAGE, "R ERROR_IO_PENDING %lu.\n", GetLastError());
@@ -862,17 +876,18 @@ int P_SIMPLE::receive(std::string &r_data, std::vector<uint8_t> &result, sf::Tim
             }
 
             CloseHandle(ReadState.hEvent);
-
+            Console::printf(Console::LOG, "RS_read %i\n", RS_read);
 
             if (RS_read != 0) {
-                communication_log.r_write(tab.data(), RS_read);
-                Console::printf(Console::LOG, "Read: %.*s\n", (int) RS_read, tab.data());
+                communication_log.r_write(tab_receive_buffer.data(), RS_read);
+                Console::printf(Console::LOG, "Read: %.*s\n", (int) RS_read, tab_receive_buffer.data());
             }
 
-            r_data.append(tab.data(), RS_read);
+            r_data.append(tab_receive_buffer.data(), RS_read);
         }
             break;
         case WAIT_TIMEOUT://time out
+            Console::printf(Console::LOG, "WAIT_TIMEOUT()\n");
             return 0;
         default://error in WaitForSingleObject
             CloseHandle(FileEvent.hEvent);
@@ -881,7 +896,7 @@ int P_SIMPLE::receive(std::string &r_data, std::vector<uint8_t> &result, sf::Tim
             return -2;
     }
 
-
+    Console::printf(Console::LOG, "PARSE()\n");
     std::size_t found = r_data.rfind('\r'); ///ostatni znak ramki
     if (found == std::string::npos) {
         return 0;

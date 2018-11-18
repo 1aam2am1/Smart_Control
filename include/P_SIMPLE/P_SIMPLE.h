@@ -62,6 +62,7 @@ private:
     Date_data_struct date_data;
 
     OVERLAPPED FileEvent;
+    std::vector<char> tab_receive_buffer;
 
     void main();
 

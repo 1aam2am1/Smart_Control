@@ -9,14 +9,15 @@
 bool Argv_options::process(int argc, char **argv) {
     const option long_options[] =
             {
-                    {"geometry",   required_argument, nullptr, 'g'},
-                    {"rs232",      no_argument,       nullptr, 'r'},
-                    {"modbus",     no_argument,       nullptr, 'm'},
-                    {"modbus_usb", no_argument,       nullptr, 'u'},
-                    {"console",    no_argument,       nullptr, 'c'},
-                    {"help",       no_argument,       nullptr, 'h'},
-                    {"version",    no_argument,       nullptr, 'v'},
-                    {nullptr,      0,                 nullptr, 0}
+                    {"geometry",      required_argument, nullptr, 'g'},
+                    {"rs232",         no_argument,       nullptr, 'r'},
+                    {"modbus",        no_argument,       nullptr, 'm'},
+                    {"modbus_usb",    no_argument,       nullptr, 'u'},
+                    {"console",       no_argument,       nullptr, 'c'},
+                    {"debug_message", no_argument,       nullptr, 'd'},
+                    {"help",          no_argument,       nullptr, 'h'},
+                    {"version",       no_argument,       nullptr, 'v'},
+                    {nullptr,         0,                 nullptr, 0}
             };
     int opcje_kolidujace_rs232_modbus = 0;
 
@@ -61,6 +62,9 @@ bool Argv_options::process(int argc, char **argv) {
                 break;
             case 'c':
                 options.console = true;
+                break;
+            case 'd':
+                options.debug_message = true;
                 break;
             case 'v':
                 options.version = true;

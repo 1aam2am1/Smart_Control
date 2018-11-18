@@ -35,6 +35,8 @@ int main(int argc, char **argv) {
                   sf::Style::Default);
     window.setView(sf::View(sf::FloatRect(0, 0, 1200, 820)));
 
+    Console::setMessage_level(Console::ALL & ~(options.getOptions().debug_message ? Console::LOG : 0));
+
     if (options.getOptions().console) {
         Console::RedirectIOToConsole();
 
@@ -45,13 +47,13 @@ int main(int argc, char **argv) {
         Console::printf(Console::MESSAGE, "\n");
     }
     if (options.getOptions().tryb == Argv_options::Options::rs232) {
-        Console::printf(Console::MESSAGE, "Uruchomiono program z interfejsem: rs232\n");
+        Console::printf(Console::MESSAGE, "Uruchomiono program z interfejsem: USB_RS232\n");
         com = std::make_shared<rs232>();
     } else if (options.getOptions().tryb == Argv_options::Options::modbus) {
-        Console::printf(Console::MESSAGE, "Uruchomiono program z interfejsem: P_SIMPLE\n");
+        Console::printf(Console::MESSAGE, "Uruchomiono program z interfejsem: RS485\n");
         com = std::make_shared<P_SIMPLE>();
     } else {
-        Console::printf(Console::MESSAGE, "Uruchomiono program z interfejsem: P_SIMPLE_USB\n");
+        Console::printf(Console::MESSAGE, "Uruchomiono program z interfejsem: USB_RS485\n");
         com = std::make_shared<P_SIMPLE>(1);
     }
     if (options.getOptions().version) {
@@ -104,12 +106,14 @@ int main(int argc, char **argv) {
                             ///break;
                             continue;
                         case Event::Open:
+                        case Event::DisConnected:
                         case Event::Connected: {
                             sf::Color color;
 
                             color = (com_event.type == Event::Close) ? sf::Color::Red : color;
                             color = (com_event.type == Event::Open) ? sf::Color::Yellow : color;
                             color = (com_event.type == Event::Create) ? sf::Color::Red : color;
+                            color = (com_event.type == Event::DisConnected) ? sf::Color::Yellow : color;
                             color = (com_event.type == Event::Connected) ? sf::Color::Green : color;
 
                             gui.get<tgui::Panel>("STATUS", true)->setBackgroundColor(color);

@@ -21,6 +21,7 @@ public:
         } tryb = modbus;
         bool console = false;
         bool version = false;
+        bool debug_message = false;
     };
 
     Options getOptions() const;
