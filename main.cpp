@@ -35,7 +35,7 @@ int main(int argc, char **argv) {
                   sf::Style::Default);
     window.setView(sf::View(sf::FloatRect(0, 0, 1200, 820)));
 
-    Console::setMessage_level(Console::ALL & ~(options.getOptions().debug_message ? Console::LOG : 0));
+    Console::setMessage_level(Console::ALL & ~(!options.getOptions().debug_message ? Console::LOG : 0));
 
     if (options.getOptions().console) {
         Console::RedirectIOToConsole();
