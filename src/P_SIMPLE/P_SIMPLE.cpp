@@ -355,7 +355,7 @@ void P_SIMPLE::main() {
                     clock.restart();
                 }
                 if ((clock.getElapsedTime() > sf::milliseconds(120)) && boot) {
-                    writeCom({"66 00 02 01 cf\r"});
+                    if (!usb) { writeCom({"66 00 02 01 cf\r"}); }
                     second120 = true;
                     second120clock.restart();
                     //boot = false;
