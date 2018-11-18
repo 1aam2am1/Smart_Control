@@ -274,11 +274,11 @@ void load(tgui::Gui *gui, const Argv_options &op) {
     auto modbus = gui->get<tgui::Checkbox>("MODBUS", true);
     modbus->check();
     if (op.getOptions().tryb == Argv_options::Options::rs232) {
-        modbus->setText("RS232");
+        modbus->setText("USB_RS232");
     } else if (op.getOptions().tryb == Argv_options::Options::modbus) {
-        modbus->setText("MODBUS");
+        modbus->setText("RS485");
     } else {
-        modbus->setText("USB");
+        modbus->setText("USB_RS485");
     }
 }
 

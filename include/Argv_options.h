@@ -18,7 +18,7 @@ public:
             rs232 = 0,
             modbus,
             modbus_usb,
-        } tryb = rs232;
+        } tryb = modbus;
         bool console = false;
         bool version = false;
     };
