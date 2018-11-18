@@ -13,10 +13,10 @@ Przelacznik_odmrazanie::~Przelacznik_odmrazanie() = default;
 void Przelacznik_odmrazanie::change(const std::map<int, int> &dane, tgui::Container *gui) const {
     auto i = dane.find(id);
     if (i == dane.end()) { return; }
-    static const std::string tab[5] = {"Standard", "SSA-", "SSA+", "Programisty", "SSA++"};
+    static const std::string tab[6] = {"Standard", "SSA-", "SSA+", "Programisty", "SSA++", "SSA+++"};
 
     std::string wartosc;
-    for (uint32_t j = 0; j < 5; ++j) {
+    for (uint32_t j = 0; j < 6; ++j) {
         if (i->second & (1 << j)) { wartosc += tab[j]; }
     }
 
