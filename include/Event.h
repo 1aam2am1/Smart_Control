@@ -12,10 +12,11 @@ public:
         Open = 1,
         Close = 2,
         Connected = 3,
-        Data = 4,
-        CalendarData = 5,
-        ModesData = 6,
-        TimeData = 7,
+        DisConnected = 4,
+        Data = 5,
+        CalendarData = 6,
+        ModesData = 7,
+        TimeData = 8,
         Reset = 100
     };
 

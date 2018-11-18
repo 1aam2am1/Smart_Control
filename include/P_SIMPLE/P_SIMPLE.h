@@ -61,6 +61,8 @@ private:
     Modes_data_struct modes_data;
     Date_data_struct date_data;
 
+    OVERLAPPED FileEvent;
+
     void main();
 
     uint8_t thread_work = 0;
@@ -68,6 +70,8 @@ private:
     int writeCom(std::vector<char>);
 
     int writeCom(const std::string &);
+
+    int receive(std::string &, std::vector<uint8_t> &, sf::Time);
 
     std::vector<char> last_message;
 
