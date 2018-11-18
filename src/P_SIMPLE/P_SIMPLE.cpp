@@ -775,32 +775,10 @@ void create_message(uint8_t begining, uint8_t adres, const std::vector<uint8_t> 
 }
 
 int receive(HANDLE hCom, std::string &r_data, std::vector<uint8_t> &result, sf::Time time) {
-    COMSTAT statsread;
     COMMTIMEOUTS cto;
     DWORD RS_read;
 
     GetCommTimeouts(hCom, &cto);
-
-    {
-        ClearCommError(hCom, nullptr, &statsread); //sprawdza status
-        if (statsread.cbInQue != 0)///czyta te w buforze
-        {
-            char *wsk = (char *) malloc(sizeof(char) * (statsread.cbInQue + 1));
-
-            ReadFile(hCom, wsk, statsread.cbInQue, &RS_read, nullptr);
-
-            if (RS_read != 0) {
-                communication_log.r_write(wsk, RS_read);
-                Console::printf(Console::LOG, "Read: %.*s\n", (int) RS_read, wsk);
-            }
-
-            r_data += std::string(wsk, RS_read);
-
-            free(wsk);
-
-            if (RS_read != 0) { goto parse; }
-        }
-    }
 
     {
         COMMTIMEOUTS newcom = cto;
@@ -825,8 +803,6 @@ int receive(HANDLE hCom, std::string &r_data, std::vector<uint8_t> &result, sf::
 
         r_data.append(tab.data(), RS_read);
     }
-
-    parse:
 
     std::size_t found = r_data.rfind('\r'); ///ostatni znak ramki
     if (found == std::string::npos) {
