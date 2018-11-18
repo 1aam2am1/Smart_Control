@@ -44,11 +44,10 @@ private:
     std::thread thr;
     HANDLE hCom;
 
-    std::string temponary_data;
+    std::string temporary_data;
     std::map<int, int> parsed_data;
-    std::string send_data;
 
-    sf::Clock recive_clock;
+    sf::Clock receive_clock;
 
     void main();
 

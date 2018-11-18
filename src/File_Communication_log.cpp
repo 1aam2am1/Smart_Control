@@ -8,8 +8,7 @@ File_Communication_log::File_Communication_log(std::string dir)
         : directory(dir),
           start(true),
           file(nullptr),
-          open_time({0, 0, 0, 0, 0, 0, 0, 0, 0}),
-          w_write_bool(true) {
+          open_time({0, 0, 0, 0, 0, 0, 0, 0, 0}) {
     this->open();
     this->time_write();
 }
@@ -43,7 +42,6 @@ void File_Communication_log::r_write(const char *str, uint32_t i) {
     this->time_write();
 
     if (last_write == std::string(str, i)) {
-        w_write_bool = false;
         last_write.clear();
         return;
     }
@@ -59,8 +57,6 @@ void File_Communication_log::r_write(const char *str, uint32_t i) {
 
 void File_Communication_log::w_write(const char *str, uint32_t i) {
     std::unique_lock<std::mutex> lock(this->mutex);
-
-    if (!w_write_bool) { return; }
 
     this->open();
     this->time_write();
@@ -92,7 +88,7 @@ void File_Communication_log::open() {
     }
 
     if (!Game_api::plik::mkdir(directory)) {
-        Console::printf("File_communication directory cannot be created");
+        Console::printf(Console::ERROR_MESSAGE, "File_communication directory cannot be created");
     }
 
     char buffer[125];
@@ -106,7 +102,7 @@ void File_Communication_log::open() {
     file = fopen((directory + buffer).c_str(), "a");
 
     if (file == nullptr) {
-        Console::printf("File_communication file cannot be opened");
+        Console::printf(Console::ERROR_MESSAGE, "File_communication file cannot be opened");
         file = stdout;
     }
     open_time = buf;

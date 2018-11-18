@@ -1,9 +1,6 @@
-#include <utility>
-
-#include <utility>
-
 #include "Przelacznik_v.h"
 #include "Funkcje_str.h"
+#include <utility>
 
 Przelacznik_v::Przelacznik_v(std::string _nazwa, int32_t _id)
         : nazwa(std::move(std::move(_nazwa))), id(_id) {

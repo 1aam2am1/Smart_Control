@@ -9,7 +9,7 @@
 
 class P_SIMPLE : public Device {
 public:
-    P_SIMPLE();
+    P_SIMPLE(bool usb = false);
 
     virtual ~P_SIMPLE();
 
@@ -49,7 +49,7 @@ private:
     std::map<int, int> processed_data;      ///dane aktualnie w procesie wysylania
     std::map<int, int> act_data;            ///dane aktualnie na paskach
 
-    CAL_STATE stateOfCalendar;              ///can the claendar be activated
+    CAL_STATE stateOfCalendar;              ///can the calendar be activated
     bool needCalendarData;                  ///do we need new calendar data
     bool needSendCalendarActive;            ///do we need send if the calendar is active
     uint8_t needSendCalendarDay;            ///what day do we need send ///CAL_QUER
@@ -57,19 +57,26 @@ private:
 
     bool needSendModesData;
     bool needSendDateData;
-    bool needReciveDateData;
+    bool needReceiveDateData;
     Modes_data_struct modes_data;
     Date_data_struct date_data;
+
+    OVERLAPPED FileEvent;
+    std::vector<char> tab_receive_buffer;
 
     void main();
 
     uint8_t thread_work = 0;
 
-    int writeCom(const std::vector<char> &);
+    int writeCom(std::vector<char>);
 
     int writeCom(const std::string &);
 
+    int receive(std::string &, std::vector<uint8_t> &, sf::Time);
+
     std::vector<char> last_message;
+
+    bool usb;
 };
 
 #endif // P_SIMPLE_H

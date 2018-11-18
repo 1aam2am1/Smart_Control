@@ -3,7 +3,7 @@
 #include "Funkcje_str.h"
 #include "WidgetSingleton.h"
 
-const static sf::Color grean = sf::Color(198, 239, 206);
+const static sf::Color green = sf::Color(198, 239, 206);
 const static sf::Color red = sf::Color(255, 199, 206);
 
 
@@ -19,9 +19,9 @@ void Action::setData(const Action_data_struct &dane) {
 
     result = dane;
 
-    this->get<tgui::Button>("t0")->setTextColor(sf::Color(static_cast<sf::Uint8>(255 * (dane.en ? 1 : 0)), 0, 0, 255));
+    this->get<tgui::Button>("t0")->setTextColor(sf::Color(0, static_cast<sf::Uint8>(255 * (dane.en ? 1 : 0)), 0, 255));
 
-    this->setBackgroundColor(dane.en ? grean : red);
+    this->setBackgroundColor(dane.en ? green : red);
 
     ///Poczatek pracy godzina
     this->get<tgui::EditBox>("eh0")->setText(Game_api::convertInt(dane.hour < 23 ? dane.hour : 23));
@@ -81,7 +81,7 @@ void Action::setData(const Action_data_struct &dane) {
 Action_data_struct Action::getData() {
     int32_t i;
 
-    result.en = (this->get<tgui::Button>("t0")->getTextColor() == sf::Color::Red);
+    result.en = (this->get<tgui::Button>("t0")->getTextColor() == sf::Color::Green);
     i = Game_api::convertString(this->get<tgui::EditBox>("eh0")->getText());
     result.hour = i < 23 ? i : 23;
     i = Game_api::convertString(this->get<tgui::EditBox>("em0")->getText());
@@ -225,9 +225,9 @@ void Action::callback(const tgui::Callback &callback) {
 
     if (callback.id == 1) {
         auto b1 = this->get<tgui::Button>("t0");
-        b1->setTextColor(sf::Color(255 * (b1->getTextColor() == sf::Color::Black ? 1 : 0), 0, 0, 255));
+        b1->setTextColor(sf::Color(0, 255 * (b1->getTextColor() == sf::Color::Black ? 1 : 0), 0, 255));
 
-        this->setBackgroundColor(b1->getTextColor() == sf::Color::Black ? red : grean);
+        this->setBackgroundColor(b1->getTextColor() == sf::Color::Black ? red : green);
     } else if (callback.id == 2) {
         m_Callback.trigger = Action::Delete;
         addCallback();

@@ -35,26 +35,31 @@ int main(int argc, char **argv) {
                   sf::Style::Default);
     window.setView(sf::View(sf::FloatRect(0, 0, 1200, 820)));
 
+    Console::setMessage_level(Console::ALL & ~(options.getOptions().debug_message ? Console::LOG : 0));
+
     if (options.getOptions().console) {
         Console::RedirectIOToConsole();
 
-        Console::printf("Program uruchomiono jako:\n");
+        Console::printf(Console::MESSAGE, "Program uruchomiono jako:\n");
         for (int32_t i = 0; i < argc; ++i) {
-            Console::printf("    %s\n", argv[i]);
+            Console::printf(Console::MESSAGE, "    %s\n", argv[i]);
         }
-        Console::printf("\n");
+        Console::printf(Console::MESSAGE, "\n");
     }
-    if (options.getOptions().rs232) {
-        Console::printf("Uruchomono program z interfejsem: rs232\n");
+    if (options.getOptions().tryb == Argv_options::Options::rs232) {
+        Console::printf(Console::MESSAGE, "Uruchomiono program z interfejsem: USB_RS232\n");
         com = std::make_shared<rs232>();
-    } else {
-        Console::printf("Uruchomono program z interfejsem: P_SIMPLE\n");
+    } else if (options.getOptions().tryb == Argv_options::Options::modbus) {
+        Console::printf(Console::MESSAGE, "Uruchomiono program z interfejsem: RS485\n");
         com = std::make_shared<P_SIMPLE>();
+    } else {
+        Console::printf(Console::MESSAGE, "Uruchomiono program z interfejsem: USB_RS485\n");
+        com = std::make_shared<P_SIMPLE>(1);
     }
     if (options.getOptions().version) {
-        Console::printf("Version: %s\n", (Version::GIT_TAG + " " +
-                                          Version::GIT_SHA + " " +
-                                          Version::DATE).c_str());
+        Console::printf(Console::MESSAGE, "Version: %s\n", (Version::GIT_TAG + " " +
+                                                            Version::GIT_SHA + " " +
+                                                            Version::DATE).c_str());
     }
 
     sf::Clock send_clock;
@@ -101,12 +106,14 @@ int main(int argc, char **argv) {
                             ///break;
                             continue;
                         case Event::Open:
+                        case Event::DisConnected:
                         case Event::Connected: {
                             sf::Color color;
 
                             color = (com_event.type == Event::Close) ? sf::Color::Red : color;
                             color = (com_event.type == Event::Open) ? sf::Color::Yellow : color;
                             color = (com_event.type == Event::Create) ? sf::Color::Red : color;
+                            color = (com_event.type == Event::DisConnected) ? sf::Color::Yellow : color;
                             color = (com_event.type == Event::Connected) ? sf::Color::Green : color;
 
                             gui.get<tgui::Panel>("STATUS", true)->setBackgroundColor(color);
@@ -169,7 +176,8 @@ int main(int argc, char **argv) {
                     start_refresh_clock = false;
                 }
 
-                if (send_bool && (!options.getOptions().rs232 || send_clock.getElapsedTime() > sf::seconds(0.5f))) {
+                if (send_bool && (options.getOptions().tryb == Argv_options::Options::modbus ||
+                                  send_clock.getElapsedTime() > sf::seconds(0.5f))) {
                     auto i = gui.get<Menu>("menu")->getChanged();
                     auto data = gui.get<Menu>("menu")->getCalendar()->getChanged();
                     auto data1 = gui.get<Menu>("menu")->getModes()->getChanged();
@@ -207,21 +215,33 @@ int main(int argc, char **argv) {
                 send_bool = true;
             }
             if (callback.id == 1 && callback.trigger == Menu::MODBUSChanged) {
-                if (callback.checked && options.getOptions().rs232) {
+                /*if (callback.checked && options.getOptions().tryb == Argv_options::Options::rs232) {
                     com = std::make_shared<P_SIMPLE>();
 
                     auto op = options.getOptions();
-                    op.rs232 = false;
+                    op.tryb = Argv_options::Options::modbus;
                     options.setOptions(op);
+                }*/
+                auto op = options.getOptions();
+
+                if (!callback.checked) {
+                    switch (options.getOptions().tryb) {
+                        case Argv_options::Options::rs232:
+                            op.tryb = Argv_options::Options::modbus;
+                            com = std::make_shared<P_SIMPLE>();
+                            break;
+                        case Argv_options::Options::modbus:
+                            op.tryb = Argv_options::Options::modbus_usb;
+                            com = std::make_shared<P_SIMPLE>(1);
+                            break;
+                        case Argv_options::Options::modbus_usb:
+                            op.tryb = Argv_options::Options::rs232;
+                            com = std::make_shared<rs232>();
+                            break;
+                    }
                 }
 
-                if (!callback.checked && !options.getOptions().rs232) {
-                    com = std::make_shared<rs232>();
-
-                    auto op = options.getOptions();
-                    op.rs232 = true;
-                    options.setOptions(op);
-                }
+                options.setOptions(op);
             }
             if (callback.id == 1 && callback.trigger == Menu::SaveLogs) {
                 gui.get<Logi>("logi", true)->save("Zapis.txt");
@@ -255,11 +275,14 @@ void load(tgui::Gui *gui, const Argv_options &op) {
             Menu::ValueChanged | Menu::COMChanged | Menu::MODBUSChanged | Menu::SaveLogs | Menu::GetCalendarData);
     menu->setCallbackId(1);
 
-
-    if (op.getOptions().rs232) {
-        gui->get<tgui::Checkbox>("MODBUS", true)->uncheck();
+    auto modbus = gui->get<tgui::Checkbox>("MODBUS", true);
+    modbus->check();
+    if (op.getOptions().tryb == Argv_options::Options::rs232) {
+        modbus->setText("USB_RS232");
+    } else if (op.getOptions().tryb == Argv_options::Options::modbus) {
+        modbus->setText("RS485");
     } else {
-        gui->get<tgui::Checkbox>("MODBUS", true)->check();
+        modbus->setText("USB_RS485");
     }
 
 

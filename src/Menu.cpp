@@ -132,7 +132,7 @@ void Menu::callback(const tgui::Callback &callback) {
                 m_Callback.trigger = Menu::SaveLogs;
                 break;
             default:
-                Console::printf("Something goes wrong menu main_window trigger case\n");
+                Console::printf(Console::ERROR_MESSAGE, "Something goes wrong menu main_window trigger case\n");
                 return;
         }
         addCallback();
@@ -147,7 +147,7 @@ void Menu::callback(const tgui::Callback &callback) {
                 m_Callback.trigger = Menu::GetCalendarData;
                 break;
             default:
-                Console::printf("Something goes wrong menu calendar trigger case\n");
+                Console::printf(Console::ERROR_MESSAGE, "Something goes wrong menu calendar trigger case\n");
                 return;
         }
         addCallback();

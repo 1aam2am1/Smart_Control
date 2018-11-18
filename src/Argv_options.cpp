@@ -9,13 +9,15 @@
 bool Argv_options::process(int argc, char **argv) {
     const option long_options[] =
             {
-                    {"geometry", required_argument, nullptr, 'g'},
-                    {"rs232",    no_argument,       nullptr, 'r'},
-                    {"modbus",   no_argument,       nullptr, 'm'},
-                    {"console",  no_argument,       nullptr, 'c'},
-                    {"help",     no_argument,       nullptr, 'h'},
-                    {"version",  no_argument,       nullptr, 'v'},
-                    {nullptr,    0,                 nullptr, 0}
+                    {"geometry",      required_argument, nullptr, 'g'},
+                    {"rs232",         no_argument,       nullptr, 'r'},
+                    {"modbus",        no_argument,       nullptr, 'm'},
+                    {"modbus_usb",    no_argument,       nullptr, 'u'},
+                    {"console",       no_argument,       nullptr, 'c'},
+                    {"debug_message", no_argument,       nullptr, 'd'},
+                    {"help",          no_argument,       nullptr, 'h'},
+                    {"version",       no_argument,       nullptr, 'v'},
+                    {nullptr,         0,                 nullptr, 0}
             };
     int opcje_kolidujace_rs232_modbus = 0;
 
@@ -41,37 +43,44 @@ bool Argv_options::process(int argc, char **argv) {
                     int y = Game_api::convertString(str);
                     options.size = sf::Vector2i(x, y);
                 } else {
-                    Console::printf("Option -g as --geometry required widthXhight\n");
+                    Console::printf(Console::ERROR_MESSAGE, "Option -g as --geometry required widthXheight\n");
                 }
             }
                 break;
             case 'r':
-            case 'm': {
+            case 'm':
+            case 'u': {
                 opcje_kolidujace_rs232_modbus += 1;
                 if (opcje_kolidujace_rs232_modbus >= 2) {
-                    Console::printf("Options -r or -m as --rs232 --modbus can use only one time\n");
+                    Console::printf(Console::ERROR_MESSAGE,
+                                    "Options -r -m or -u as --rs232 --modbus --modbus_usb can use only one time\n");
                 }
-                if (c == 'r') { options.rs232 = true; }
-                if (c == 'm') { options.rs232 = false; }
+                if (c == 'r') { options.tryb = Argv_options::Options::rs232; }
+                if (c == 'm') { options.tryb = Argv_options::Options::modbus; }
+                if (c == 'u') { options.tryb = Argv_options::Options::modbus_usb; }
             }
                 break;
             case 'c':
                 options.console = true;
                 break;
+            case 'd':
+                options.debug_message = true;
+                break;
             case 'v':
                 options.version = true;
                 break;
             case 'h':
-                Console::printf("Options:\n");
+                Console::printf(Console::ERROR_MESSAGE, "Options:\n");
                 for (uint32_t i = 0; long_options[i].name != nullptr || long_options[i].has_arg != 0 ||
                                      long_options[i].flag != nullptr || long_options[i].val != 0; ++i) {
-                    Console::printf(" - %-10s %s\n", long_options[i].name, long_options[i].has_arg ? "Arg" : "");
+                    Console::printf(Console::ERROR_MESSAGE, " - %-10s %s\n", long_options[i].name,
+                                    long_options[i].has_arg ? "Arg" : "");
                 }
                 exit(EXIT_FAILURE);
             case '?':
                 exit(EXIT_FAILURE);
             default:
-                Console::printf("ERROR Bad Option\n");
+                Console::printf(Console::ERROR_MESSAGE, "ERROR Bad Option\n");
                 fflush(stdout);
                 //exit(-1);
                 return false;
@@ -80,10 +89,10 @@ bool Argv_options::process(int argc, char **argv) {
 
     /* Print any remaining command line arguments (not options). */
     if (optind < argc) {
-        Console::printf("non-option ARGV-elements: ");
+        Console::printf(Console::ERROR_MESSAGE, "non-option ARGV-elements: ");
         while (optind < argc)
-            Console::printf("%s ", argv[optind++]);
-        Console::printf("\n");
+            Console::printf(Console::ERROR_MESSAGE, "%s ", argv[optind++]);
+        Console::printf(Console::ERROR_MESSAGE, "\n");
     }
 
     return true;

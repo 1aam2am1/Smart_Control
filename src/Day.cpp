@@ -16,7 +16,13 @@ Day::~Day() = default;
 
 void Day::setActive(bool flag) {
     auto b1 = this->get<tgui::Button>("t1");
-    b1->setTextColor(sf::Color(255 * (flag ? 1 : 0), 0, 0, 255));
+    b1->setTextColor(sf::Color(0, 255 * flag, 0, 255));
+
+    if (flag) {
+        this->setBackgroundColor(sf::Color::Green);
+    } else {
+        this->setBackgroundColor(sf::Color::White);
+    }
 }
 
 void Day::change(const std::vector<Action_data_struct> &dane) {
@@ -32,7 +38,7 @@ void Day::change(const std::vector<Action_data_struct> &dane) {
 std::pair<bool, std::vector<Action_data_struct>> Day::getChanged() {
     std::pair<bool, std::vector<Action_data_struct>> result;
 
-    result.first = (this->get<tgui::Button>("t1")->getTextColor() == sf::Color::Red);
+    result.first = (this->get<tgui::Button>("t1")->getTextColor() == sf::Color::Green);
 
     for (auto &&it : this->get<tgui::Panel>("p0")->getWidgets()) {
         result.second.emplace_back(dynamic_cast<Action *>(it.get())->getData());
@@ -155,7 +161,13 @@ void Day::callback(const tgui::Callback &callback) {
     if (callback.id == 2) ///aktywny
     {
         auto b1 = this->get<tgui::Button>("t1");
-        b1->setTextColor(sf::Color(255 * (b1->getTextColor() == sf::Color::Black ? 1 : 0), 0, 0, 255));
+        b1->setTextColor(sf::Color(0, 255 * (b1->getTextColor() == sf::Color::Black ? 1 : 0), 0, 255));
+
+        if (b1->getTextColor() == sf::Color::Black) {
+            this->setBackgroundColor(sf::Color::White);
+        } else {
+            this->setBackgroundColor(sf::Color::Green);
+        }
 
         m_Callback.trigger = Day::ValueChanged;
         addCallback();
@@ -169,7 +181,7 @@ void Day::callback(const tgui::Callback &callback) {
         }
         old_value_scrollbar = callback.value;
     }
-    if (callback.id == 4) ///value changed or deleate
+    if (callback.id == 4) ///value changed or delete
     {
         if (callback.trigger == Action::Delete) {
             this->delAction(callback.widget);

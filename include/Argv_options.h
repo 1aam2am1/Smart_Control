@@ -14,9 +14,14 @@ public:
 
     struct Options {
         sf::Vector2i size = sf::Vector2i(1200, 800);
-        bool rs232 = true;
+        enum {
+            rs232 = 0,
+            modbus,
+            modbus_usb,
+        } tryb = modbus;
         bool console = false;
         bool version = false;
+        bool debug_message = false;
     };
 
     Options getOptions() const;

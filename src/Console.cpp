@@ -3,6 +3,7 @@
 #include <cstdio>
 #include <fcntl.h>
 #include <fstream>
+
 #include "Asynchronous_write.h"
 
 
@@ -51,11 +52,12 @@ void Console::RedirectIOToConsole() {
     }
 }
 
+/*
 void Console::printf(const char *str, ...) {
     Asynchronous_write::message m;
     m.file = stdout;
 
-    static std::vector<char> v(256);
+    std::vector<char> v(256);
 
     va_list v1;
     va_start(v1, str);
@@ -69,24 +71,21 @@ void Console::printf(const char *str, ...) {
     va_end(v1);
 
     Asynchronous_write::getSingleton().add(m);
-    /*
-    sf::Lock lock(mutex);
+}
+*/
+static Console::Message_level message_level = Console::ALL;
 
-    va_list vl;
-    va_start(vl,str);
-
-    int result = vprintf(str, vl);
-
-    va_end(vl);
-
-    return result;*/
+void Console::setMessage_level(Message_level level) {
+    message_level = level;
 }
 
-void Console::fprintf(FILE *file, const char *str, ...) {
+void Console::printf(Message_level level, const char *str, ...) {
+    if (!(message_level | level)) { return; }
+
     Asynchronous_write::message m;
-    m.file = file;
+    m.file = stdout;
 
-    static std::vector<char> v(256);
+    std::vector<char> v(256);
 
     va_list v1;
     va_start(v1, str);
@@ -102,3 +101,56 @@ void Console::fprintf(FILE *file, const char *str, ...) {
     Asynchronous_write::getSingleton().add(m);
 }
 
+Console::Printf_block::Printf_block()
+        : v(256) {}
+
+Console::Printf_block Console::Printf_block::beginWrite() {
+    return {};
+}
+
+Console::Printf_block::~Printf_block() {
+    if (!this->message.empty()) { this->endWrite(); }
+}
+
+/*
+Console::Printf_block &Console::Printf_block::printf(const char *str, ...) {
+    va_list v1;
+    va_start(v1, str);
+
+    while (vsnprintf(&v[0], v.size(), str, v1) < 0) {
+        v.resize(v.size() * 2);
+    }
+
+    va_end(v1);
+
+    message += &v[0];
+
+    return *this;
+}
+*/
+Console::Printf_block &Console::Printf_block::printf(Console::Message_level level, const char *str, ...) {
+    if (!(message_level | level)) { return *this; }
+
+    va_list v1;
+    va_start(v1, str);
+
+    while (vsnprintf(&v[0], v.size(), str, v1) < 0) {
+        v.resize(v.size() * 2);
+    }
+
+    va_end(v1);
+
+    message += &v[0];
+
+    return *this;
+}
+
+Console::Printf_block Console::Printf_block::endWrite() {
+    Asynchronous_write::message m;
+    m.file = stdout;
+    m.str = std::move(this->message);
+    this->message.clear();
+    Asynchronous_write::getSingleton().add(m);
+
+    return *this;
+}

@@ -3,7 +3,7 @@
 #define CRC8INIT    0x00
 #define CRC8POLY    0x18              //0X18 = X^8+X^5+X^4+X^0
 
-//funkcjamdo obliczania crc z czujnika
+//funkcja do obliczania crc z czujnika
 uint8_t crc8(const uint8_t *data_in, uint16_t number_of_bytes_to_read) {
     uint8_t crc;
     uint16_t loop_count;

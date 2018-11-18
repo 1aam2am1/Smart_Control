@@ -1,5 +1,4 @@
 #include "Device.h"
-#include <SFML/System/Sleep.hpp>
 
 Device::Device() = default;
 

@@ -1,11 +1,8 @@
 #include "Logi.h"
 #include <SFML/OpenGL.hpp>
 #include <map>
-#include <list>
 #include <ctime>
 #include <cmath>
-#include <algorithm>
-#include <tuple>
 #include "Funkcje_str.h"
 #include "TGUI/TGUI.hpp"
 #include "WidgetSingleton.h"

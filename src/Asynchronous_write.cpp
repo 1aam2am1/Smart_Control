@@ -1,6 +1,5 @@
 #include "Asynchronous_write.h"
 #include <functional>
-#include <queue>
 #include <SFML/System.hpp>
 
 Asynchronous_write::Asynchronous_write()

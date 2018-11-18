@@ -26,18 +26,18 @@ bool rs232::connect(std::string port) {
 
     if (this->hCom != INVALID_HANDLE_VALUE) { CloseHandle(this->hCom); }
 
-    hCom = CreateFile(("\\\\.\\" + port).c_str(), GENERIC_READ | GENERIC_WRITE, 0, nullptr, OPEN_EXISTING,
+    hCom = CreateFile((R"(\\.\)" + port).c_str(), GENERIC_READ | GENERIC_WRITE, 0, nullptr, OPEN_EXISTING,
                       FILE_ATTRIBUTE_NORMAL, nullptr); //otwieranie portu
 
     if (hCom == INVALID_HANDLE_VALUE) {
-        fprintf(stderr, "CreateFile failed with error %lu.\n", GetLastError());
+        Console::printf(Console::ERROR_MESSAGE, "CreateFile failed with error %lu.\n", GetLastError());
         return false;
     }
 
     //pobranie aktualnych ustawien portu
     fSuccess_COM = GetCommState(hCom, &dcb);
     if (!fSuccess_COM) {
-        fprintf(stderr, "GetCommState failed with error %lu.\n", GetLastError());
+        Console::printf(Console::ERROR_MESSAGE, "GetCommState failed with error %lu.\n", GetLastError());
         return false;
     }
 
@@ -52,12 +52,14 @@ bool rs232::connect(std::string port) {
 
     fSuccess_COM = SetCommState(hCom, &dcb);
     if (!fSuccess_COM) {
-        fprintf(stderr, "SetCommState failed with error %lu.\n", GetLastError());
+        Console::printf(Console::ERROR_MESSAGE, "SetCommState failed with error %lu.\n", GetLastError());
         return false;
     }
 
     if (thread_work == 1) {
         thread_work = 0;
+
+        PurgeComm(this->hCom, PURGE_RXABORT);
         for (int32_t i = 0; i < 10 && thread_work != 3; ++i) ///koniec watku
         {
             sf::sleep(sf::milliseconds(20));
@@ -69,7 +71,7 @@ bool rs232::connect(std::string port) {
     thread_work = 1;
     thr = std::thread(std::bind(&rs232::main, this));
 
-    Console::printf("Polaczono z: %s\n", port.c_str());
+    Console::printf(Console::MESSAGE, "Polaczono z: %s\n", port.c_str());
 
     Event e;
     e.type = Event::Open;
@@ -84,6 +86,8 @@ void rs232::close() /// =>w watku jest to samo :)
 
     if (thread_work == 1) {
         thread_work = 0;
+
+        PurgeComm(this->hCom, PURGE_RXABORT);
         for (int32_t i = 0; i < 10 && thread_work != 3; ++i) ///koniec watku
         {
             mutex.unlock();
@@ -107,7 +111,7 @@ void rs232::close() /// =>w watku jest to samo :)
 
     mutex.unlock();
 
-    Console::printf("Port zostal rozlaczony\n");
+    Console::printf(Console::MESSAGE, "Port zostal rozlaczony\n");
 }
 
 std::map<int, int> rs232::getData() {
@@ -122,7 +126,7 @@ void rs232::toSendData(const std::map<int, int> &dane) {
     std::map<int, int> dane2 = dane;
     dane2.erase(46);
     if (static_cast<uint32_t>((dane2.rbegin()->first - dane2.begin()->first) + 1) != dane2.size()) {
-        Console::printf("Brak wszystkich danych z paskow ERROR\n");
+        Console::printf(Console::ERROR_MESSAGE, "Brak wszystkich danych z paskow ERROR\n");
 
         return;
     }
@@ -141,19 +145,20 @@ void rs232::toSendData(const std::map<int, int> &dane) {
 
 void rs232::main() {
     write("");
-    recive_clock.restart();
+    receive_clock.restart();
     while (thread_work) {
         {
             sf::Lock lock(mutex);
 
-            if (recive_clock.getElapsedTime() > sf::seconds(5)) {
+            if (receive_clock.getElapsedTime() > sf::seconds(5)) {
                 write("");
-                recive_clock.restart();
+                receive_clock.restart();
             }
 
             haveData();
         }
 
+        if (!thread_work) { break; }
         sf::sleep(sf::milliseconds(20));
     }
 
@@ -187,36 +192,36 @@ void rs232::haveData() {
         ReadFile(hCom, wsk, statsread.cbInQue, &RS_read, nullptr);
         str.assign(wsk, RS_read);
 
-        if (!str.empty()) { Console::printf("Read: %s\n", str.c_str()); }
+        if (!str.empty()) { Console::printf(Console::LOG, "Read: %s\n", str.c_str()); }
 
         free(wsk);
 
-        temponary_data += str;
-        recive_clock.restart();
+        temporary_data += str;
+        receive_clock.restart();
     }
 
     while (true) {
         str = "";
 
-        std::size_t found = temponary_data.find('#'); //pierwszy znak liczac od 0
+        std::size_t found = temporary_data.find('#'); //pierwszy znak liczac od 0
         if (found == std::string::npos) { return; }
 
-        temponary_data.erase(0, found); ///usuwamy wczesniejsze
+        temporary_data.erase(0, found); ///usuwamy wczesniejsze
 
-        std::size_t found2 = temponary_data.find(';'); //do ostatniego
+        std::size_t found2 = temporary_data.find(';'); //do ostatniego
         if (found2 == std::string::npos) { return; }
 
-        found = temponary_data.rfind('#', found2); ///znajdujemy od konca
+        found = temporary_data.rfind('#', found2); ///znajdujemy od konca
 
-        str.insert(0, temponary_data, found + 1, found2 - found - 1); ///pobieramy dane do str bez ;
+        str.insert(0, temporary_data, found + 1, found2 - found - 1); ///pobieramy dane do str bez ;
 
-        temponary_data.erase(0, found2 + 1); ///usuwamy wszystko do znaku ; wlacznie
+        temporary_data.erase(0, found2 + 1); ///usuwamy wszystko do znaku ; wlacznie
 
         ///parsowanie
         std::string temp;
         std::string value;
 
-        Console::printf("Parsowanie: %s\n", str.c_str());
+        Console::printf(Console::LOG, "Parsowanie: %s\n", str.c_str());
 
         while (!str.empty()) {
             temp = Game_api::wypisz(str, '='); //flaga
@@ -240,7 +245,7 @@ bool rs232::write(std::string informacja) {
                 crc8(reinterpret_cast<const uint8_t *>(informacja.c_str()), informacja.size())); ///suma crc
     }
 
-    std::string informacja2 = "#" + informacja + ";" + '\r' + '\n';
+    std::string informacja2 = "#" + informacja + ";\r\n";
     if (this->hCom != INVALID_HANDLE_VALUE) {
         COMSTAT statsread; //status
         DWORD RS_send;   //ilosc bitow odczytanych
@@ -260,7 +265,7 @@ bool rs232::write(std::string informacja) {
 
         FlushFileBuffers(hCom);
 
-        Console::printf("Data write: %.*s\n", (int) RS_send, informacja2.c_str());
+        Console::printf(Console::LOG, "Data write: %.*s\n", (int) RS_send, informacja2.c_str());
 
         return true;
     } else {

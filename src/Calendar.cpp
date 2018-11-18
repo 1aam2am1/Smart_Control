@@ -4,6 +4,9 @@
 #include "WidgetSingleton.h"
 #include "Day.h"
 
+const static sf::Color green = sf::Color(198, 239, 206);
+const static sf::Color red = sf::Color(255, 199, 206);
+
 Calendar::Calendar() = default;
 
 Calendar::~Calendar() = default;
@@ -23,7 +26,7 @@ void Calendar::setCAL_STATE(const CAL_STATE &state) {
             message += "Zegar na plycie rozszerzen";
             break;
         case CAL_STATE::ETH_MODULE:
-            message += "Czas z modulu etherntowego";
+            message += "Czas z modulu ethernetowego";
             break;
         default:
             break;
@@ -35,7 +38,12 @@ void Calendar::setCAL_STATE(const CAL_STATE &state) {
 
 void Calendar::setActiveDays(uint8_t flags) {
     auto b1 = this->get<tgui::Button>("aktywny");
-    b1->setTextColor(sf::Color(255 * (flags & 1), 0, 0, 255));
+    b1->setTextColor(sf::Color(0, 255 * (flags & 1), 0, 255));
+    if (flags & 1) {
+        this->setBackgroundColor(green);
+    } else {
+        this->setBackgroundColor(red);
+    }
 
     for (uint32_t i = 0; i < 7; ++i) {
         this->get<Day>("p" + Game_api::convertInt(i))->setActive(flags & (1 << (i + 1)));
@@ -54,7 +62,7 @@ void Calendar::change(const std::map<int, std::vector<Action_data_struct>> &dane
 std::pair<uint8_t, std::map<int, std::vector<Action_data_struct>>> Calendar::getChanged() {
     std::pair<uint8_t, std::map<int, std::vector<Action_data_struct>>> result;
 
-    result.first = (this->get<tgui::Button>("aktywny")->getTextColor() == sf::Color::Red);
+    result.first = (this->get<tgui::Button>("aktywny")->getTextColor() == sf::Color::Green);
 
     for (uint32_t i = 0; i < 7; ++i) {
         auto data = this->get<Day>("p" + Game_api::convertInt(i))->getChanged();
@@ -69,7 +77,7 @@ std::pair<uint8_t, std::map<int, std::vector<Action_data_struct>>> Calendar::get
 void Calendar::initialize(Container *const container) {
     this->Panel::initialize(container);
     this->bindGlobalCallback(std::bind(&Calendar::callback, this, std::placeholders::_1));
-    this->setBackgroundColor(sf::Color::Transparent);
+    this->setBackgroundColor(red);
 
     tgui::Button::Ptr b1 = WidgetSingleton<tgui::Button>::get(*this, "aktywny");
     //b1->load(THEME_CONFIG_FILE);
@@ -121,7 +129,12 @@ void Calendar::initialize(Container *const container) {
 void Calendar::callback(const tgui::Callback &callback) {
     if (callback.id == 1) {
         auto b1 = this->get<tgui::Button>("aktywny");
-        b1->setTextColor(sf::Color(255 * (b1->getTextColor() == sf::Color::Black ? 1 : 0), 0, 0, 255));
+        b1->setTextColor(sf::Color(0, 255 * (b1->getTextColor() == sf::Color::Black ? 1 : 0), 0, 255));
+        if (b1->getTextColor() == sf::Color::Black) {
+            this->setBackgroundColor(red);
+        } else {
+            this->setBackgroundColor(green);
+        }
         //m_Callback.trigger = Calendar::ValueChanged;
 
         auto b3 = this->get<tgui::Button>("save");
