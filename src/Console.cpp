@@ -80,7 +80,7 @@ void Console::setMessage_level(Message_level level) {
 }
 
 void Console::printf(Message_level level, const char *str, ...) {
-    if (!(message_level | level)) { return; }
+    if (!(message_level & level)) { return; }
 
     Asynchronous_write::message m;
     m.file = stdout;
@@ -129,7 +129,7 @@ Console::Printf_block &Console::Printf_block::printf(const char *str, ...) {
 }
 */
 Console::Printf_block &Console::Printf_block::printf(Console::Message_level level, const char *str, ...) {
-    if (!(message_level | level)) { return *this; }
+    if (!(message_level & level)) { return *this; }
 
     va_list v1;
     va_start(v1, str);

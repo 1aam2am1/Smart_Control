@@ -305,7 +305,7 @@ int P_SIMPLE::writeCom(std::vector<char> data) {
 
         if (fRes) {
             communication_log.w_write(data.data(), RS_send);
-            Console::printf(Console::LOG, "Data write: %.*s\n", (int) RS_send, data.data());
+            Console::printf(Console::DATA_FUNCTION_LOG, "Data write: %.*s\n", (int) RS_send, data.data());
 
             return static_cast<int>(RS_send);
         } else {
@@ -483,60 +483,35 @@ void P_SIMPLE::main() {
                                 .printf(Console::DATA_FUNCTION_LOG, "needSendDateData: %s\n",
                                         needSendDateData ? "true" : "false")
                                 .printf(Console::DATA_FUNCTION_LOG, "needReceiveDateData: %s\n",
-                                        needReceiveDateData ? "true" : "false");
-// TODO (Michał Marszałek#1#09/16/18): Zwin ramke chce dane i che wyslac oraz kalendarz
+                                        needReceiveDateData ? "true" : "false")
+                                .printf(Console::DATA_FUNCTION_LOG, "needSendData: %s\n",
+                                        !send_data.empty() ? "true" : "false");
 
-                        if (rzadanie_danych && !calendar)///ja pragne dane
+                        std::vector<char> message;
+                        std::vector<uint8_t> info;
+                        info.resize(2 + 2 * send_data.size() * (usb | (!rzadanie_danych)));
+
+                        info[0] = (calendar ? 0x20 : 0) + (rzadanie_danych ? 0x10 : 0) + 0x01;
+
+                        if (!send_data.empty() && (usb | (!rzadanie_danych)))///mam dane do wyslania
                         {
-                            writeCom(
-                                    {"66 00 03 10 00 08\r"}); ///66 rozpoczecie 00 adres 03 dlugosc 10 4bit chce dane 00 errors 0C crc
-                        } else if (rzadanie_danych && calendar) {
-                            // TODO (Michał Marszałek#1#09/14/18): Change to static meseage
-                            std::vector<char> message;
-                            std::vector<uint8_t> info = {0x30, 0x00};
+                            block.printf(Console::DATA_FUNCTION_LOG, "Mam dane do wyslania\n");
 
-                            //info.push_back(0x30);///need calendar data
-                            //info.push_back(0x00);///errors
+                            processed_data = std::move(send_data);
+                            send_data.clear();
 
-                            create_message(0x66, 0x00, info, message);
-                            writeCom(message);
-                        } else if (calendar | send_data.size()) {
-                            std::vector<char> message;
-                            std::vector<uint8_t> info;
-
-                            info.resize(2 + 2 * processed_data.size());
-
-                            info[0] = 0x20 + (send_data.size() ? 0x01
-                                                               : 0x00);///need calendar data | mam dane do wyslania
-
-                            if (!send_data.empty())///mam dane do wyslania
+                            uint32_t j = 1;
+                            for (auto &it : processed_data)///dodawanie danych
                             {
-                                block.printf(Console::DATA_FUNCTION_LOG, "Mam dane do wyslania\n");
-
-                                processed_data = std::move(send_data);
-                                send_data.clear();
-
-                                {
-                                    uint32_t j = 1;
-                                    for (auto &it : processed_data)///dodawanie danych
-                                    {
-                                        info[j++] = it.first;
-                                        info[j++] = it.second;
-                                    }
-                                }
+                                info[j++] = it.first;
+                                info[j++] = it.second;
                             }
-                            info.back() = 0x00;///errors
-
-                            create_message(0x66, 0x00, info, message);
-
-                            writeCom(message);
-                        } else///podtrzymanie komunikacji
-                        {
-                            block.printf(Console::DATA_FUNCTION_LOG, "Podtrzymanie komunikacji\n");
-
-                            writeCom(
-                                    {"66 00 03 01 00 20"});///66 rozpoczecie 00 adres 03 dlugosc 01 1bit gotowy 00 errors 20 crc
                         }
+
+                        info.back() = 0x00;///errors
+
+                        create_message(0x66, 0x00, info, message);
+                        writeCom(message);
                     } else if (result[3] == 0x30)///kalendarz
                     {
                         block.printf(Console::DATA_FUNCTION_LOG, "Kalendarz podstawowa odpowiedz\n");
@@ -824,7 +799,7 @@ int P_SIMPLE::receive(std::string &r_data, std::vector<uint8_t> &result, sf::Tim
             // Error creating overlapped event handle.
             return -2;
         }
-        Console::printf(Console::MESSAGE, "WaitCommEvent()\n");
+        Console::printf(Console::LOG, "WaitCommEvent()\n");
         if (!WaitCommEvent(hCom, &Occured, &FileEvent)) {
             if (GetLastError() != ERROR_IO_PENDING) {
                 CloseHandle(FileEvent.hEvent);
@@ -880,7 +855,7 @@ int P_SIMPLE::receive(std::string &r_data, std::vector<uint8_t> &result, sf::Tim
 
             if (RS_read != 0) {
                 communication_log.r_write(tab_receive_buffer.data(), RS_read);
-                Console::printf(Console::LOG, "Read: %.*s\n", (int) RS_read, tab_receive_buffer.data());
+                Console::printf(Console::DATA_FUNCTION_LOG, "Read: %.*s\n", (int) RS_read, tab_receive_buffer.data());
             }
 
             r_data.append(tab_receive_buffer.data(), RS_read);
