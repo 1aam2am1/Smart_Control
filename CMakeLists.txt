@@ -5,9 +5,12 @@ add_executable(${PROJECT_NAME})
 set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wfatal-errors")
 
+add_definitions(-DWINVER=0x0501)
+add_definitions(-D_WIN32_WINNT=0x0501)
 
 # Add cmake_modules path
 set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake_modules" ${CMAKE_MODULE_PATH})
+set(SFML_STATIC_LIBRARIES TRUE)
 
 if (NOT DEFINED $ENV{TGUI_ROOT})
     set(TGUI_ROOT
@@ -24,19 +27,17 @@ target_link_libraries(${PROJECT_NAME} ${TGUI_LIBRARY})
 
 #Find any version 2.X of SFML
 #See the FindSFML.cmake file for additional details and instructions
-set(SFML_STATIC_LIBRARIES TRUE)
 find_package(SFML 2 COMPONENTS graphics REQUIRED)
 include_directories(${SFML_DIR}/../../../include)
 target_link_libraries(${PROJECT_NAME} sfml-graphics)
 
 
 # creates version.cpp using cmake script
-add_custom_command(OUTPUT svn_header
-        COMMAND ${CMAKE_COMMAND} -DSOURCE_DIR=${CMAKE_CURRENT_SOURCE_DIR}
-        -P ${CMAKE_CURRENT_SOURCE_DIR}/CVersion.cmake)
-
 # a custom target that is always built
-add_custom_target(svnheader DEPENDS svn_header) # svn_header is nothing more than a unique string
+add_custom_target(svnheader #DEPENDS svn_header
+        BYPRODUCTS "${CMAKE_BINARY_DIR}/version.cpp"
+        COMMAND ${CMAKE_COMMAND} -DSOURCE_DIR=${CMAKE_CURRENT_SOURCE_DIR}
+        -P ${CMAKE_CURRENT_SOURCE_DIR}/CVersion.cmake) # svn_header is nothing more than a unique string
 add_dependencies(${PROJECT_NAME} svnheader)
 target_sources(${PROJECT_NAME} PRIVATE "${CMAKE_BINARY_DIR}/version.cpp")
 
