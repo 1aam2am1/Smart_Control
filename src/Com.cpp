@@ -1,4 +1,6 @@
 #include "Com.h"
+
+#if defined(_WIN32)
 #include <windows.h>
 
 
@@ -56,3 +58,12 @@ std::list<std::string> Com::getComList() {
     return tab;
 }
 
+#else
+std::list<std::string> Com::getComList() {
+    std::list<std::string> tab;
+    // Todo Add implementation for com list in linux
+
+
+    return tab;
+}
+#endif

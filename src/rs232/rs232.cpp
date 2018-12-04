@@ -1,4 +1,6 @@
 #include "rs232/rs232.h"
+
+#if defined(_WIN32)
 #include <SFML/System/Sleep.hpp>
 #include <SFML/System/Lock.hpp>
 #include <Funkcje_str.h>
@@ -272,3 +274,12 @@ bool rs232::write(std::string informacja) {
         return false;
     }
 }
+
+#else
+rs232::rs232() = default;
+rs232::~rs232() = default;
+bool rs232::connect(std::string){}
+void rs232::close(){}
+std::map<int, int> rs232::getData(){}
+void rs232::toSendData(const std::map<int, int> &dane){}
+#endif

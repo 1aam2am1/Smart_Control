@@ -2,10 +2,14 @@
 #define RS232_H
 
 #include "Device.h"
+
+#if defined(_WIN32)
 #include <windows.h>
 #include <thread>
 #include <SFML/System/Clock.hpp>
 #include <SFML/System/Mutex.hpp>
+
+#endif
 
 class rs232 : public Device {
 public:
@@ -40,6 +44,7 @@ public:
     virtual void sendDateData(const Date_data_struct &) {};
 
 private:
+#if defined(_WIN32)
     sf::Mutex mutex;
     std::thread thr;
     HANDLE hCom;
@@ -56,6 +61,8 @@ private:
     void haveData();
 
     bool write(std::string);
+
+#endif
 };
 
 #endif // RS232_H

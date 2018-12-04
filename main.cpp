@@ -1,8 +1,11 @@
 #include <SFML/Graphics.hpp>
 #include <TGUI/TGUI.hpp>
+
+#if defined(_WIN32)
 #include <windows.h>
 
 #undef MessageBox
+#endif
 
 #include <memory>
 #include "icona.h"
@@ -68,7 +71,7 @@ int main(int argc, char **argv) {
     sf::Clock com_refresh_clock;
     bool start_refresh_clock = true;
 
-#if defined(SFML_SYSTEM_WINDOWS)
+#if defined(_WIN32)
     HICON hIcon = LoadIcon(GetModuleHandle(nullptr), MAKEINTRESOURCE(IDI_IKONA));
     if (hIcon) {
         SendMessage(window.getSystemHandle(), WM_SETICON, ICON_BIG, (LPARAM) hIcon);

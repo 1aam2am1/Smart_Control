@@ -61,10 +61,27 @@ endif ()
 # Define sources and executable
 include_directories(${CMAKE_SOURCE_DIR})
 include_directories(${CMAKE_SOURCE_DIR}/include)
+include_directories(${CMAKE_SOURCE_DIR}/src)
 
 file(GLOB_RECURSE GENERATED_SOURCES ${CMAKE_SOURCE_DIR}/src/*.cpp)
-file(GLOB_RECURSE GENERATED_HEADERS ${CMAKE_SOURCE_DIR}/include/*.h)
-file(GLOB_RECURSE GENERATED_RC_FILES ${CMAKE_SOURCE_DIR}/include/*.rc)
+file(GLOB_RECURSE GENERATED_HEADERS ${CMAKE_SOURCE_DIR}/include/*.h ${CMAKE_SOURCE_DIR}/src/*.h)
+
+if (WIN32)
+    list(FILTER GENERATED_HEADERS EXCLUDE REGEX ".*/Unix/.*")
+    list(FILTER GENERATED_SOURCES EXCLUDE REGEX ".*/Unix/.*")
+    file(GLOB_RECURSE GENERATED_RC_FILES ${CMAKE_SOURCE_DIR}/include/*.rc)
+endif ()
+
+
+if (UNIX)
+    list(FILTER GENERATED_HEADERS EXCLUDE REGEX ".*/Win32/.*")
+    list(FILTER GENERATED_SOURCES EXCLUDE REGEX ".*/Win32/.*")
+    set(GENERATED_RC_FILES "")
+
+    target_link_libraries(${PROJECT_NAME} "GLU")
+    target_link_libraries(${PROJECT_NAME} "GL")
+    target_link_libraries(${PROJECT_NAME} "pthread")
+endif ()
 
 target_sources(${PROJECT_NAME} PRIVATE main.cpp ${GENERATED_SOURCES} ${GENERATED_RC_FILES} ${GENERATED_HEADERS})
 set_target_properties(${PROJECT_NAME} PROPERTIES OUTPUT_NAME "${EXECUTABLE_NAME}")

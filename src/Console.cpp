@@ -1,12 +1,22 @@
 #include "Console.h"
+
+#if defined(_WIN32)
 #include "windows.h"
+
+#else
+#include <stdlib.h>
+#include <stdio.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <unistd.h>
+#endif
 #include <cstdio>
 #include <fcntl.h>
 #include <fstream>
 
 #include "Asynchronous_write.h"
 
-
+#if defined(_WIN32)
 // maximum mumber of lines the output console should have
 static const WORD MAX_CONSOLE_LINES = 500;
 
@@ -52,6 +62,23 @@ void Console::RedirectIOToConsole() {
     }
 }
 
+#else
+void Console::RedirectIOToConsole() {
+    char *name = tempnam(nullptr, nullptr);
+
+    mkfifo(name, 0777);
+    if(fork() == 0)
+    {
+        system((std::string{"xterm -e cat "} + name).c_str());
+        exit(0);
+    }
+    freopen(name, "w", stdout);
+
+    // make cout, wcout, cin, wcin, wcerr, cerr, wclog and clog
+// point to console as well
+    std::ios::sync_with_stdio();
+}
+#endif
 /*
 void Console::printf(const char *str, ...) {
     Asynchronous_write::message m;
