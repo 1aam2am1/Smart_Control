@@ -10,12 +10,16 @@ add_definitions(-D_WIN32_WINNT=0x0501)
 
 # Add cmake_modules path
 set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake_modules" ${CMAKE_MODULE_PATH})
-set(SFML_STATIC_LIBRARIES TRUE)
+if (WIN32)
+    set(SFML_STATIC_LIBRARIES TRUE)
 
-if (NOT DEFINED $ENV{TGUI_ROOT})
-    set(TGUI_ROOT
-            "C:/Dropbox/TGUI-0.6.10"
-            "D:/Dropbox/TGUI-0.6.10")
+    if (NOT DEFINED $ENV{TGUI_ROOT})
+        set(TGUI_ROOT
+                "C:/Dropbox/TGUI-0.6.10"
+                "D:/Dropbox/TGUI-0.6.10")
+    endif ()
+else ()
+    set(TGUI_ROOT "/home/michal/tgui")
 endif ()
 
 #Find any version 0.6 of tgui

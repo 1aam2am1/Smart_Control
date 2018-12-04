@@ -22,4 +22,12 @@ else ()
     set(DIRTY "")
 endif ()
 
-configure_file("${SOURCE_DIR}/version.cpp.in" "${CMAKE_BINARY_DIR}/version.cpp" @ONLY)
+#configure_file("${SOURCE_DIR}/version.cpp.in" "${CMAKE_BINARY_DIR}/version.cpp" @ONLY)
+file(WRITE "${CMAKE_BINARY_DIR}/version.cpp"
+        "#include \"version.h\"\n"
+        ""
+        ""
+        "const std::string Version::GIT_DIRTY = \"${DIRTY}\";"
+        "const std::string Version::GIT_SHA = \"${_GIT_HASH}\";"
+        "const std::string Version::GIT_TAG = \"${_GIT_DESCRIBE}\";"
+        "const std::string Version::DATE = \"${_TIME}\";")
