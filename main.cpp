@@ -24,19 +24,10 @@
 void load(tgui::Gui *, const Argv_options &);
 
 int main(int argc, char **argv) {
-    std::shared_ptr<Device> com;
-
-    sf::RenderWindow window;
-
     Argv_options options;
+    std::shared_ptr<Device> com;
+    
     options.process(argc, argv);
-    window.create(sf::VideoMode(static_cast<uint32_t>(options.getOptions().size.x),
-                                static_cast<uint32_t>(options.getOptions().size.y)),
-                  "Smart Control " + Version::GIT_TAG + " " +
-                  (Version::GIT_DIRTY.empty() ? "" : (Version::GIT_SHA + " " +
-                                                      Version::DATE)),
-                  sf::Style::Default);
-    window.setView(sf::View(sf::FloatRect(0, 0, 1200, 820)));
 
     Console::setMessage_level(Console::ALL & ~(!options.getOptions().debug_message ? Console::LOG : 0));
 
@@ -64,6 +55,15 @@ int main(int argc, char **argv) {
                                                             Version::GIT_SHA + " " +
                                                             Version::DATE).c_str());
     }
+
+    sf::RenderWindow window;
+    window.create(sf::VideoMode(static_cast<uint32_t>(options.getOptions().size.x),
+                                static_cast<uint32_t>(options.getOptions().size.y)),
+                  "Smart Control " + Version::GIT_TAG + " " +
+                  (Version::GIT_DIRTY.empty() ? "" : (Version::GIT_SHA + " " +
+                                                      Version::DATE)),
+                  sf::Style::Default);
+    window.setView(sf::View(sf::FloatRect(0, 0, 1200, 820)));
 
     sf::Clock send_clock;
     bool send_bool = false;

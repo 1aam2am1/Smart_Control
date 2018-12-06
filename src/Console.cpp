@@ -4,11 +4,14 @@
 #include "windows.h"
 
 #else
-#include <stdlib.h>
-#include <stdio.h>
+
+#include <cstdlib>
+#include <cstdio>
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <unistd.h>
+#include <errno.h>
+#include <cstring>
 #endif
 #include <cstdio>
 #include <fcntl.h>
@@ -64,15 +67,19 @@ void Console::RedirectIOToConsole() {
 
 #else
 void Console::RedirectIOToConsole() {
-    char *name = tempnam(nullptr, nullptr);
+    int master = posix_openpt(O_RDWR);
+    char *slavename, buf[64];
 
-    mkfifo(name, 0777);
-    if(fork() == 0)
-    {
-        system((std::string{"xterm -e cat "} + name).c_str());
-        exit(0);
+    grantpt(master);
+    unlockpt(master);
+    slavename = ptsname(master);
+
+    snprintf(buf, sizeof buf, "-S%s/%d", strrchr(slavename, '/') + 1, master);
+    if (!fork()) {
+        execlp("xterm", "xterm", buf, (char *) 0);
+        _exit(1);
     }
-    freopen(name, "w", stdout);
+    freopen(slavename, "w", stdout);
 
     // make cout, wcout, cin, wcin, wcerr, cerr, wclog and clog
 // point to console as well
