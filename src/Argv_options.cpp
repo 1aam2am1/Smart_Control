@@ -24,7 +24,7 @@ bool Argv_options::process(int argc, char **argv) {
     while (true) {
         int option_index = 0;
 
-        int c = getopt_long(argc, argv, "g:rmhc",
+        int c = getopt_long(argc, argv, "g:rmucdhv",
                             long_options, &option_index);
 
         /* Detect the end of the options. */
