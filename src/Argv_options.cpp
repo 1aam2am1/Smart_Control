@@ -20,11 +20,27 @@ bool Argv_options::process(int argc, char **argv) {
                     {nullptr,         0,                 nullptr, 0}
             };
     int opcje_kolidujace_rs232_modbus = 0;
+    int options_long_string_length = 0;
+
+    optind = 0; //set to 0 because of multiple processing
+
+    std::string getopt_long_short_options;
+    getopt_long_short_options.reserve((sizeof(long_options) / sizeof(option)) * 2);
+
+    for (uint32_t i = 0; long_options[i].name != nullptr || long_options[i].has_arg != 0 ||
+                         long_options[i].flag != nullptr || long_options[i].val != 0; ++i) {
+        getopt_long_short_options.push_back(static_cast<char>(long_options[i].val));
+        if (long_options[i].has_arg != no_argument) {
+            getopt_long_short_options.push_back(':');
+        }
+
+        options_long_string_length = std::max<int>(options_long_string_length, strlen(long_options[i].name));
+    }
 
     while (true) {
         int option_index = 0;
 
-        int c = getopt_long(argc, argv, "g:rmucdhv",
+        int c = getopt_long(argc, argv, getopt_long_short_options.c_str(),
                             long_options, &option_index);
 
         /* Detect the end of the options. */
@@ -73,16 +89,16 @@ bool Argv_options::process(int argc, char **argv) {
                 Console::printf(Console::ERROR_MESSAGE, "Options:\n");
                 for (uint32_t i = 0; long_options[i].name != nullptr || long_options[i].has_arg != 0 ||
                                      long_options[i].flag != nullptr || long_options[i].val != 0; ++i) {
-                    Console::printf(Console::ERROR_MESSAGE, " - %-10s %s\n", long_options[i].name,
+                    Console::printf(Console::ERROR_MESSAGE, " - %-*s %s\n", options_long_string_length + 2,
+                                    long_options[i].name,
                                     long_options[i].has_arg ? "Arg" : "");
                 }
                 exit(EXIT_FAILURE);
             case '?':
+                Console::printf(Console::ERROR_MESSAGE, "ERROR Bad Option\n");
                 exit(EXIT_FAILURE);
             default:
                 Console::printf(Console::ERROR_MESSAGE, "ERROR Bad Option\n");
-                fflush(stdout);
-                //exit(-1);
                 return false;
         }
     }
