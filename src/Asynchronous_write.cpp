@@ -10,11 +10,11 @@ Asynchronous_write::Asynchronous_write()
 Asynchronous_write::~Asynchronous_write() {
     {
         std::unique_lock<std::mutex> lock(this->mutex);
-        thread_work = 0;
+        thread_work = false;
     }
     cv.notify_all();
 
-    thr.detach();
+    thr.join();
 }
 
 void Asynchronous_write::add(message m) {
@@ -39,7 +39,7 @@ void Asynchronous_write::Infinite_loop_function() {
 
             this->cv.wait(lock, [&] { return !queue_message.empty() | !this->thread_work; });
 
-            if (!this->thread_work) { return; }
+            if (!this->thread_work && queue_message.empty()) { return; }
 
             m = queue_message.front();
             queue_message.pop();
