@@ -2,6 +2,7 @@
 #define DEVICE_H
 
 #include "Event.h"
+#include <SFML/System/Mutex.hpp>
 #include <map>
 #include <vector>
 #include <queue>
@@ -46,6 +47,7 @@ public:
     virtual void sendDateData(const Date_data_struct &) = 0;
 
 protected:
+    sf::Mutex mutex;
     std::queue<Event> event;
 };
 

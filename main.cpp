@@ -17,11 +17,13 @@
 #include "WidgetSingleton.h"
 #include "Console.h"
 #include "version.h"
+#include "Asynchronous_write.h"
 
 void load(tgui::Gui *, const Argv_options &);
 
 int main(int argc, char **argv) {
     std::shared_ptr<Device> com;
+    const std::string log_file_name = "Zapis.txt";
 
     sf::RenderWindow window;
 
@@ -82,11 +84,11 @@ int main(int argc, char **argv) {
 
     sf::Event event{};
     Event com_event{};
-    bool dane = false;
+    bool event_flag = false;
     while (window.isOpen()) {
         {
             sf::Clock clock;
-            while (!dane && clock.getElapsedTime() < sf::seconds(1)) {
+            while (!event_flag && clock.getElapsedTime() < sf::seconds(1)) {
                 while (window.pollEvent(event)) {
                     if (event.type == sf::Event::Closed)
                         window.close();
@@ -94,7 +96,7 @@ int main(int argc, char **argv) {
                     // Pass the event to all the widgets
                     gui.handleEvent(event, false);
 
-                    dane = true;
+                    event_flag = true;
                 }
                 while (com->pollEvent(com_event)) {
                     switch (com_event.type) {
@@ -152,7 +154,7 @@ int main(int argc, char **argv) {
                             break;
                     }
 
-                    dane = true;
+                    event_flag = true;
                 }
                 if (start_refresh_clock || com_refresh_clock.getElapsedTime() > sf::seconds(5)) {
                     tgui::ComboBox::Ptr list_com = gui.get("COM", true);
@@ -172,11 +174,11 @@ int main(int argc, char **argv) {
 
                     com_refresh_clock.restart();
 
-                    dane = true;
+                    event_flag = true;
                     start_refresh_clock = false;
                 }
 
-                if (send_bool && (options.getOptions().tryb == Argv_options::Options::modbus ||
+                if (send_bool && (options.getOptions().tryb != Argv_options::Options::rs232 ||
                                   send_clock.getElapsedTime() > sf::seconds(0.5f))) {
                     auto i = gui.get<Menu>("menu")->getChanged();
                     auto data = gui.get<Menu>("menu")->getCalendar()->getChanged();
@@ -192,7 +194,7 @@ int main(int argc, char **argv) {
 
                 sf::sleep(sf::milliseconds(20));
             }///main loop
-            dane = false;
+            event_flag = false;
         }
 
         // The callback loop
@@ -244,11 +246,13 @@ int main(int argc, char **argv) {
                 options.setOptions(op);
             }
             if (callback.id == 1 && callback.trigger == Menu::SaveLogs) {
-                gui.get<Logi>("logi", true)->save("Zapis.txt");
+                gui.get<Logi>("logi", true)->save(log_file_name);
             }
             if (callback.id == 1 && callback.trigger == Menu::GetCalendarData) {
                 com->getCalendarDataSignal();
             }
+
+            event_flag = true;
         }
 
         window.clear(sf::Color(176, 224, 230));
@@ -260,7 +264,7 @@ int main(int argc, char **argv) {
         window.display();
     }
 
-    fflush(stdout);
+    Asynchronous_write::getSingleton().wait_to_write();
 
     return EXIT_SUCCESS;
 }

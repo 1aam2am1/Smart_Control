@@ -21,6 +21,9 @@ public:
 
     void add(message m);
 
+    /// Wait for end of writing
+    void wait_to_write();
+
     static Asynchronous_write &getSingleton();
 
 private:

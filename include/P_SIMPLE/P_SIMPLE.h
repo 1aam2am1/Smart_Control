@@ -4,7 +4,6 @@
 #include "Device.h"
 #include <thread>
 #include <SFML/System/Clock.hpp>
-#include <SFML/System/Mutex.hpp>
 #include <windows.h>
 
 class P_SIMPLE : public Device {
@@ -40,7 +39,6 @@ public:
     virtual void sendDateData(const Date_data_struct &) override;
 
 private:
-    sf::Mutex mutex;
     std::thread wsk;
     HANDLE hCom;
 

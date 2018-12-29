@@ -5,7 +5,6 @@
 #include <windows.h>
 #include <thread>
 #include <SFML/System/Clock.hpp>
-#include <SFML/System/Mutex.hpp>
 
 class rs232 : public Device {
 public:
@@ -40,7 +39,6 @@ public:
     virtual void sendDateData(const Date_data_struct &) {};
 
 private:
-    sf::Mutex mutex;
     std::thread thr;
     HANDLE hCom;
 

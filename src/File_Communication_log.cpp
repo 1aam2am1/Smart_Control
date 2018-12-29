@@ -14,6 +14,7 @@ File_Communication_log::File_Communication_log(std::string dir)
 }
 
 File_Communication_log::~File_Communication_log() {
+    Asynchronous_write::getSingleton().wait_to_write();
     if (file != nullptr) {
         fclose(file);
         file = nullptr;

@@ -1,6 +1,8 @@
 #include "Asynchronous_write.h"
 #include <functional>
 #include <SFML/System.hpp>
+#include <chrono>
+#include <thread>
 
 Asynchronous_write::Asynchronous_write()
         : thread_work(true) {
@@ -23,6 +25,12 @@ void Asynchronous_write::add(message m) {
         queue_message.push(m);
     }
     cv.notify_one();
+}
+
+void Asynchronous_write::wait_to_write() {
+    while (!queue_message.empty()) {
+        std::this_thread::sleep_for(std::chrono::milliseconds(20));
+    }
 }
 
 Asynchronous_write &Asynchronous_write::getSingleton() {
