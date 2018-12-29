@@ -37,7 +37,12 @@ public:
 protected:
     virtual std::string parse(const char *, uint32_t);
 
-    bool new_line;
+    /// There will be new line before the next character
+    /// used between \r\n character
+    bool next_new_symbol;
+
+    /// The previous charackter was new_line;
+    bool was_new_line;
 private:
 };
 

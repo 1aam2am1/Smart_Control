@@ -2,7 +2,8 @@
 #include <map>
 
 Communication_log::Communication_log()
-        : new_line(false) {
+        : next_new_symbol(false),
+          was_new_line(false) {
 
 }
 
@@ -53,20 +54,29 @@ std::string Communication_log::parse(const char *str, uint32_t size) {
         auto it = tab.find(c);
 
         if (it != tab.end()) {
+            if (next_new_symbol && c != '\n') {
+                result += "\n";
+                next_new_symbol = false;
+            }
+
             result += it->second;
 
-            if (c == '\r') { new_line = true; }
-            else if (c == '\n' || new_line) {
-                new_line = false;
+            was_new_line = false;
+
+            if (c == '\r') { next_new_symbol = true; }
+            else if (c == '\n') {
+                next_new_symbol = false;
                 result += "\n";
+                was_new_line = true;
             }
         } else {
-            if (new_line) {
-                new_line = false;
+            if (next_new_symbol) {
+                next_new_symbol = false;
                 result += "\n";
             }
 
             result += c;
+            was_new_line = false;
         }
 
     }

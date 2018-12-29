@@ -122,13 +122,14 @@ void File_Communication_log::time_write() {
     time(&now);
     gmtime_s(&buf, &now);
 
-    char buffer[80];
-    if (new_line) {
-        strftime(buffer, 80, "\n<%d.%m.%Y %H:%M:%S>\n", &buf);
-        new_line = false;
-    } else {
-        strftime(buffer, 80, "<%d.%m.%Y %H:%M:%S>\n", &buf);
-    }
+    char buffer[80] = "\n";
+    //if (!was_new_line) {
+    strftime(buffer + (1 - 1 * was_new_line), 80, "<%d.%m.%Y %H:%M:%S>\n", &buf);
+    was_new_line = true;
+    next_new_symbol = false;
+    //} else {
+    //    strftime(buffer, 80, "<%d.%m.%Y %H:%M:%S>\n", &buf);
+    //}
 
 
     Asynchronous_write::getSingleton().add({file, buffer});
