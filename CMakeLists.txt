@@ -70,6 +70,8 @@ if (WIN32)
     list(FILTER GENERATED_HEADERS EXCLUDE REGEX ".*/Unix/.*")
     list(FILTER GENERATED_SOURCES EXCLUDE REGEX ".*/Unix/.*")
     file(GLOB_RECURSE GENERATED_RC_FILES ${CMAKE_SOURCE_DIR}/include/*.rc)
+
+    add_subdirectory("check_rs485_app")
 endif ()
 
 
