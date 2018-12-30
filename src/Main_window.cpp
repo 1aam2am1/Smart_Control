@@ -14,6 +14,7 @@
 #include "Przelacznik_typ.h"
 #include "Przelacznik_ebledy.h"
 #include "Przelacznik_sekmin.h"
+#include "Przelacznik_obroty.h"
 #include "Console.h"
 #include "Logi.h"
 
@@ -77,9 +78,9 @@ void Main_window::change(const std::map<int, int> &dane) {
              std::make_shared<Przelacznik_e>("odz_1", 37),
              std::make_shared<Przelacznik_e>("odz_2", 38),
              std::make_shared<Przelacznik_e>("moc_s1", 26),
-             std::make_shared<Przelacznik_e>("obr_s1", 27),
+             std::make_shared<Przelacznik_obroty>("obr_s1", 27),
              std::make_shared<Przelacznik_e>("moc_s2", 28),
-             std::make_shared<Przelacznik_e>("obr_s2", 29),
+             std::make_shared<Przelacznik_obroty>("obr_s2", 29),
 
              std::make_shared<Przelacznik_e>("tmp_2", 21), ///prawa
              std::make_shared<Przelacznik_e>("wilg_2", 34),

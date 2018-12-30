@@ -72,6 +72,7 @@ bool P_SIMPLE::connect(std::string port) {
     dcb.StopBits = ONESTOPBIT;    // jeden bity stopu
     dcb.fDtrControl = DTR_CONTROL_DISABLE; //Kontrola linii DTR: DTR_CONTROL_DISABLE (nieaktywny), DTR_CONTROL_ENABLE (aktywny)
     dcb.fRtsControl = RTS_CONTROL_DISABLE; //Kontrola linii RTS: RTS_CONTROL_DISABLE (nieaktywny), RTS_CONTROL_ENABLE (aktywny)
+    dcb.EvtChar = '\r';                     //Event character only when it is accepted then information is recived
 
 
     fSuccess_COM = SetCommState(hCom, &dcb);
