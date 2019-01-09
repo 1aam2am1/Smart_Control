@@ -5,14 +5,17 @@
 
 
 struct Order {
-    std::function<void()> order = []() {};
+    typedef bool Func_type_return;
+    typedef std::function<Func_type_return()> Func_type;
 
-    inline void operator()() const {
+    Func_type order = []()->bool {return false;};
+
+    inline Func_type_return operator()() const {
         return order();
     }
 
-    inline Order &operator=(const std::function<void()> &prawy) {
-        order = prawy;
+    inline Order &operator=(const Func_type &right) {
+        order = right;
         return *this;
     }
 

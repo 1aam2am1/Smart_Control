@@ -10,10 +10,10 @@
 
 int main(int argc, char **argv) {
     char cstr[255];
-    P_COMImpl serial_port;
+    P_SIMPLE_DEVICE serial_port;
     Test test;
 
-    Console::setMessage_level(Console::ALL);
+    Console::setMessage_level(Console::ALL & ~Console::LOG);
     while (true) {
         auto i = Com::getComList();
 
@@ -48,7 +48,7 @@ int main(int argc, char **argv) {
 
             auto j = test.get_test_list();
 
-            for (auto k : j) {
+            for (const auto &k : j) {
                 Console::printf(Console::MESSAGE, " - %s\n", k.c_str());
             }
             Console::printf(Console::MESSAGE, "\n");
