@@ -1,1885 +1,821 @@
-Window:
-{
-	Picture: "Picture1"
-	{
-		Filename = "data/raku2.png"
-		Left = 0
-		Top = 0
-		Width = 716
-		Height = 346.731
-		Visible = true
-		Enabled = true
-		Focused = false
-		Transparency = 255
-		CallbackId = 0
-		Smooth = false
-	}
-
-	Label: "Label1"
-	{
-		ConfigFile = "data/widgets/White.conf"
-		Left = 290
-		Top = 100
-		Width = 118
-		Height = 19.2404
-		Visible = true
-		Enabled = true
-		Focused = false
-		Transparency = 255
-		CallbackId = 0
-		Text = "Odzysk cielpa"
-		TextColor = (0,0,0,255)
-		TextSize = 15
-		BackgroundColor = (0,0,0,0)
-		AutoSize = false
-	}
-
-	EditBox: "odz_1"
-	{
-		ConfigFile = "data/widgets/White.conf"
-		Left = 280
-		Top = 140
-		Width = 127
-		Height = 20
-		Visible = true
-		Enabled = true
-		Focused = false
-		Transparency = 255
-		CallbackId = 0
-		Text = "-"
-		TextSize = 12
-		MaximumCharacters = 0
-		Alignment = "Left"
-		Borders = (4,2,4,2)
-		TextColor = (0,0,0,255)
-		SelectedTextColor = (255,255,255,255)
-		SelectedTextBackgroundColor = (0,110,255,255)
-		SelectionPointColor = (0,0,0,255)
-		LimitTextWidth = false
-		SelectionPointWidth = 1
-		NumbersOnly = false
-	}
-
-	EditBox: "odz_2"
-	{
-		ConfigFile = "data/widgets/White.conf"
-		Left = 280
-		Top = 190
-		Width = 127
-		Height = 20
-		Visible = true
-		Enabled = true
-		Focused = false
-		Transparency = 255
-		CallbackId = 0
-		Text = "-"
-		TextSize = 12
-		MaximumCharacters = 0
-		Alignment = "Left"
-		Borders = (4,2,4,2)
-		TextColor = (0,0,0,255)
-		SelectedTextColor = (255,255,255,255)
-		SelectedTextBackgroundColor = (0,110,255,255)
-		SelectionPointColor = (0,0,0,255)
-		LimitTextWidth = false
-		SelectionPointWidth = 1
-		NumbersOnly = false
-	}
-
-	Label: "Label1 (2)"
-	{
-		ConfigFile = "data/widgets/White.conf"
-		Left = 410
-		Top = 140
-		Width = 18
-		Height = 19.2404
-		Visible = true
-		Enabled = true
-		Focused = false
-		Transparency = 255
-		CallbackId = 0
-		Text = "%"
-		TextColor = (0,0,0,255)
-		TextSize = 15
-		BackgroundColor = (0,0,0,0)
-		AutoSize = false
-	}
-
-	Label: "Label1 (2) (2)"
-	{
-		ConfigFile = "data/widgets/White.conf"
-		Left = 410
-		Top = 190
-		Width = 38
-		Height = 19.2404
-		Visible = true
-		Enabled = true
-		Focused = false
-		Transparency = 255
-		CallbackId = 0
-		Text = "kWh"
-		TextColor = (0,0,0,255)
-		TextSize = 15
-		BackgroundColor = (0,0,0,0)
-		AutoSize = false
-	}
-
-	Label: "Label1 (3)"
-	{
-		ConfigFile = "data/widgets/White.conf"
-		Left = 0
-		Top = 40
-		Width = 168
-		Height = 19.2404
-		Visible = true
-		Enabled = true
-		Focused = false
-		Transparency = 255
-		CallbackId = 0
-		Text = "Grzalka pierwotna"
-		TextColor = (0,0,0,255)
-		TextSize = 15
-		BackgroundColor = (0,0,0,0)
-		AutoSize = false
-	}
-
-	EditBox: "gp_moc"
-	{
-		ConfigFile = "data/widgets/White.conf"
-		Left = 0
-		Top = 60
-		Width = 127
-		Height = 20
-		Visible = true
-		Enabled = true
-		Focused = false
-		Transparency = 255
-		CallbackId = 0
-		Text = "-"
-		TextSize = 12
-		MaximumCharacters = 0
-		Alignment = "Left"
-		Borders = (4,2,4,2)
-		TextColor = (0,0,0,255)
-		SelectedTextColor = (255,255,255,255)
-		SelectedTextBackgroundColor = (0,110,255,255)
-		SelectionPointColor = (0,0,0,255)
-		LimitTextWidth = false
-		SelectionPointWidth = 1
-		NumbersOnly = false
-	}
-
-	EditBox: "tmp_1"
-	{
-		ConfigFile = "data/widgets/White.conf"
-		Left = 0
-		Top = 110
-		Width = 127
-		Height = 20
-		Visible = true
-		Enabled = true
-		Focused = false
-		Transparency = 255
-		CallbackId = 0
-		Text = "-"
-		TextSize = 12
-		MaximumCharacters = 0
-		Alignment = "Left"
-		Borders = (4,2,4,2)
-		TextColor = (0,0,0,255)
-		SelectedTextColor = (255,255,255,255)
-		SelectedTextBackgroundColor = (0,110,255,255)
-		SelectionPointColor = (0,0,0,255)
-		LimitTextWidth = false
-		SelectionPointWidth = 1
-		NumbersOnly = false
-	}
-
-	EditBox: "wilg_1"
-	{
-		ConfigFile = "data/widgets/White.conf"
-		Left = 0
-		Top = 140
-		Width = 127
-		Height = 20
-		Visible = true
-		Enabled = true
-		Focused = false
-		Transparency = 255
-		CallbackId = 0
-		Text = "-"
-		TextSize = 12
-		MaximumCharacters = 0
-		Alignment = "Left"
-		Borders = (4,2,4,2)
-		TextColor = (0,0,0,255)
-		SelectedTextColor = (255,255,255,255)
-		SelectedTextBackgroundColor = (0,110,255,255)
-		SelectionPointColor = (0,0,0,255)
-		LimitTextWidth = false
-		SelectionPointWidth = 1
-		NumbersOnly = false
-	}
-
-	EditBox: "p_moc"
-	{
-		ConfigFile = "data/widgets/White.conf"
-		Left = 290
-		Top = 30
-		Width = 127
-		Height = 20
-		Visible = true
-		Enabled = true
-		Focused = false
-		Transparency = 255
-		CallbackId = 0
-		Text = "-"
-		TextSize = 12
-		MaximumCharacters = 0
-		Alignment = "Left"
-		Borders = (4,2,4,2)
-		TextColor = (0,0,0,255)
-		SelectedTextColor = (255,255,255,255)
-		SelectedTextBackgroundColor = (0,110,255,255)
-		SelectionPointColor = (0,0,0,255)
-		LimitTextWidth = false
-		SelectionPointWidth = 1
-		NumbersOnly = false
-	}
-
-	EditBox: "tmp_3"
-	{
-		ConfigFile = "data/widgets/White.conf"
-		Left = 0
-		Top = 210
-		Width = 127
-		Height = 20
-		Visible = true
-		Enabled = true
-		Focused = false
-		Transparency = 255
-		CallbackId = 0
-		Text = "-"
-		TextSize = 12
-		MaximumCharacters = 0
-		Alignment = "Left"
-		Borders = (4,2,4,2)
-		TextColor = (0,0,0,255)
-		SelectedTextColor = (255,255,255,255)
-		SelectedTextBackgroundColor = (0,110,255,255)
-		SelectionPointColor = (0,0,0,255)
-		LimitTextWidth = false
-		SelectionPointWidth = 1
-		NumbersOnly = false
-	}
-
-	EditBox: "wilg_3"
-	{
-		ConfigFile = "data/widgets/White.conf"
-		Left = 0
-		Top = 240
-		Width = 127
-		Height = 20
-		Visible = true
-		Enabled = true
-		Focused = false
-		Transparency = 255
-		CallbackId = 0
-		Text = "-"
-		TextSize = 12
-		MaximumCharacters = 0
-		Alignment = "Left"
-		Borders = (4,2,4,2)
-		TextColor = (0,0,0,255)
-		SelectedTextColor = (255,255,255,255)
-		SelectedTextBackgroundColor = (0,110,255,255)
-		SelectionPointColor = (0,0,0,255)
-		LimitTextWidth = false
-		SelectionPointWidth = 1
-		NumbersOnly = false
-	}
-
-	EditBox: "tmp_2"
-	{
-		ConfigFile = "data/widgets/White.conf"
-		Left = 540
-		Top = 110
-		Width = 127
-		Height = 20
-		Visible = true
-		Enabled = true
-		Focused = false
-		Transparency = 255
-		CallbackId = 0
-		Text = "-"
-		TextSize = 12
-		MaximumCharacters = 0
-		Alignment = "Left"
-		Borders = (4,2,4,2)
-		TextColor = (0,0,0,255)
-		SelectedTextColor = (255,255,255,255)
-		SelectedTextBackgroundColor = (0,110,255,255)
-		SelectionPointColor = (0,0,0,255)
-		LimitTextWidth = false
-		SelectionPointWidth = 1
-		NumbersOnly = false
-	}
-
-	EditBox: "wilg_2"
-	{
-		ConfigFile = "data/widgets/White.conf"
-		Left = 540
-		Top = 140
-		Width = 127
-		Height = 20
-		Visible = true
-		Enabled = true
-		Focused = false
-		Transparency = 255
-		CallbackId = 0
-		Text = "-"
-		TextSize = 12
-		MaximumCharacters = 0
-		Alignment = "Left"
-		Borders = (4,2,4,2)
-		TextColor = (0,0,0,255)
-		SelectedTextColor = (255,255,255,255)
-		SelectedTextBackgroundColor = (0,110,255,255)
-		SelectionPointColor = (0,0,0,255)
-		LimitTextWidth = false
-		SelectionPointWidth = 1
-		NumbersOnly = false
-	}
-
-	EditBox: "gw_moc"
-	{
-		ConfigFile = "data/widgets/White.conf"
-		Left = 540
-		Top = 210
-		Width = 107
-		Height = 20
-		Visible = true
-		Enabled = true
-		Focused = false
-		Transparency = 255
-		CallbackId = 0
-		Text = "-"
-		TextSize = 12
-		MaximumCharacters = 0
-		Alignment = "Left"
-		Borders = (4,2,4,2)
-		TextColor = (0,0,0,255)
-		SelectedTextColor = (255,255,255,255)
-		SelectedTextBackgroundColor = (0,110,255,255)
-		SelectionPointColor = (0,0,0,255)
-		LimitTextWidth = false
-		SelectionPointWidth = 1
-		NumbersOnly = false
-	}
-
-	EditBox: "tmp_4"
-	{
-		ConfigFile = "data/widgets/White.conf"
-		Left = 540
-		Top = 260
-		Width = 107
-		Height = 20
-		Visible = true
-		Enabled = true
-		Focused = false
-		Transparency = 255
-		CallbackId = 0
-		Text = "-"
-		TextSize = 12
-		MaximumCharacters = 0
-		Alignment = "Left"
-		Borders = (4,2,4,2)
-		TextColor = (0,0,0,255)
-		SelectedTextColor = (255,255,255,255)
-		SelectedTextBackgroundColor = (0,110,255,255)
-		SelectionPointColor = (0,0,0,255)
-		LimitTextWidth = false
-		SelectionPointWidth = 1
-		NumbersOnly = false
-	}
-
-	EditBox: "wilg_4"
-	{
-		ConfigFile = "data/widgets/White.conf"
-		Left = 540
-		Top = 290
-		Width = 107
-		Height = 20
-		Visible = true
-		Enabled = true
-		Focused = false
-		Transparency = 255
-		CallbackId = 0
-		Text = "-"
-		TextSize = 12
-		MaximumCharacters = 0
-		Alignment = "Left"
-		Borders = (4,2,4,2)
-		TextColor = (0,0,0,255)
-		SelectedTextColor = (255,255,255,255)
-		SelectedTextBackgroundColor = (0,110,255,255)
-		SelectionPointColor = (0,0,0,255)
-		LimitTextWidth = false
-		SelectionPointWidth = 1
-		NumbersOnly = false
-	}
-
-	EditBox: "moc_s1"
-	{
-		ConfigFile = "data/widgets/White.conf"
-		Left = 200
-		Top = 260
-		Width = 107
-		Height = 20
-		Visible = true
-		Enabled = true
-		Focused = false
-		Transparency = 255
-		CallbackId = 0
-		Text = "-"
-		TextSize = 12
-		MaximumCharacters = 0
-		Alignment = "Left"
-		Borders = (4,2,4,2)
-		TextColor = (0,0,0,255)
-		SelectedTextColor = (255,255,255,255)
-		SelectedTextBackgroundColor = (0,110,255,255)
-		SelectionPointColor = (0,0,0,255)
-		LimitTextWidth = false
-		SelectionPointWidth = 1
-		NumbersOnly = false
-	}
-
-	EditBox: "obr_s1"
-	{
-		ConfigFile = "data/widgets/White.conf"
-		Left = 200
-		Top = 290
-		Width = 107
-		Height = 20
-		Visible = true
-		Enabled = true
-		Focused = false
-		Transparency = 255
-		CallbackId = 0
-		Text = "-"
-		TextSize = 12
-		MaximumCharacters = 0
-		Alignment = "Left"
-		Borders = (4,2,4,2)
-		TextColor = (0,0,0,255)
-		SelectedTextColor = (255,255,255,255)
-		SelectedTextBackgroundColor = (0,110,255,255)
-		SelectionPointColor = (0,0,0,255)
-		LimitTextWidth = false
-		SelectionPointWidth = 1
-		NumbersOnly = false
-	}
-
-	EditBox: "moc_s2"
-	{
-		ConfigFile = "data/widgets/White.conf"
-		Left = 400
-		Top = 260
-		Width = 107
-		Height = 20
-		Visible = true
-		Enabled = true
-		Focused = false
-		Transparency = 255
-		CallbackId = 0
-		Text = "-"
-		TextSize = 12
-		MaximumCharacters = 0
-		Alignment = "Left"
-		Borders = (4,2,4,2)
-		TextColor = (0,0,0,255)
-		SelectedTextColor = (255,255,255,255)
-		SelectedTextBackgroundColor = (0,110,255,255)
-		SelectionPointColor = (0,0,0,255)
-		LimitTextWidth = false
-		SelectionPointWidth = 1
-		NumbersOnly = false
-	}
-
-	EditBox: "obr_s2"
-	{
-		ConfigFile = "data/widgets/White.conf"
-		Left = 400
-		Top = 290
-		Width = 107
-		Height = 20
-		Visible = true
-		Enabled = true
-		Focused = false
-		Transparency = 255
-		CallbackId = 0
-		Text = "-"
-		TextSize = 12
-		MaximumCharacters = 0
-		Alignment = "Left"
-		Borders = (4,2,4,2)
-		TextColor = (0,0,0,255)
-		SelectedTextColor = (255,255,255,255)
-		SelectedTextBackgroundColor = (0,110,255,255)
-		SelectionPointColor = (0,0,0,255)
-		LimitTextWidth = false
-		SelectionPointWidth = 1
-		NumbersOnly = false
-	}
-
-	Label: "Label1 (2) (3)"
-	{
-		ConfigFile = "data/widgets/White.conf"
-		Left = 130
-		Top = 140
-		Width = 18
-		Height = 19.2404
-		Visible = true
-		Enabled = true
-		Focused = false
-		Transparency = 255
-		CallbackId = 0
-		Text = "%"
-		TextColor = (0,0,0,255)
-		TextSize = 15
-		BackgroundColor = (0,0,0,0)
-		AutoSize = false
-	}
-
-	Label: "Label1 (2) (4)"
-	{
-		ConfigFile = "data/widgets/White.conf"
-		Left = 130
-		Top = 240
-		Width = 18
-		Height = 19.2404
-		Visible = true
-		Enabled = true
-		Focused = false
-		Transparency = 255
-		CallbackId = 0
-		Text = "%"
-		TextColor = (0,0,0,255)
-		TextSize = 15
-		BackgroundColor = (0,0,0,0)
-		AutoSize = false
-	}
-
-	Label: "Label1 (2) (5)"
-	{
-		ConfigFile = "data/widgets/White.conf"
-		Left = 670
-		Top = 140
-		Width = 18
-		Height = 19.2404
-		Visible = true
-		Enabled = true
-		Focused = false
-		Transparency = 255
-		CallbackId = 0
-		Text = "%"
-		TextColor = (0,0,0,255)
-		TextSize = 15
-		BackgroundColor = (0,0,0,0)
-		AutoSize = false
-	}
-
-	Label: "Label1 (2) (6)"
-	{
-		ConfigFile = "data/widgets/White.conf"
-		Left = 650
-		Top = 290
-		Width = 18
-		Height = 19.2404
-		Visible = true
-		Enabled = true
-		Focused = false
-		Transparency = 255
-		CallbackId = 0
-		Text = "%"
-		TextColor = (0,0,0,255)
-		TextSize = 15
-		BackgroundColor = (0,0,0,0)
-		AutoSize = false
-	}
-
-	Label: "Label1 (2) (7)"
-	{
-		ConfigFile = "data/widgets/White.conf"
-		Left = 130
-		Top = 110
-		Width = 18
-		Height = 19.2404
-		Visible = true
-		Enabled = true
-		Focused = false
-		Transparency = 255
-		CallbackId = 0
-		Text = "*C"
-		TextColor = (0,0,0,255)
-		TextSize = 15
-		BackgroundColor = (0,0,0,0)
-		AutoSize = false
-	}
-
-	Label: "Label1 (2) (7) (2)"
-	{
-		ConfigFile = "data/widgets/White.conf"
-		Left = 130
-		Top = 210
-		Width = 18
-		Height = 19.2404
-		Visible = true
-		Enabled = true
-		Focused = false
-		Transparency = 255
-		CallbackId = 0
-		Text = "*C"
-		TextColor = (0,0,0,255)
-		TextSize = 15
-		BackgroundColor = (0,0,0,0)
-		AutoSize = false
-	}
-
-	Label: "Label1 (2) (7) (3)"
-	{
-		ConfigFile = "data/widgets/White.conf"
-		Left = 650
-		Top = 260
-		Width = 18
-		Height = 19.2404
-		Visible = true
-		Enabled = true
-		Focused = false
-		Transparency = 255
-		CallbackId = 0
-		Text = "*C"
-		TextColor = (0,0,0,255)
-		TextSize = 15
-		BackgroundColor = (0,0,0,0)
-		AutoSize = false
-	}
-
-	Label: "Label1 (2) (7) (4)"
-	{
-		ConfigFile = "data/widgets/White.conf"
-		Left = 670
-		Top = 110
-		Width = 18
-		Height = 19.2404
-		Visible = true
-		Enabled = true
-		Focused = false
-		Transparency = 255
-		CallbackId = 0
-		Text = "*C"
-		TextColor = (0,0,0,255)
-		TextSize = 15
-		BackgroundColor = (0,0,0,0)
-		AutoSize = false
-	}
-
-	Label: "Label1 (2) (3) (2)"
-	{
-		ConfigFile = "data/widgets/White.conf"
-		Left = 130
-		Top = 60
-		Width = 78
-		Height = 19.2404
-		Visible = true
-		Enabled = true
-		Focused = false
-		Transparency = 255
-		CallbackId = 0
-		Text = "% mocy"
-		TextColor = (0,0,0,255)
-		TextSize = 15
-		BackgroundColor = (0,0,0,0)
-		AutoSize = false
-	}
-
-	Label: "Label1 (2) (3) (2) (2)"
-	{
-		ConfigFile = "data/widgets/White.conf"
-		Left = 330
-		Top = 260
-		Width = 38
-		Height = 19.2404
-		Visible = true
-		Enabled = true
-		Focused = false
-		Transparency = 255
-		CallbackId = 0
-		Text = "Moc"
-		TextColor = (0,0,0,255)
-		TextSize = 15
-		BackgroundColor = (0,0,0,0)
-		AutoSize = false
-	}
-
-	Label: "Label1 (2) (3) (2) (3)"
-	{
-		ConfigFile = "data/widgets/White.conf"
-		Left = 320
-		Top = 290
-		Width = 58
-		Height = 19.2404
-		Visible = true
-		Enabled = true
-		Focused = false
-		Transparency = 255
-		CallbackId = 0
-		Text = "Obroty"
-		TextColor = (0,0,0,255)
-		TextSize = 15
-		BackgroundColor = (0,0,0,0)
-		AutoSize = false
-	}
-
-	Label: "Label1 (3) (2)"
-	{
-		ConfigFile = "data/widgets/White.conf"
-		Left = 540
-		Top = 180
-		Width = 128
-		Height = 19.2404
-		Visible = true
-		Enabled = true
-		Focused = false
-		Transparency = 255
-		CallbackId = 0
-		Text = "Grzalka wtorna"
-		TextColor = (0,0,0,255)
-		TextSize = 15
-		BackgroundColor = (0,0,0,0)
-		AutoSize = false
-	}
-
-	Checkbox: "wej_1"
-	{
-		ConfigFile = "data/widgets/White.conf"
-		Left = 10
-		Top = 350
-		Width = 16
-		Height = 16
-		Visible = true
-		Enabled = true
-		Focused = false
-		Transparency = 255
-		CallbackId = 0
-		Checked = false
-		Text = ""
-		TextColor = (255,255,255,255)
-		TextSize = 12
-		AllowTextClick = true
-	}
-
-	Checkbox: "wej_2"
-	{
-		ConfigFile = "data/widgets/White.conf"
-		Left = 10
-		Top = 380
-		Width = 16
-		Height = 16
-		Visible = true
-		Enabled = true
-		Focused = false
-		Transparency = 255
-		CallbackId = 0
-		Checked = false
-		Text = ""
-		TextColor = (255,255,255,255)
-		TextSize = 12
-		AllowTextClick = true
-	}
-
-	Checkbox: "wej_3"
-	{
-		ConfigFile = "data/widgets/White.conf"
-		Left = 10
-		Top = 410
-		Width = 16
-		Height = 16
-		Visible = true
-		Enabled = true
-		Focused = false
-		Transparency = 255
-		CallbackId = 0
-		Checked = false
-		Text = ""
-		TextColor = (255,255,255,255)
-		TextSize = 12
-		AllowTextClick = true
-	}
-
-	Checkbox: "wej_4"
-	{
-		ConfigFile = "data/widgets/White.conf"
-		Left = 10
-		Top = 440
-		Width = 16
-		Height = 16
-		Visible = true
-		Enabled = true
-		Focused = false
-		Transparency = 255
-		CallbackId = 0
-		Checked = false
-		Text = ""
-		TextColor = (255,255,255,255)
-		TextSize = 12
-		AllowTextClick = true
-	}
-
-	Label: "Label1 (2) (3) (2) (4)"
-	{
-		ConfigFile = "data/widgets/White.conf"
-		Left = 650
-		Top = 210
-		Width = 58
-		Height = 19.2404
-		Visible = true
-		Enabled = true
-		Focused = false
-		Transparency = 255
-		CallbackId = 0
-		Text = "% mocy"
-		TextColor = (0,0,0,255)
-		TextSize = 15
-		BackgroundColor = (0,0,0,0)
-		AutoSize = false
-	}
-
-	Checkbox: "wej_5"
-	{
-		ConfigFile = "data/widgets/White.conf"
-		Left = 120
-		Top = 350
-		Width = 16
-		Height = 16
-		Visible = true
-		Enabled = true
-		Focused = false
-		Transparency = 255
-		CallbackId = 0
-		Checked = false
-		Text = ""
-		TextColor = (255,255,255,255)
-		TextSize = 12
-		AllowTextClick = true
-	}
-
-	Checkbox: "wej_6"
-	{
-		ConfigFile = "data/widgets/White.conf"
-		Left = 120
-		Top = 380
-		Width = 16
-		Height = 16
-		Visible = true
-		Enabled = true
-		Focused = false
-		Transparency = 255
-		CallbackId = 0
-		Checked = false
-		Text = ""
-		TextColor = (255,255,255,255)
-		TextSize = 12
-		AllowTextClick = true
-	}
-
-	Checkbox: "wej_7"
-	{
-		ConfigFile = "data/widgets/White.conf"
-		Left = 120
-		Top = 410
-		Width = 16
-		Height = 16
-		Visible = true
-		Enabled = true
-		Focused = false
-		Transparency = 255
-		CallbackId = 0
-		Checked = false
-		Text = ""
-		TextColor = (255,255,255,255)
-		TextSize = 12
-		AllowTextClick = true
-	}
-
-	Checkbox: "wej_8"
-	{
-		ConfigFile = "data/widgets/White.conf"
-		Left = 120
-		Top = 440
-		Width = 16
-		Height = 16
-		Visible = true
-		Enabled = true
-		Focused = false
-		Transparency = 255
-		CallbackId = 0
-		Checked = false
-		Text = ""
-		TextColor = (255,255,255,255)
-		TextSize = 12
-		AllowTextClick = true
-	}
-
-	EditBox: "serw_1"
-	{
-		ConfigFile = "data/widgets/White.conf"
-		Left = 380
-		Top = 350
-		Width = 107
-		Height = 20
-		Visible = true
-		Enabled = true
-		Focused = false
-		Transparency = 255
-		CallbackId = 0
-		Text = "-"
-		TextSize = 12
-		MaximumCharacters = 0
-		Alignment = "Left"
-		Borders = (4,2,4,2)
-		TextColor = (0,0,0,255)
-		SelectedTextColor = (255,255,255,255)
-		SelectedTextBackgroundColor = (0,110,255,255)
-		SelectionPointColor = (0,0,0,255)
-		LimitTextWidth = false
-		SelectionPointWidth = 1
-		NumbersOnly = false
-	}
-
-	EditBox: "odm_1"
-	{
-		ConfigFile = "data/widgets/White.conf"
-		Left = 610
-		Top = 350
-		Width = 107
-		Height = 20
-		Visible = true
-		Enabled = true
-		Focused = false
-		Transparency = 255
-		CallbackId = 0
-		Text = "-"
-		TextSize = 12
-		MaximumCharacters = 0
-		Alignment = "Left"
-		Borders = (4,2,4,2)
-		TextColor = (0,0,0,255)
-		SelectedTextColor = (255,255,255,255)
-		SelectedTextBackgroundColor = (0,110,255,255)
-		SelectionPointColor = (0,0,0,255)
-		LimitTextWidth = false
-		SelectionPointWidth = 1
-		NumbersOnly = false
-	}
-
-	EditBox: "dog_1"
-	{
-		ConfigFile = "data/widgets/White.conf"
-		Left = 610
-		Top = 380
-		Width = 107
-		Height = 20
-		Visible = true
-		Enabled = true
-		Focused = false
-		Transparency = 255
-		CallbackId = 0
-		Text = "-"
-		TextSize = 12
-		MaximumCharacters = 0
-		Alignment = "Left"
-		Borders = (4,2,4,2)
-		TextColor = (0,0,0,255)
-		SelectedTextColor = (255,255,255,255)
-		SelectedTextBackgroundColor = (0,110,255,255)
-		SelectionPointColor = (0,0,0,255)
-		LimitTextWidth = false
-		SelectionPointWidth = 1
-		NumbersOnly = false
-	}
-
-	EditBox: "serw_2"
-	{
-		ConfigFile = "data/widgets/White.conf"
-		Left = 380
-		Top = 380
-		Width = 107
-		Height = 20
-		Visible = true
-		Enabled = true
-		Focused = false
-		Transparency = 255
-		CallbackId = 0
-		Text = "-"
-		TextSize = 12
-		MaximumCharacters = 0
-		Alignment = "Left"
-		Borders = (4,2,4,2)
-		TextColor = (0,0,0,255)
-		SelectedTextColor = (255,255,255,255)
-		SelectedTextBackgroundColor = (0,110,255,255)
-		SelectionPointColor = (0,0,0,255)
-		LimitTextWidth = false
-		SelectionPointWidth = 1
-		NumbersOnly = false
-	}
-
-	EditBox: "serw_3"
-	{
-		ConfigFile = "data/widgets/White.conf"
-		Left = 380
-		Top = 410
-		Width = 107
-		Height = 20
-		Visible = true
-		Enabled = true
-		Focused = false
-		Transparency = 255
-		CallbackId = 0
-		Text = "-"
-		TextSize = 12
-		MaximumCharacters = 0
-		Alignment = "Left"
-		Borders = (4,2,4,2)
-		TextColor = (0,0,0,255)
-		SelectedTextColor = (255,255,255,255)
-		SelectedTextBackgroundColor = (0,110,255,255)
-		SelectionPointColor = (0,0,0,255)
-		LimitTextWidth = false
-		SelectionPointWidth = 1
-		NumbersOnly = false
-	}
-
-	EditBox: "tryb_1"
-	{
-		ConfigFile = "data/widgets/White.conf"
-		Left = 380
-		Top = 440
-		Width = 107
-		Height = 20
-		Visible = true
-		Enabled = true
-		Focused = false
-		Transparency = 255
-		CallbackId = 0
-		Text = "-"
-		TextSize = 12
-		MaximumCharacters = 0
-		Alignment = "Left"
-		Borders = (4,2,4,2)
-		TextColor = (0,0,0,255)
-		SelectedTextColor = (255,255,255,255)
-		SelectedTextBackgroundColor = (0,110,255,255)
-		SelectionPointColor = (0,0,0,255)
-		LimitTextWidth = false
-		SelectionPointWidth = 1
-		NumbersOnly = false
-	}
-
-	EditBox: "soft_1"
-	{
-		ConfigFile = "data/widgets/White.conf"
-		Left = 610
-		Top = 410
-		Width = 107
-		Height = 20
-		Visible = true
-		Enabled = true
-		Focused = false
-		Transparency = 255
-		CallbackId = 0
-		Text = "-"
-		TextSize = 12
-		MaximumCharacters = 0
-		Alignment = "Left"
-		Borders = (4,2,4,2)
-		TextColor = (0,0,0,255)
-		SelectedTextColor = (255,255,255,255)
-		SelectedTextBackgroundColor = (0,110,255,255)
-		SelectionPointColor = (0,0,0,255)
-		LimitTextWidth = false
-		SelectionPointWidth = 1
-		NumbersOnly = false
-	}
-
-	EditBox: "czas_1"
-	{
-		ConfigFile = "data/widgets/White.conf"
-		Left = 610
-		Top = 440
-		Width = 107
-		Height = 20
-		Visible = true
-		Enabled = true
-		Focused = false
-		Transparency = 255
-		CallbackId = 0
-		Text = "-"
-		TextSize = 12
-		MaximumCharacters = 0
-		Alignment = "Left"
-		Borders = (4,2,4,2)
-		TextColor = (0,0,0,255)
-		SelectedTextColor = (255,255,255,255)
-		SelectedTextBackgroundColor = (0,110,255,255)
-		SelectionPointColor = (0,0,0,255)
-		LimitTextWidth = false
-		SelectionPointWidth = 1
-		NumbersOnly = false
-	}
-
-	Label: "Label1 (4)"
-	{
-		ConfigFile = "data/widgets/White.conf"
-		Left = 30
-		Top = 350
-		Width = 78
-		Height = 19.2404
-		Visible = true
-		Enabled = true
-		Focused = false
-		Transparency = 255
-		CallbackId = 0
-		Text = "Wejscie 1"
-		TextColor = (0,0,0,255)
-		TextSize = 15
-		BackgroundColor = (0,0,0,0)
-		AutoSize = false
-	}
-
-	Label: "Label1 (4) (2)"
-	{
-		ConfigFile = "data/widgets/White.conf"
-		Left = 30
-		Top = 380
-		Width = 78
-		Height = 19.2404
-		Visible = true
-		Enabled = true
-		Focused = false
-		Transparency = 255
-		CallbackId = 0
-		Text = "Wejscie 2"
-		TextColor = (0,0,0,255)
-		TextSize = 15
-		BackgroundColor = (0,0,0,0)
-		AutoSize = false
-	}
-
-	Label: "Label1 (4) (3)"
-	{
-		ConfigFile = "data/widgets/White.conf"
-		Left = 30
-		Top = 410
-		Width = 78
-		Height = 19.2404
-		Visible = true
-		Enabled = true
-		Focused = false
-		Transparency = 255
-		CallbackId = 0
-		Text = "Wejscie 3"
-		TextColor = (0,0,0,255)
-		TextSize = 15
-		BackgroundColor = (0,0,0,0)
-		AutoSize = false
-	}
-
-	Label: "Label1 (4) (4)"
-	{
-		ConfigFile = "data/widgets/White.conf"
-		Left = 30
-		Top = 440
-		Width = 38
-		Height = 19.2404
-		Visible = true
-		Enabled = true
-		Focused = false
-		Transparency = 255
-		CallbackId = 0
-		Text = "Blad"
-		TextColor = (0,0,0,255)
-		TextSize = 15
-		BackgroundColor = (0,0,0,0)
-		AutoSize = false
-	}
-
-	Label: "Label1 (4) (5)"
-	{
-		ConfigFile = "data/widgets/White.conf"
-		Left = 140
-		Top = 350
-		Width = 118
-		Height = 19.2404
-		Visible = true
-		Enabled = true
-		Focused = false
-		Transparency = 255
-		CallbackId = 0
-		Text = "Zasilanie serw"
-		TextColor = (0,0,0,255)
-		TextSize = 15
-		BackgroundColor = (0,0,0,0)
-		AutoSize = false
-	}
-
-	Label: "Label1 (4) (6)"
-	{
-		ConfigFile = "data/widgets/White.conf"
-		Left = 140
-		Top = 380
-		Width = 98
-		Height = 19.2404
-		Visible = true
-		Enabled = true
-		Focused = false
-		Transparency = 255
-		CallbackId = 0
-		Text = "Serwo Czerp"
-		TextColor = (0,0,0,255)
-		TextSize = 15
-		BackgroundColor = (0,0,0,0)
-		AutoSize = false
-	}
-
-	Label: "Label1 (4) (7)"
-	{
-		ConfigFile = "data/widgets/White.conf"
-		Left = 140
-		Top = 410
-		Width = 108
-		Height = 19.2404
-		Visible = true
-		Enabled = true
-		Focused = false
-		Transparency = 255
-		CallbackId = 0
-		Text = "Serwo Wyrzut"
-		TextColor = (0,0,0,255)
-		TextSize = 15
-		BackgroundColor = (0,0,0,0)
-		AutoSize = false
-	}
-
-	Label: "Label1 (4) (8)"
-	{
-		ConfigFile = "data/widgets/White.conf"
-		Left = 140
-		Top = 440
-		Width = 108
-		Height = 19.2404
-		Visible = true
-		Enabled = true
-		Focused = false
-		Transparency = 255
-		CallbackId = 0
-		Text = "Serwo Bypass"
-		TextColor = (0,0,0,255)
-		TextSize = 15
-		BackgroundColor = (0,0,0,0)
-		AutoSize = false
-	}
-
-	Label: "Label1 (4) (9)"
-	{
-		ConfigFile = "data/widgets/White.conf"
-		Left = 270
-		Top = 350
-		Width = 108
-		Height = 19.2404
-		Visible = true
-		Enabled = true
-		Focused = false
-		Transparency = 255
-		CallbackId = 0
-		Text = "Serwo Czerp:"
-		TextColor = (0,0,0,255)
-		TextSize = 15
-		BackgroundColor = (0,0,0,0)
-		AutoSize = false
-	}
-
-	Label: "Label1 (4) (10)"
-	{
-		ConfigFile = "data/widgets/White.conf"
-		Left = 270
-		Top = 380
-		Width = 118
-		Height = 19.2404
-		Visible = true
-		Enabled = true
-		Focused = false
-		Transparency = 255
-		CallbackId = 0
-		Text = "Serwo Wyrzut:"
-		TextColor = (0,0,0,255)
-		TextSize = 15
-		BackgroundColor = (0,0,0,0)
-		AutoSize = false
-	}
-
-	Label: "Label1 (4) (11)"
-	{
-		ConfigFile = "data/widgets/White.conf"
-		Left = 270
-		Top = 410
-		Width = 118
-		Height = 19.2404
-		Visible = true
-		Enabled = true
-		Focused = false
-		Transparency = 255
-		CallbackId = 0
-		Text = "Serwo Bypass:"
-		TextColor = (0,0,0,255)
-		TextSize = 15
-		BackgroundColor = (0,0,0,0)
-		AutoSize = false
-	}
-
-	Label: "Label1 (4) (12)"
-	{
-		ConfigFile = "data/widgets/White.conf"
-		Left = 270
-		Top = 440
-		Width = 48
-		Height = 19.2404
-		Visible = true
-		Enabled = true
-		Focused = false
-		Transparency = 255
-		CallbackId = 0
-		Text = "Tryb:"
-		TextColor = (0,0,0,255)
-		TextSize = 15
-		BackgroundColor = (0,0,0,0)
-		AutoSize = false
-	}
-
-	Label: "Label1 (4) (13)"
-	{
-		ConfigFile = "data/widgets/White.conf"
-		Left = 500
-		Top = 350
-		Width = 108
-		Height = 19.2404
-		Visible = true
-		Enabled = true
-		Focused = false
-		Transparency = 255
-		CallbackId = 0
-		Text = "Odmrazanie:"
-		TextColor = (0,0,0,255)
-		TextSize = 15
-		BackgroundColor = (0,0,0,0)
-		AutoSize = false
-	}
-
-	Label: "Label1 (4) (14)"
-	{
-		ConfigFile = "data/widgets/White.conf"
-		Left = 500
-		Top = 380
-		Width = 108
-		Height = 19.2404
-		Visible = true
-		Enabled = true
-		Focused = false
-		Transparency = 255
-		CallbackId = 0
-		Text = "Dogrzewanie:"
-		TextColor = (0,0,0,255)
-		TextSize = 15
-		BackgroundColor = (0,0,0,0)
-		AutoSize = false
-	}
-
-	Label: "Label1 (4) (15)"
-	{
-		ConfigFile = "data/widgets/White.conf"
-		Left = 500
-		Top = 410
-		Width = 48
-		Height = 19.2404
-		Visible = true
-		Enabled = true
-		Focused = false
-		Transparency = 255
-		CallbackId = 0
-		Text = "Soft:"
-		TextColor = (0,0,0,255)
-		TextSize = 15
-		BackgroundColor = (0,0,0,0)
-		AutoSize = false
-	}
-
-	ComboBox: "COM"
-	{
-		ConfigFile = "data/widgets/White.conf"
-		Left = 730
-		Top = 10
-		Width = 123
-		Height = 24
-		Visible = true
-		Enabled = true
-		Focused = false
-		Transparency = 255
-		Callback = ItemSelected
-		CallbackId = 1
-		ItemsToDisplay = 0
-		BackgroundColor = (255,255,255,255)
-		TextColor = (0,0,0,255)
-		SelectedBackgroundColor = (0,110,255,255)
-		SelectedTextColor = (255,255,255,255)
-		BorderColor = (0,0,0,255)
-		Borders = (1,1,1,1)
-		MaximumItems = 0
-		Items = "-"
-		SelectedItem = 0
-	}
-
-	Button: "przy_1"
-	{
-		ConfigFile = "data/widgets/White.conf"
-		Left = 730
-		Top = 70
-		Width = 121
-		Height = 16
-		Visible = true
-		Enabled = true
-		Focused = false
-		Transparency = 255
-		Callback = LeftMouseClicked
-		CallbackId = 2
-		Text = "Ster. reczne"
-		TextColor = (0,0,0,255)
-		TextSize = 12
-	}
-
-	Button: "przy_2"
-	{
-		ConfigFile = "data/widgets/White.conf"
-		Left = 730
-		Top = 100
-		Width = 121
-		Height = 16
-		Visible = true
-		Enabled = true
-		Focused = false
-		Transparency = 255
-		Callback = LeftMouseClicked
-		CallbackId = 3
-		Text = "Grzalka 1"
-		TextColor = (0,0,0,255)
-		TextSize = 12
-	}
-
-	Button: "przy_3"
-	{
-		ConfigFile = "data/widgets/White.conf"
-		Left = 730
-		Top = 130
-		Width = 121
-		Height = 16
-		Visible = true
-		Enabled = true
-		Focused = false
-		Transparency = 255
-		Callback = LeftMouseClicked
-		CallbackId = 4
-		Text = "Grzalka 2"
-		TextColor = (0,0,0,255)
-		TextSize = 12
-	}
-
-	Button: "przy_4"
-	{
-		ConfigFile = "data/widgets/White.conf"
-		Left = 730
-		Top = 160
-		Width = 121
-		Height = 16
-		Visible = true
-		Enabled = true
-		Focused = false
-		Transparency = 255
-		Callback = LeftMouseClicked
-		CallbackId = 5
-		Text = "Wentylator 1"
-		TextColor = (0,0,0,255)
-		TextSize = 12
-	}
-
-	Button: "przy_5"
-	{
-		ConfigFile = "data/widgets/White.conf"
-		Left = 730
-		Top = 190
-		Width = 121
-		Height = 16
-		Visible = true
-		Enabled = true
-		Focused = false
-		Transparency = 255
-		Callback = LeftMouseClicked
-		CallbackId = 6
-		Text = "Wentylator 2"
-		TextColor = (0,0,0,255)
-		TextSize = 12
-	}
-
-	Button: "przy_6"
-	{
-		ConfigFile = "data/widgets/White.conf"
-		Left = 730
-		Top = 220
-		Width = 121
-		Height = 16
-		Visible = true
-		Enabled = true
-		Focused = false
-		Transparency = 255
-		Callback = LeftMouseClicked
-		CallbackId = 7
-		Text = "Ust. fabryczne"
-		TextColor = (0,0,0,255)
-		TextSize = 12
-	}
-
-	Button: "przy_7"
-	{
-		ConfigFile = "data/widgets/White.conf"
-		Left = 730
-		Top = 250
-		Width = 121
-		Height = 16
-		Visible = true
-		Enabled = true
-		Focused = false
-		Transparency = 255
-		Callback = LeftMouseClicked
-		CallbackId = 8
-		Text = "Przycisk"
-		TextColor = (0,0,0,255)
-		TextSize = 12
-	}
-
-	Label: "Label1 (2) (7) (5)"
-	{
-		ConfigFile = "data/widgets/White.conf"
-		Left = 200
-		Top = 230
-		Width = 18
-		Height = 19.2404
-		Visible = true
-		Enabled = true
-		Focused = false
-		Transparency = 255
-		CallbackId = 0
-		Text = "s1"
-		TextColor = (0,0,0,255)
-		TextSize = 15
-		BackgroundColor = (0,0,0,0)
-		AutoSize = false
-	}
-
-	Label: "Label1 (2) (7) (5) (2)"
-	{
-		ConfigFile = "data/widgets/White.conf"
-		Left = 480
-		Top = 230
-		Width = 18
-		Height = 19.2404
-		Visible = true
-		Enabled = true
-		Focused = false
-		Transparency = 255
-		CallbackId = 0
-		Text = "s2"
-		TextColor = (0,0,0,255)
-		TextSize = 15
-		BackgroundColor = (0,0,0,0)
-		AutoSize = false
-	}
-
-	Button: "przy_8"
-	{
-		ConfigFile = "data/widgets/White.conf"
-		Left = 730
-		Top = 280
-		Width = 121
-		Height = 16
-		Visible = true
-		Enabled = true
-		Focused = false
-		Transparency = 255
-		Callback = LeftMouseClicked
-		CallbackId = 9
-		Text = "Reset"
-		TextColor = (0,0,0,255)
-		TextSize = 12
-	}
-
-	Button: "log_1"
-	{
-		ConfigFile = "data/widgets/White.conf"
-		Left = 730
-		Top = 310
-		Width = 121
-		Height = 26
-		Visible = true
-		Enabled = true
-		Focused = false
-		Transparency = 255
-		Callback = LeftMouseClicked
-		CallbackId = 10
-		Text = "Zapisz Logi"
-		TextColor = (0,0,0,255)
-		TextSize = 12
-	}
-
-	Label: "Label1 (3) (3)"
-	{
-		ConfigFile = "data/widgets/White.conf"
-		Left = 720
-		Top = 360
-		Width = 128
-		Height = 39.2404
-		Visible = true
-		Enabled = true
-		Focused = false
-		Transparency = 255
-		CallbackId = 0
-		Text = "Used SFML-2.4.2\nand   TGUI-0.6.9"
-		TextColor = (0,0,0,255)
-		TextSize = 15
-		BackgroundColor = (0,0,0,0)
-		AutoSize = false
-	}
-
-	Label: "Label1 (3) (4)"
-	{
-		ConfigFile = "data/widgets/White.conf"
-		Left = 310
-		Top = 10
-		Width = 98
-		Height = 19.2404
-		Visible = true
-		Enabled = true
-		Focused = false
-		Transparency = 255
-		CallbackId = 0
-		Text = "Pobor mocy"
-		TextColor = (0,0,0,255)
-		TextSize = 15
-		BackgroundColor = (0,0,0,0)
-		AutoSize = false
-	}
-
-	Label: "Label1 (3) (5)"
-	{
-		ConfigFile = "data/widgets/White.conf"
-		Left = 0
-		Top = 90
-		Width = 78
-		Height = 19.2404
-		Visible = true
-		Enabled = true
-		Focused = false
-		Transparency = 255
-		CallbackId = 0
-		Text = "Czerpnia"
-		TextColor = (0,0,0,255)
-		TextSize = 15
-		BackgroundColor = (0,0,0,0)
-		AutoSize = false
-	}
-
-	Label: "Label1 (3) (6)"
-	{
-		ConfigFile = "data/widgets/White.conf"
-		Left = 540
-		Top = 90
-		Width = 68
-		Height = 19.2404
-		Visible = true
-		Enabled = true
-		Focused = false
-		Transparency = 255
-		CallbackId = 0
-		Text = "Wywiew"
-		TextColor = (0,0,0,255)
-		TextSize = 15
-		BackgroundColor = (0,0,0,0)
-		AutoSize = false
-	}
-
-	Label: "Label1 (3) (7)"
-	{
-		ConfigFile = "data/widgets/White.conf"
-		Left = 0
-		Top = 180
-		Width = 88
-		Height = 19.2404
-		Visible = true
-		Enabled = true
-		Focused = false
-		Transparency = 255
-		CallbackId = 0
-		Text = "Wyrzutnia"
-		TextColor = (0,0,0,255)
-		TextSize = 15
-		BackgroundColor = (0,0,0,0)
-		AutoSize = false
-	}
-
-	Label: "Label1 (3) (8)"
-	{
-		ConfigFile = "data/widgets/White.conf"
-		Left = 550
-		Top = 240
-		Width = 68
-		Height = 19.2404
-		Visible = true
-		Enabled = true
-		Focused = false
-		Transparency = 255
-		CallbackId = 0
-		Text = "Nawiew"
-		TextColor = (0,0,0,255)
-		TextSize = 15
-		BackgroundColor = (0,0,0,0)
-		AutoSize = false
-	}
-
-	Label: "Label1 (4) (16)"
-	{
-		ConfigFile = "data/widgets/White.conf"
-		Left = 500
-		Top = 440
-		Width = 98
-		Height = 19.2404
-		Visible = true
-		Enabled = true
-		Focused = false
-		Transparency = 255
-		CallbackId = 0
-		Text = "Czas pracy:"
-		TextColor = (0,0,0,255)
-		TextSize = 15
-		BackgroundColor = (0,0,0,0)
-		AutoSize = false
-	}
-
-	Label: "Label1 (4) (17)"
-	{
-		ConfigFile = "data/widgets/White.conf"
-		Left = 730
-		Top = 410
-		Width = 78
-		Height = 19.2404
-		Visible = true
-		Enabled = true
-		Focused = false
-		Transparency = 255
-		CallbackId = 0
-		Text = "Przerwa:"
-		TextColor = (0,0,0,255)
-		TextSize = 15
-		BackgroundColor = (0,0,0,0)
-		AutoSize = false
-	}
-
-	EditBox: "przer_1"
-	{
-		ConfigFile = "data/widgets/White.conf"
-		Left = 730
-		Top = 440
-		Width = 107
-		Height = 20
-		Visible = true
-		Enabled = true
-		Focused = false
-		Transparency = 255
-		CallbackId = 0
-		Text = "-"
-		TextSize = 12
-		MaximumCharacters = 0
-		Alignment = "Left"
-		Borders = (4,2,4,2)
-		TextColor = (0,0,0,255)
-		SelectedTextColor = (255,255,255,255)
-		SelectedTextBackgroundColor = (0,110,255,255)
-		SelectionPointColor = (0,0,0,255)
-		LimitTextWidth = false
-		SelectionPointWidth = 1
-		NumbersOnly = false
-	}
-
-	Label: "Label1 (3) (9)"
-	{
-		ConfigFile = "data/widgets/White.conf"
-		Left = 420
-		Top = 30
-		Width = 18
-		Height = 19.2404
-		Visible = true
-		Enabled = true
-		Focused = false
-		Transparency = 255
-		CallbackId = 0
-		Text = "W"
-		TextColor = (0,0,0,255)
-		TextSize = 15
-		BackgroundColor = (0,0,0,0)
-		AutoSize = false
-	}
-
-	Checkbox: "MODBUS"
-	{
-		ConfigFile = "data/widgets/White.conf"
-		Left = 730
-		Top = 40
-		Width = 16
-		Height = 16
-		Visible = true
-		Enabled = true
-		Focused = false
-		Transparency = 255
-		Callback = Checked,Unchecked
-		CallbackId = 11
-		Checked = false
-		Text = "MODBUS"
-		TextColor = (0,0,0,255)
-		TextSize = 15
-		AllowTextClick = true
-	}
-
-	Panel: "STATUS"
-	{
-		Left = 830
-		Top = 40
-		Width = 16
-		Height = 16
-		Visible = true
-		Enabled = true
-		Focused = false
-		Transparency = 255
-		CallbackId = 0
-		BackgroundColor = (255,0,0,255)
-
-	}
-
+Picture."Picture1" {
+    Enabled = false;
+    IgnoreMouseEvents = true;
+    Size = (716, 346.731);
+
+    Renderer {
+        texture = "data/raku2.png";
+    }
+}
+
+Label."Label" {
+    AutoSize = true;
+    Position = (0, 40);
+    ScrollbarPolicy = Never;
+    Size = (145.6, 20);
+    Text = "Grzalka pierwotna";
+    TextSize = 15;
+
+}
+
+Label."Widget4" {
+    AutoSize = true;
+    Position = (0, 90);
+    ScrollbarPolicy = Never;
+    Size = (73.6, 20);
+    Text = "Czerpnia";
+    TextSize = 15;
+
+}
+
+Label."Widget5" {
+    AutoSize = true;
+    Position = (0, 180);
+    ScrollbarPolicy = Never;
+    Size = (83.6, 20);
+    Text = "Wyrzutnia";
+    TextSize = 15;
+
+}
+
+Label."Widget6" {
+    AutoSize = true;
+    Position = (310, 10);
+    ScrollbarPolicy = Never;
+    Size = (93.6, 20);
+    Text = "Pobor mocy";
+    TextSize = 15;
+
+}
+
+Label."Widget7" {
+    AutoSize = true;
+    Position = (290, 100);
+    ScrollbarPolicy = Never;
+    Size = (110.6, 20);
+    Text = "Odzysk cielpa";
+    TextSize = 15;
+
+}
+
+Label."Widget8" {
+    AutoSize = true;
+    Position = (210, 230);
+    ScrollbarPolicy = Never;
+    Size = (21.6, 20);
+    Text = "s1";
+    TextSize = 15;
+
+}
+
+Label."Widget9" {
+    AutoSize = true;
+    Position = (480, 230);
+    ScrollbarPolicy = Never;
+    Size = (21.6, 20);
+    Text = "s2";
+    TextSize = 15;
+
+}
+
+Label."Widget10" {
+    AutoSize = true;
+    Position = (330, 260);
+    ScrollbarPolicy = Never;
+    Size = (34.6, 20);
+    Text = "Moc";
+    TextSize = 15;
+
+}
+
+Label."Widget11" {
+    AutoSize = true;
+    Position = (320, 290);
+    ScrollbarPolicy = Never;
+    Size = (57.6, 20);
+    Text = "Obroty";
+    TextSize = 15;
+
+}
+
+Label."Widget12" {
+    AutoSize = true;
+    Position = (540, 90);
+    ScrollbarPolicy = Never;
+    Size = (65.6, 20);
+    Text = "Wywiew";
+    TextSize = 15;
+
+}
+
+Label."Widget13" {
+    AutoSize = true;
+    Position = (540, 180);
+    ScrollbarPolicy = Never;
+    Size = (121.6, 20);
+    Text = "Grzalka wtorna";
+    TextSize = 15;
+
+}
+
+Label."Widget14" {
+    AutoSize = true;
+    Position = (550, 240);
+    ScrollbarPolicy = Never;
+    Size = (62.6, 20);
+    Text = "Nawiew";
+    TextSize = 15;
+
+}
+
+Label."Widget15" {
+    AutoSize = true;
+    Position = (130, 60);
+    ScrollbarPolicy = Never;
+    Size = (62.6, 20);
+    Text = "% mocy";
+    TextSize = 15;
+
+}
+
+Label."Widget16" {
+    AutoSize = true;
+    Position = (130, 110);
+    ScrollbarPolicy = Never;
+    Size = (22.6, 20);
+    Text = "*C";
+    TextSize = 15;
+
+}
+
+Label."Widget17" {
+    AutoSize = true;
+    Position = (670, 110);
+    ScrollbarPolicy = Never;
+    Size = (22.6, 20);
+    Text = "*C";
+    TextSize = 15;
+
+}
+
+Label."Widget18" {
+    AutoSize = true;
+    Position = (130, 140);
+    ScrollbarPolicy = Never;
+    Size = (17.6, 20);
+    Text = "%";
+    TextSize = 15;
+
+}
+
+Label."Widget19" {
+    AutoSize = true;
+    Position = (670, 140);
+    ScrollbarPolicy = Never;
+    Size = (17.6, 20);
+    Text = "%";
+    TextSize = 15;
+
+}
+
+Label."Widget20" {
+    AutoSize = true;
+    Position = (130, 210);
+    ScrollbarPolicy = Never;
+    Size = (22.6, 20);
+    Text = "*C";
+    TextSize = 15;
+
+}
+
+Label."Widget21" {
+    AutoSize = true;
+    Position = (130, 240);
+    ScrollbarPolicy = Never;
+    Size = (17.6, 20);
+    Text = "%";
+    TextSize = 15;
+
+}
+
+Label."Widget22" {
+    AutoSize = true;
+    Position = (650, 260);
+    ScrollbarPolicy = Never;
+    Size = (22.6, 20);
+    Text = "*C";
+    TextSize = 15;
+
+}
+
+Label."Widget23" {
+    AutoSize = true;
+    Position = (650, 290);
+    ScrollbarPolicy = Never;
+    Size = (17.6, 20);
+    Text = "%";
+    TextSize = 15;
+
+}
+
+Label."Widget24" {
+    AutoSize = true;
+    Position = (410, 140);
+    ScrollbarPolicy = Never;
+    Size = (17.6, 20);
+    Text = "%";
+    TextSize = 15;
+
+}
+
+Label."Widget25" {
+    AutoSize = true;
+    Position = (410, 190);
+    ScrollbarPolicy = Never;
+    Size = (37.6, 20);
+    Text = "kWh";
+    TextSize = 15;
+
+}
+
+Label."Widget26" {
+    AutoSize = true;
+    Position = (650, 210);
+    ScrollbarPolicy = Never;
+    Size = (62.6, 20);
+    Text = "% mocy";
+    TextSize = 15;
+
+}
+
+EditBox."gp_moc" {
+    Enabled = false;
+    Position = (0, 60);
+    Size = (127, 20);
+    Text = "-";
+    TextSize = 12;
+
+}
+
+EditBox."tmp_1" {
+    Position = (0, 110);
+    Size = (127, 20);
+    Text = "-";
+    TextSize = 12;
+
+}
+
+EditBox."wilg_1" {
+    Position = (0, 140);
+    Size = (127, 20);
+    Text = "-";
+    TextSize = 12;
+
+}
+
+EditBox."tmp_3" {
+    Position = (0, 210);
+    Size = (127, 20);
+    Text = "-";
+    TextSize = 12;
+
+}
+
+EditBox."wilg_3" {
+    Position = (0, 240);
+    Size = (127, 20);
+    Text = "-";
+    TextSize = 12;
+
+}
+
+EditBox."p_moc" {
+    Position = (290, 30);
+    Size = (127, 20);
+    Text = "-";
+    TextSize = 12;
+
+}
+
+Label."Widget33" {
+    AutoSize = true;
+    Position = (420, 30);
+    ScrollbarPolicy = Never;
+    Size = (18.6, 20);
+    Text = "W";
+    TextSize = 15;
+
+}
+
+EditBox."odz_1" {
+    Position = (280, 140);
+    Size = (127, 20);
+    Text = "-";
+    TextSize = 12;
+
+}
+
+EditBox."odz_2" {
+    Position = (280, 190);
+    Size = (127, 20);
+    Text = "-";
+    TextSize = 12;
+
+}
+
+EditBox."moc_s1" {
+    Position = (200, 260);
+    Size = (107, 20);
+    Text = "-";
+    TextSize = 12;
+
+}
+
+EditBox."obr_s1" {
+    Position = (200, 290);
+    Size = (107, 20);
+    Text = "-";
+    TextSize = 12;
+
+}
+
+EditBox."obr_s2" {
+    Position = (400, 290);
+    Size = (107, 20);
+    Text = "-";
+    TextSize = 12;
+
+}
+
+EditBox."moc_s2" {
+    Position = (400, 260);
+    Size = (107, 20);
+    Text = "-";
+    TextSize = 12;
+
+}
+
+EditBox."tmp_2" {
+    Position = (540, 110);
+    Size = (127, 20);
+    Text = "-";
+    TextSize = 12;
+
+}
+
+EditBox."wilg_2" {
+    Position = (540, 140);
+    Size = (127, 20);
+    Text = "-";
+    TextSize = 12;
+
+}
+
+EditBox."gw_moc" {
+    Position = (540, 210);
+    Size = (107, 20);
+    Text = "-";
+    TextSize = 12;
+
+}
+
+EditBox."tmp_4" {
+    Position = (540, 260);
+    Size = (107, 20);
+    Text = "-";
+    TextSize = 12;
+
+}
+
+EditBox."wilg_4" {
+    Position = (540, 290);
+    Size = (107, 20);
+    Text = "-";
+    TextSize = 12;
+
+}
+
+Label."Widget47" {
+    AutoSize = true;
+    Position = (30, 350);
+    ScrollbarPolicy = Never;
+    Size = (76.6, 20);
+    Text = "Wejscie 1";
+    TextSize = 15;
+
+}
+
+Label."Widget48" {
+    AutoSize = true;
+    Position = (30, 380);
+    ScrollbarPolicy = Never;
+    Size = (76.6, 20);
+    Text = "Wejscie 2";
+    TextSize = 15;
+
+}
+
+Label."Widget49" {
+    AutoSize = true;
+    Position = (30, 410);
+    ScrollbarPolicy = Never;
+    Size = (76.6, 20);
+    Text = "Wejscie 3";
+    TextSize = 15;
+
+}
+
+Label."Widget50" {
+    AutoSize = true;
+    Position = (30, 440);
+    ScrollbarPolicy = Never;
+    Size = (36.6, 20);
+    Text = "Blad";
+    TextSize = 15;
+
+}
+
+Label."Widget51" {
+    AutoSize = true;
+    Position = (140, 350);
+    ScrollbarPolicy = Never;
+    Size = (115.6, 20);
+    Text = "Zasilanie serw";
+    TextSize = 15;
+
+}
+
+Label."Widget52" {
+    AutoSize = true;
+    Position = (140, 380);
+    ScrollbarPolicy = Never;
+    Size = (100.6, 20);
+    Text = "Serwo Czerp";
+    TextSize = 15;
+
+}
+
+Label."Widget53" {
+    AutoSize = true;
+    Position = (140, 410);
+    ScrollbarPolicy = Never;
+    Size = (110.6, 20);
+    Text = "Serwo Wyrzut";
+    TextSize = 15;
+
+}
+
+Label."Widget54" {
+    AutoSize = true;
+    Position = (140, 440);
+    ScrollbarPolicy = Never;
+    Size = (108.6, 20);
+    Text = "Serwo Bypass";
+    TextSize = 15;
+
+}
+
+Label."Widget55" {
+    AutoSize = true;
+    Position = (270, 350);
+    ScrollbarPolicy = Never;
+    Size = (105.6, 20);
+    Text = "Serwo Czerp:";
+    TextSize = 15;
+
+}
+
+Label."Widget56" {
+    AutoSize = true;
+    Position = (270, 380);
+    ScrollbarPolicy = Never;
+    Size = (115.6, 20);
+    Text = "Serwo Wyrzut:";
+    TextSize = 15;
+
+}
+
+Label."Widget57" {
+    AutoSize = true;
+    Position = (270, 410);
+    ScrollbarPolicy = Never;
+    Size = (113.6, 20);
+    Text = "Serwo Bypass:";
+    TextSize = 15;
+
+}
+
+Label."Widget58" {
+    AutoSize = true;
+    Position = (270, 440);
+    ScrollbarPolicy = Never;
+    Size = (42.6, 20);
+    Text = "Tryb:";
+    TextSize = 15;
+
+}
+
+Label."Widget59" {
+    AutoSize = true;
+    Position = (500, 350);
+    ScrollbarPolicy = Never;
+    Size = (101.6, 20);
+    Text = "Odmrazanie:";
+    TextSize = 15;
+
+}
+
+Label."Widget60" {
+    AutoSize = true;
+    Position = (500, 380);
+    ScrollbarPolicy = Never;
+    Size = (108.6, 20);
+    Text = "Dogrzewanie:";
+    TextSize = 15;
+
+}
+
+Label."Widget61" {
+    AutoSize = true;
+    Position = (500, 410);
+    ScrollbarPolicy = Never;
+    Size = (39.6, 20);
+    Text = "Soft:";
+    TextSize = 15;
+
+}
+
+Label."Widget62" {
+    AutoSize = true;
+    Position = (500, 440);
+    ScrollbarPolicy = Never;
+    Size = (92.6, 20);
+    Text = "Czas pracy:";
+    TextSize = 15;
+
+}
+
+ComboBox."COM" {
+    Items = ["-"];
+    ItemsToDisplay = 0;
+    MaximumItems = 0;
+    Position = (730, 10);
+    Size = (123, 24);
+    TextSize = 13;
+
+}
+
+CheckBox."MODBUS" {
+    Position = (730, 40);
+    Size = (16, 16);
+    Text = "MODBUS";
+    TextSize = 15;
+
+}
+
+Button."przy_1" {
+    Position = (730, 70);
+    Size = (121, 16);
+    Text = "Ster. reczne";
+    TextSize = 13;
+}
+
+Button."przy_2" {
+    Position = (730, 100);
+    Size = (121, 16);
+    Text = "Grzalka 1";
+    TextSize = 13;
+
+}
+
+Button."przy_3" {
+    Position = (730, 130);
+    Size = (121, 16);
+    Text = "Grzalka 2";
+    TextSize = 13;
+
+}
+
+Button."przy_4" {
+    Position = (730, 160);
+    Size = (121, 16);
+    Text = "Wentylator 1";
+    TextSize = 13;
+
+}
+
+Button."przy_5" {
+    Position = (730, 190);
+    Size = (121, 16);
+    Text = "Wentylator 2";
+    TextSize = 13;
+
+}
+
+Button."przy_6" {
+    Position = (730, 220);
+    Size = (121, 16);
+    Text = "Ust. fabryczne";
+    TextSize = 13;
+
+}
+
+Button."przy_7" {
+    Position = (730, 250);
+    Size = (121, 16);
+    Text = "Przycisk";
+    TextSize = 13;
+
+}
+
+Button."przy_8" {
+    Position = (730, 280);
+    Size = (121, 16);
+    Text = "Reset";
+    TextSize = 13;
+
+}
+
+Button."log_1" {
+    Position = (730, 310);
+    Size = (121, 26);
+    Text = "Zapisz Logi";
+    TextSize = 13;
+
+}
+
+Label."Widget75" {
+    AutoSize = true;
+    Position = (730, 350);
+    ScrollbarPolicy = Never;
+    Size = (132.6, 20);
+    Text = "Used SFML-2.5.1";
+    TextSize = 15;
+
+}
+
+Label."Widget76" {
+    AutoSize = true;
+    Position = (730, 370);
+    ScrollbarPolicy = Never;
+    Size = (128.6, 20);
+    Text = "and   TGUI-0.8.2";
+    TextSize = 15;
+
+}
+
+Label."Widget77" {
+    AutoSize = true;
+    Position = (730, 410);
+    ScrollbarPolicy = Never;
+    Size = (71.6, 20);
+    Text = "Przerwa:";
+    TextSize = 15;
+
+}
+
+EditBox."serw_1" {
+    Position = (390, 350);
+    Size = (107, 20);
+    Text = "-";
+    TextSize = 12;
+
+}
+
+EditBox."serw_2" {
+    Position = (390, 380);
+    Size = (107, 20);
+    Text = "-";
+    TextSize = 12;
+
+}
+
+EditBox."serw_3" {
+    Position = (390, 410);
+    Size = (107, 20);
+    Text = "-";
+    TextSize = 12;
+
+}
+
+EditBox."tryb_1" {
+    Position = (390, 440);
+    Size = (107, 20);
+    Text = "-";
+    TextSize = 12;
+
+}
+
+EditBox."odm_1" {
+    Position = (610, 350);
+    Size = (107, 20);
+    Text = "-";
+    TextSize = 12;
+
+}
+
+EditBox."dog_1" {
+    Position = (610, 380);
+    Size = (107, 20);
+    Text = "-";
+    TextSize = 12;
+
+}
+
+EditBox."soft_1" {
+    Position = (610, 410);
+    Size = (107, 20);
+    Text = "-";
+    TextSize = 12;
+
+}
+
+EditBox."czas_1" {
+    Position = (610, 440);
+    Size = (107, 20);
+    Text = "-";
+    TextSize = 12;
+
+}
+
+EditBox."przer_1" {
+    Position = (730, 440);
+    Size = (107, 20);
+    Text = "-";
+    TextSize = 12;
+
+}
+
+CheckBox."wej_1" {
+    Enabled = false;
+    Position = (10, 350);
+    Size = (16, 16);
+    TextSize = 13;
+
+}
+
+CheckBox."wej_2" {
+    Enabled = false;
+    Position = (10, 380);
+    Size = (16, 16);
+    TextSize = 13;
+
+}
+
+CheckBox."wej_3" {
+    Enabled = false;
+    Position = (10, 410);
+    Size = (16, 16);
+    TextSize = 13;
+
+}
+
+CheckBox."wej_4" {
+    Enabled = false;
+    Position = (10, 440);
+    Size = (16, 16);
+    TextSize = 13;
+
+}
+
+CheckBox."wej_5" {
+    Enabled = false;
+    Position = (120, 350);
+    Size = (16, 16);
+    TextSize = 13;
+
+}
+
+CheckBox."wej_6" {
+    Enabled = false;
+    Position = (120, 380);
+    Size = (16, 16);
+    TextSize = 13;
+
+}
+
+CheckBox."wej_7" {
+    Enabled = false;
+    Position = (120, 410);
+    Size = (16, 16);
+    TextSize = 13;
+
+}
+
+CheckBox."wej_8" {
+    Enabled = false;
+    Position = (120, 440);
+    Size = (16, 16);
+    TextSize = 13;
+
+}
+
+Panel."STATUS" {
+    Position = (830, 40);
+    Size = (16, 16);
+
+    Renderer {
+        backgroundcolor = Red;
+        bordercolor = #00000000;
+    }
 }

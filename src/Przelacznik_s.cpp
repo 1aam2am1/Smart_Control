@@ -17,5 +17,5 @@ void Przelacznik_s::change(const std::map<int, int> &dane, tgui::Container *gui)
                                                               std::make_tuple("Otwarte", sf::Color::Red)};
     int32_t j = (i->second & flaga) ? 1 : 0;
     gui->get<tgui::EditBox>(nazwa)->setText(std::get<0>(tab[j]));
-    gui->get<tgui::EditBox>(nazwa)->setTextColor(std::get<1>(tab[j]));
+    gui->get<tgui::EditBox>(nazwa)->getRenderer()->setTextColor(std::get<1>(tab[j]));
 }

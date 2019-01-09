@@ -1,13 +1,13 @@
 #ifndef LOGI_H
 #define LOGI_H
 
-#include <TGUI/Panel.hpp>
-#include <TGUI/SharedWidgetPtr.hpp>
+#include <TGUI/Widgets/Panel.hpp>
+
 
 
 class Logi : public tgui::Panel {
 public:
-    typedef tgui::SharedWidgetPtr<Logi> Ptr;
+    typedef std::shared_ptr <Logi> Ptr;
 
     Logi();
 
@@ -26,17 +26,15 @@ public:
     void updateIDforTracking();
 
 protected:
-    virtual void initialize(Container *const) override;
+    tgui::Signal &getSignal(std::string signalName) override;
+
+    void initialize();
 
 public:
-    enum LogiCallbacks {
-        ValueChanged = PanelCallbacksCount * 1,     ///< Value changed
-        AllLogiCallbacks = PanelCallbacksCount * 2 - 1, ///< All triggers defined in Button and its base classes
-        LogiCallbacksCount = PanelCallbacksCount * 2
-    };
+    tgui::Signal onValueChange = {"ValueChanged"};
 
 protected:
-    virtual void update() override;
+    virtual void update(sf::Time) override;
 
     void calculateScrollbar();
 
@@ -45,8 +43,6 @@ protected:
     void drawLogi(sf::RenderTarget &target, sf::RenderStates states) const;
 
 private:
-    void callback(const tgui::Callback &);
-
     std::map<int32_t, std::list<std::tuple<int32_t, std::string, sf::Color, int32_t>>> tab_nazwy;
     ///strona->liste->id,nazwa,kolor,bit
     std::map<int32_t, std::tuple<int32_t, int32_t>> tab_range;

@@ -1,13 +1,13 @@
 #ifndef MODES_WINDOW_H
 #define MODES_WINDOW_H
 
-#include <TGUI/Panel.hpp>
-#include <TGUI/SharedWidgetPtr.hpp>
+#include <TGUI/Widgets/Panel.hpp>
+
 #include <Modes_data_struct.h>
 
 class Modes_window : public tgui::Panel {
 public:
-    typedef tgui::SharedWidgetPtr<Modes_window> Ptr;
+    typedef std::shared_ptr<Modes_window> Ptr;
 
     Modes_window();
 
@@ -22,18 +22,15 @@ public:
     Modes_data_struct getChangedModes();
 
 protected:
-    virtual void initialize(Container *const) override;
+    tgui::Signal &getSignal(std::string signalName) override;
+
+    void initialize();
 
 public:
-    enum SlidersCallbacks {
-        ValueChanged = PanelCallbacksCount * 1,     ///< Value changed (modes_data_struct
-        ValueChangedSimple = PanelCallbacksCount * 2,     ///< Value changed simple
-        AllSlidersCallbacks = PanelCallbacksCount * 4 - 1, ///< All triggers defined in Button and its base classes
-        SlidersCallbacksCount = PanelCallbacksCount * 4
-    };
+    tgui::Signal onValueChange = {"ValueChanged"};
 
 private:
-    void callback(const tgui::Callback &);
+    bool callback_block;
 
     struct Modes {
         std::string name;

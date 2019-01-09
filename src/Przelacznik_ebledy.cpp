@@ -15,8 +15,8 @@ void Przelacznik_ebledy::change(const std::map<int, int> &dane, tgui::Container 
     if (i == dane.end()) { return; }
 
     if (i->second & flaga) {
-        gui->get<tgui::EditBox>(nazwa)->setTextColor(sf::Color::Red);
+        gui->get<tgui::EditBox>(nazwa)->getRenderer()->setTextColor(sf::Color::Red);
     } else {
-        gui->get<tgui::EditBox>(nazwa)->setTextColor(sf::Color::Black);
+        gui->get<tgui::EditBox>(nazwa)->getRenderer()->setTextColor(sf::Color::Black);
     }
 }

@@ -1,13 +1,13 @@
 #ifndef DATE_H
 #define DATE_H
 
-#include <TGUI/Panel.hpp>
-#include <TGUI/SharedWidgetPtr.hpp>
+#include <TGUI/Widgets/Panel.hpp>
+
 #include <Date_data_struct.h>
 
 class Date : public tgui::Panel {
 public:
-    typedef tgui::SharedWidgetPtr<Date> Ptr;
+    typedef std::shared_ptr<Date> Ptr;
 
     Date();
 
@@ -18,17 +18,17 @@ public:
     Date_data_struct getChanged();
 
 protected:
-    virtual void initialize(Container *const) override;
+    tgui::Signal &getSignal(std::string signalName) override;
+
+    void initialize();
 
 public:
-    enum SlidersCallbacks {
-        ValueChanged = PanelCallbacksCount * 1,     ///< Value changed
-        AllSlidersCallbacks = PanelCallbacksCount * 2 - 1, ///< All triggers defined in Button and its base classes
-        SlidersCallbacksCount = PanelCallbacksCount * 2
-    };
+    tgui::Signal onValueChange = {"ValueChanged"};
 
 private:
-    void callback(const tgui::Callback &);
+    bool callback_block;
+
+    void callback(const int);
 
     Date_data_struct result;
 };

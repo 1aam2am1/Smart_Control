@@ -3,6 +3,7 @@
 #include "Funkcje_str.h"
 #include "Sliders.h"
 #include <memory>
+#include "WidgetSingleton.h"
 #include "Przelacznik_b.h"
 #include "Przelacznik_c.h"
 #include "Przelacznik_e.h"
@@ -19,13 +20,15 @@
 #include "Console.h"
 #include "Logi.h"
 
-Main_window::Main_window() = default;
+Main_window::Main_window() :
+        callback_block(false) {
+    initialize();
+}
 
 Main_window::~Main_window() = default;
 
 void Main_window::change(const std::map<int, int> &dane) {
-    this->unbindGlobalCallback();
-    this->bindGlobalCallback([](const tgui::Callback &) -> void {});
+    callback_block = true;
 
     this->get<Sliders>("sli")->change(dane);
     this->get<Logi>("logi")->change(dane);
@@ -50,7 +53,7 @@ void Main_window::change(const std::map<int, int> &dane) {
              std::make_shared<Przelacznik_ebledy>("tmp_4", 24, 1 << 6),
              std::make_shared<Przelacznik_ebledy>("wilg_4", 24, 1 << 7),
 
-             std::make_shared<Przelacznik_c>("wej_1", 25, 1 << 0), ///checkbox
+             std::make_shared<Przelacznik_c>("wej_1", 25, 1 << 0), ///CheckBox
              std::make_shared<Przelacznik_c>("wej_2", 25, 1 << 1),
              std::make_shared<Przelacznik_c>("wej_3", 25, 1 << 2),
              std::make_shared<Przelacznik_c>("wej_4", 25, 1 << 3),
@@ -91,7 +94,7 @@ void Main_window::change(const std::map<int, int> &dane) {
              std::make_shared<Przelacznik_e>("wilg_4", 33)
             };
 
-    this->bindGlobalCallback(std::bind(&Main_window::callback, this, std::placeholders::_1));
+    callback_block = false;
 
     for (auto &&wsk : tab) {
         wsk->change(dane, this);
@@ -102,9 +105,10 @@ std::map<int, int> Main_window::getChanged() {
     uint32_t flaga = 0;
     for (uint32_t i = 8; i > 0; --i) {
         flaga <<= 1;
-        flaga |= (this->get<tgui::Button>("przy_" + Game_api::convertInt(i))->getTextColor() == sf::Color::Red);
+        flaga |= (this->get<tgui::Button>("przy_" + Game_api::convertInt(i))->getRenderer()->getTextColor() ==
+                  sf::Color::Red);
     }
-    this->get<tgui::Button>("przy_8")->setTextColor(sf::Color::Black);///zmiana koloru resetu
+    this->get<tgui::Button>("przy_8")->getRenderer()->setTextColor(sf::Color::Black);///zmiana koloru resetu
 
     auto i = this->get<Sliders>("sli")->getChanged();
     i[13] = flaga;
@@ -112,24 +116,64 @@ std::map<int, int> Main_window::getChanged() {
     return i;
 }
 
-void Main_window::initialize(Container *const container) {
-    this->Panel::initialize(container);
-    this->bindGlobalCallback(std::bind(&Main_window::callback, this, std::placeholders::_1));
+tgui::Signal &Main_window::getSignal(std::string signalName) {
+    if (signalName == tgui::toLower(onValueChange.getName()))
+        return onValueChange;
+    else if (signalName == tgui::toLower(onCOMChange.getName()))
+        return onCOMChange;
+    else if (signalName == tgui::toLower(onMODBUSChange.getName()))
+        return onMODBUSChange;
+    else if (signalName == tgui::toLower(onSaveLogs.getName()))
+        return onSaveLogs;
+    else
+        return tgui::Panel::getSignal(std::move(signalName));
+}
 
+void Main_window::initialize() {
+    callback_block = true;
     this->loadWidgetsFromFile("data/form.txt");
-    this->setBackgroundColor(sf::Color::Transparent);
+    this->getRenderer()->setBackgroundColor(sf::Color::Transparent);
 
-    Sliders::Ptr sli(*this, "sli");
+    this->get<tgui::ComboBox>("COM")->connect("ItemSelected", [&]() {
+        if (callback_block) { return; }
+        onCOMChange.emit(this);
+    });
+    this->get<tgui::ComboBox>("COM")->setSelectedItem("-"); ///setselecteditem is not implemented yet
+
+    for (uint32_t i = 1; i < 9; ++i) {
+        auto b1 = this->get<tgui::Button>("przy_" + Game_api::convertInt(i));
+        b1->connect("Pressed", [&, widget = b1]() {
+            if (callback_block) { return; }
+            sf::Color c = widget->getRenderer()->getTextColor();
+            if (c == sf::Color::Black) { widget->getRenderer()->setTextColor(sf::Color::Red); }
+            else { widget->getRenderer()->setTextColor(sf::Color::Black); }
+
+            onValueChange.emit(this);
+        });
+    }
+
+    this->get<tgui::Button>("log_1")->connect("Pressed", [&]() {
+        onSaveLogs.emit(this);
+    });
+
+    this->get<tgui::CheckBox>("MODBUS")->connect("Unchecked", [&]() {
+        if (callback_block) { return; }
+        onMODBUSChange.emit(this);
+    });
+
+    Sliders::Ptr sli = WidgetSingleton<Sliders>::get(*this, "sli");
     sli->setPosition(860, 10);
     sli->setSize(330, 450);
-    sli->setBackgroundColor(sf::Color::White);
-    sli->setCallbackId(20);
-    sli->bindCallback(Sliders::ValueChanged);
+    sli->getRenderer()->setBackgroundColor(sf::Color::White);
+    sli->connect("ValueChanged", [&]() {
+        if (callback_block) { return; }
+        onValueChange.emit(this);
+    });
 
-    Logi::Ptr logi(*this, "logi");
+    Logi::Ptr logi = WidgetSingleton<Logi>::get(*this, "logi");
     logi->setPosition(10, 470);
     logi->setSize(1180, 320);
-    logi->setBackgroundColor(sf::Color::White);
+    logi->getRenderer()->setBackgroundColor(sf::Color::White);
 
 
     logi->registerIDforTracking(0, "Czerpnia *C", 20, sf::Color::Green);
@@ -161,39 +205,6 @@ void Main_window::initialize(Container *const container) {
     logi->registerRangeofTab(1, 0, 100);
 
     logi->updateIDforTracking();
-}
 
-void Main_window::callback(const tgui::Callback &callback) {
-    if (callback.id == 1) {
-        m_Callback.trigger = Main_window::COMChanged;
-    }
-    if (callback.id >= 2 && callback.id <= 9) ///przyciski
-    {
-        auto *button = dynamic_cast<tgui::Button *>(callback.widget);
-        sf::Color c = button->getTextColor();
-        if (c == sf::Color::Black) { button->setTextColor(sf::Color::Red); }
-        else { button->setTextColor(sf::Color::Black); }
-
-        m_Callback.trigger = Main_window::ValueChanged;
-    }
-    if (callback.id == 10) ///logi zapisz
-    {
-        m_Callback.trigger = Main_window::SaveLogs;
-    }
-    if (callback.id == 11) ///modbus change
-    {
-        m_Callback.checked = callback.checked;
-        m_Callback.trigger = Main_window::MODBUSChanged;
-    }
-    if (callback.id == 20) ///slider
-    {
-        m_Callback.trigger = Main_window::ValueChanged;
-    }
-    if (callback.id == 30) ///Przelacznik
-    {
-        m_Callback.trigger = Main_window::OldVersion;
-    }
-    Console::printf(Console::DATA_FUNCTION_LOG, "Callback id: %i, value: %i, text: %s\n", callback.id, callback.value,
-                    callback.text.toAnsiString().c_str());
-    addCallback();
+    callback_block = false;
 }

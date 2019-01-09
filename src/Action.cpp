@@ -8,20 +8,22 @@ const static sf::Color red = sf::Color(255, 199, 206);
 
 
 Action::Action() :
-        callback_b(true) {
+        callback_block(false) {
     this->setSize(120, 200);
+    this->initialize();
 }
 
 Action::~Action() = default;
 
 void Action::setData(const Action_data_struct &dane) {
-    this->unbindGlobalCallback();
+    this->callback_block = true;
 
     result = dane;
 
-    this->get<tgui::Button>("t0")->setTextColor(sf::Color(0, static_cast<sf::Uint8>(255 * (dane.en ? 1 : 0)), 0, 255));
+    this->get<tgui::Button>("t0")->getRenderer()->setTextColor(
+            sf::Color(0, static_cast<sf::Uint8>(255 * (dane.en ? 1 : 0)), 0, 255));
 
-    this->setBackgroundColor(dane.en ? green : red);
+    this->getRenderer()->setBackgroundColor(dane.en ? green : red);
 
     ///Poczatek pracy godzina
     this->get<tgui::EditBox>("eh0")->setText(Game_api::convertInt(dane.hour < 23 ? dane.hour : 23));
@@ -55,33 +57,25 @@ void Action::setData(const Action_data_struct &dane) {
 
     ///Temp en
     {
-        auto ch = this->get<tgui::Checkbox>("ec4");
+        auto ch = this->get<tgui::CheckBox>("ec4");
 
-        if (dane.temp_en) {
-            ch->check();
-        } else {
-            ch->uncheck();
-        }
+        ch->setChecked(dane.temp_en);
     }
 
     ///150%
     {
-        auto ch = this->get<tgui::Checkbox>("150%");
+        auto ch = this->get<tgui::CheckBox>("150%");
 
-        if (dane.max_moc) {
-            ch->check();
-        } else {
-            ch->uncheck();
-        }
+        ch->setChecked(dane.max_moc);
     }
 
-    this->bindGlobalCallback(std::bind(&Action::callback, this, std::placeholders::_1));
+    this->callback_block = false;
 }
 
 Action_data_struct Action::getData() {
     int32_t i;
 
-    result.en = (this->get<tgui::Button>("t0")->getTextColor() == sf::Color::Green);
+    result.en = (this->get<tgui::Button>("t0")->getRenderer()->getTextColor() == sf::Color::Green);
     i = Game_api::convertString(this->get<tgui::EditBox>("eh0")->getText());
     result.hour = i < 23 ? i : 23;
     i = Game_api::convertString(this->get<tgui::EditBox>("em0")->getText());
@@ -112,35 +106,40 @@ Action_data_struct Action::getData() {
     i = Game_api::convertString(this->get<tgui::EditBox>("eh4")->getText()) - 14;
     result.temp = i < 12 ? i : 12;
 
-    result.temp_en = this->get<tgui::Checkbox>("ec4")->isChecked();
+    result.temp_en = this->get<tgui::CheckBox>("ec4")->isChecked();
 
-    result.max_moc = this->get<tgui::Checkbox>("150%")->isChecked();
+    result.max_moc = this->get<tgui::CheckBox>("150%")->isChecked();
 
     return result;
 }
 
-void Action::initialize(Container *const container) {
-    this->Panel::initialize(container);
-    this->bindGlobalCallback(std::bind(&Action::callback, this, std::placeholders::_1));
-    this->setBackgroundColor(red);
+tgui::Signal &Action::getSignal(std::string signalName) {
+    if (signalName == tgui::toLower(onValueChange.getName()))
+        return onValueChange;
+    else if (signalName == tgui::toLower(onDelete.getName()))
+        return onDelete;
+    else
+        return tgui::Panel::getSignal(std::move(signalName));
+}
+
+void Action::initialize() {
+    this->getRenderer()->setBackgroundColor(red);
 
     tgui::Button::Ptr b1 = WidgetSingleton<tgui::Button>::get(*this, "t0");
     b1->setSize(65, 16);
     b1->setTextSize(12);
     b1->setPosition(1, 1);
-    b1->setTextColor(sf::Color(0, 0, 0, 255));
+    b1->getRenderer()->setTextColor(sf::Color(0, 0, 0, 255));
     b1->setText("Aktywny");
-    b1->bindCallback(tgui::Button::LeftMouseClicked);
-    b1->setCallbackId(1);
+    b1->connect("Pressed", &Action::callback, this, 1);
 
     tgui::Button::Ptr b2 = WidgetSingleton<tgui::Button>::get(*this, "t1");
     b2->setSize(16, 16);
     b2->setTextSize(14);
     b2->setPosition(103, 1);
-    b2->setTextColor(sf::Color(0, 0, 0, 255));
+    b2->getRenderer()->setTextColor(sf::Color(0, 0, 0, 255));
     b2->setText("-");
-    b2->bindCallback(tgui::Button::LeftMouseClicked);
-    b2->setCallbackId(2);
+    b2->connect("Pressed", &Action::callback, this, 2);
 
     std::string nazwy[5] = {"Start", "Koniec", "Moc wywiew", "Moc nawiew", "Temp Powietrza"};
 
@@ -150,7 +149,7 @@ void Action::initialize(Container *const container) {
         //name->load(THEME_CONFIG_FILE);
         l1->setText(nazwy[i]);
         l1->setPosition(5, 20 + i * 30);
-        l1->setTextColor(sf::Color(0, 0, 0, 255));
+        l1->getRenderer()->setTextColor(sf::Color(0, 0, 0, 255));
         l1->setTextSize(12);
 
         if (i < 4) {
@@ -158,31 +157,31 @@ void Action::initialize(Container *const container) {
             //box->load(THEME_CONFIG_FILE);
             box1->setPosition(5, 32 + i * 30);
             box1->setSize(37, 15);
-            box1->setNumbersOnly(true);
+            box1->setInputValidator(tgui::EditBox::Validator::Int);
             if (i != 2 && i != 3) { box1->setMaximumCharacters(2); } else { box1->setMaximumCharacters(3); }
             box1->setAlignment(tgui::EditBox::Alignment::Right);
             //box->setText(Game_api::convertInt(scroll[scroll_id].minimum));
-            box1->bindCallback(tgui::EditBox::ReturnKeyPressed | tgui::Widget::Unfocused);
-            box1->setCallbackId(10 + i * 2);
+            box1->connect("ReturnKeyPressed", &Action::callback, this, 10 + i * 2);
+            box1->connect("Unfocused", &Action::callback, this, 10 + i * 2);
         } else {
-            tgui::Checkbox::Ptr ch = WidgetSingleton<tgui::Checkbox>::get(*this, "ec" + Game_api::convertInt(i));
+            tgui::CheckBox::Ptr ch = WidgetSingleton<tgui::CheckBox>::get(*this, "ec" + Game_api::convertInt(i));
             //ch->load(THEME_CONFIG_FILE);
             ch->setPosition(5, 33 + i * 30);
             ch->setSize(14, 14);
-            ch->setTextColor(sf::Color(0, 0, 0, 255));
-            ch->bindCallback(tgui::Checkbox::Checked | tgui::Checkbox::Unchecked);
-            ch->setCallbackId(100);
+            ch->getRenderer()->setTextColor(sf::Color(0, 0, 0, 255));
+            ch->connect("Checked", &Action::callback, this, 100);
+            ch->connect("Unchecked", &Action::callback, this, 100);
 
             tgui::EditBox::Ptr box1 = WidgetSingleton<tgui::EditBox>::get(*this, "eh" + Game_api::convertInt(i));
             //box->load(THEME_CONFIG_FILE);
             box1->setPosition(25, 32 + i * 30);
             box1->setSize(37, 15);
-            box1->setNumbersOnly(true);
+            box1->setInputValidator(tgui::EditBox::Validator::Int);
             if (i != 2 && i != 3) { box1->setMaximumCharacters(2); } else { box1->setMaximumCharacters(3); }
             box1->setAlignment(tgui::EditBox::Alignment::Right);
             //box->setText(Game_api::convertInt(scroll[scroll_id].minimum));
-            box1->bindCallback(tgui::EditBox::ReturnKeyPressed | tgui::Widget::Unfocused);
-            box1->setCallbackId(10 + i * 2);
+            box1->connect("ReturnKeyPressed", &Action::callback, this, 10 + i * 2);
+            box1->connect("Unfocused", &Action::callback, this, 10 + i * 2);
         }
 
 
@@ -191,63 +190,60 @@ void Action::initialize(Container *const container) {
             //name->load(THEME_CONFIG_FILE);
             colon1->setText(":");
             colon1->setPosition(45, 36 + i * 30);
-            colon1->setTextColor(sf::Color(0, 0, 0, 255));
+            colon1->getRenderer()->setTextColor(sf::Color(0, 0, 0, 255));
             colon1->setTextSize(12);
-            colon1->setTextStyle(sf::Text::Bold);
+            colon1->getRenderer()->setTextStyle(sf::Text::Bold);
 
             tgui::EditBox::Ptr box2 = WidgetSingleton<tgui::EditBox>::get(*this, "em" + Game_api::convertInt(i));
             //box->load(THEME_CONFIG_FILE);
             box2->setPosition(50, 32 + i * 30);
             box2->setSize(37, 15);
-            box2->setNumbersOnly(true);
+            box2->setInputValidator(tgui::EditBox::Validator::Int);
             box2->setMaximumCharacters(2);
             //box->setText(Game_api::convertInt(scroll[scroll_id].minimum));
-            box2->bindCallback(tgui::EditBox::ReturnKeyPressed | tgui::Widget::Unfocused);
-            box2->setCallbackId(11 + i * 2);
+            box2->connect("ReturnKeyPressed", &Action::callback, this, 11 + i * 2);
+            box2->connect("Unfocused", &Action::callback, this, 11 + i * 2);
         }
     }
 
-    tgui::Checkbox::Ptr ch = WidgetSingleton<tgui::Checkbox>::get(*this, "150%");
+    tgui::CheckBox::Ptr ch = WidgetSingleton<tgui::CheckBox>::get(*this, "150%");
     //ch->load(THEME_CONFIG_FILE);
     ch->setPosition(5, 175);
     ch->setSize(14, 14);
     ch->setText("Tryb boost");
-    ch->setTextColor(sf::Color(0, 0, 0, 255));
+    ch->getRenderer()->setTextColor(sf::Color(0, 0, 0, 255));
     ch->setTextSize(12);
-    ch->bindCallback(tgui::Checkbox::Checked | tgui::Checkbox::Unchecked);
-    ch->setCallbackId(100);
+    ch->connect("Checked", &Action::callback, this, 100);
+    ch->connect("Unchecked", &Action::callback, this, 100);
 
     this->setData({});
 }
 
-void Action::callback(const tgui::Callback &callback) {
-    if (!this->callback_b) { return; }
+void Action::callback(const int id) {
+    if (callback_block) { return; }
 
-    if (callback.id == 1) {
+    if (id == 1) {
         auto b1 = this->get<tgui::Button>("t0");
-        b1->setTextColor(sf::Color(0, 255 * (b1->getTextColor() == sf::Color::Black ? 1 : 0), 0, 255));
+        b1->getRenderer()->setTextColor(
+                sf::Color(0, 255 * (b1->getRenderer()->getTextColor() == sf::Color::Black ? 1 : 0), 0, 255));
 
-        this->setBackgroundColor(b1->getTextColor() == sf::Color::Black ? red : green);
-    } else if (callback.id == 2) {
-        m_Callback.trigger = Action::Delete;
-        addCallback();
+        this->getRenderer()->setBackgroundColor(b1->getRenderer()->getTextColor() == sf::Color::Black ? red : green);
+    } else if (id == 2) {
+        onDelete.emit(this);
 
         return;
-    } else if (callback.id == 100) {
+    } else if (id == 100) {
 
     } else ///changed editbox
     {
         this->checkData();
     }
 
-    m_Callback.trigger = Action::ValueChanged;
-
-
-    addCallback();
+    onValueChange.emit(this);
 }
 
 void Action::checkData() {
-    this->callback_b = false;
+    this->callback_block = true;
 
     {
         uint32_t hour = Game_api::convertString(this->get<tgui::EditBox>("eh0")->getText());
@@ -281,5 +277,5 @@ void Action::checkData() {
 */
     this->setData(data);
 
-    this->callback_b = true;
+    this->callback_block = false;
 }

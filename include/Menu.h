@@ -1,8 +1,8 @@
 #ifndef MENU_H
 #define MENU_H
 
-#include <TGUI/Panel.hpp>
-#include <TGUI/SharedWidgetPtr.hpp>
+#include <TGUI/Widgets/Panel.hpp>
+
 #include <map>
 #include <Calendar.h>
 #include <Modes_window.h>
@@ -10,7 +10,7 @@
 
 class Menu : public tgui::Panel {
 public:
-    typedef tgui::SharedWidgetPtr<Menu> Ptr;
+    typedef std::shared_ptr<Menu> Ptr;
 
     Menu();
 
@@ -27,22 +27,19 @@ public:
     Date *getDate();
 
 protected:
-    virtual void initialize(Container *const container) override;
+    tgui::Signal &getSignal(std::string signalName) override;
+
+    void initialize();
 
 public:
-    enum Main_windowCallbacks {
-        ValueChanged = PanelCallbacksCount * 1,     ///< Value changed
-        COMChanged = PanelCallbacksCount * 2,     ///< COM changed
-        MODBUSChanged = PanelCallbacksCount * 4,     ///< MODBUS changed
-        SaveLogs = PanelCallbacksCount * 8,     ///< Save changed
-        GetCalendarData = PanelCallbacksCount * 16,     ///< Get Calendar Data
-        OldVersion = PanelCallbacksCount * 32,  ///< Old version
-        AllMenuCallbacks = PanelCallbacksCount * 64 - 1, ///< All triggers defined in Button and its base classes
-        MenuCallbacksCount = PanelCallbacksCount * 64
-    };
+    tgui::Signal onValueChange = {"ValueChanged"};
+    tgui::Signal onCOMChange = {"COMChanged"};
+    tgui::Signal onMODBUSChange = {"MODBUSChanged"};
+    tgui::Signal onSaveLogs = {"SaveLogs"};
+    tgui::Signal onGetCalendarData = {"GetCalendarData"};
 
 private:
-    void callback(const tgui::Callback &);
+    bool callback_block;
 };
 
 #endif // MENU_H

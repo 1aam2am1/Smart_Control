@@ -10,14 +10,17 @@ add_definitions(-D_WIN32_WINNT=0x0501)
 
 # Add cmake_modules path
 set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake_modules" ${CMAKE_MODULE_PATH})
+
 if (WIN32)
     set(SFML_STATIC_LIBRARIES TRUE)
+    set(TGUI_STATIC_LIBRARIES TRUE)
 
-    if (NOT DEFINED $ENV{TGUI_ROOT})
+    #if (NOT DEFINED $ENV{TGUI_DIR}) #TODO: Uncomment this part. When we port whole application to 0.8 version.
         set(TGUI_ROOT
-                "C:/Dropbox/TGUI-0.6.10"
-                "D:/Dropbox/TGUI-0.6.10")
-    endif ()
+                "C:/Dropbox/TGUI-0.8.2/lib/cmake/TGUI"
+                "D:/Dropbox/TGUI-0.8.2/lib/cmake/TGUI")
+    set(TGUI_DIR TGUI_ROOT)
+    #endif ()
 
     if (NOT DEFINED $ENV{SFML_DIR})
         set(SFML_DIR
@@ -25,14 +28,14 @@ if (WIN32)
                 "D:/Dropbox/SFML-2.5.1/lib/cmake/SFML")
     endif ()
 else ()
-    set(TGUI_ROOT "/home/michal/tgui")
+    set(TGUI_ROOT "/home/michal/tgui-0.8/lib/cmake/TGUI")
 endif ()
 
-#Find any version 0.6 of tgui
+#Find any version 0.8 of tgui
 #See the FindSFML.cmake file for additional details and instructions
-find_package(TGUI 0.6 REQUIRED)
-include_directories(${TGUI_INCLUDE_DIR})
-target_link_libraries(${PROJECT_NAME} ${TGUI_LIBRARY})
+find_package(TGUI 0.8 REQUIRED)
+include_directories(${TGUI_DIR}/../../../include)
+target_link_libraries(${PROJECT_NAME} tgui)
 
 
 #Find any version 2.X of SFML

@@ -5,6 +5,7 @@
 #include <cmath>
 #include "Funkcje_str.h"
 #include "TGUI/TGUI.hpp"
+#include <TGUI/Clipping.hpp>
 #include "WidgetSingleton.h"
 
 // TODO (Michal_Marszalek#1#03/30/17): time_t na chrono
@@ -42,8 +43,7 @@ static std::map<ID, std::vector<xy>> dane; ///id,bit->dane
 static std::map<ID, ErrorFlag> errors; ///id,bit->error,id,bit,stara_wartosc_bledu
 
 Logi::Logi() {
-    m_AnimatedWidget = true;
-
+    initialize();
 }
 
 Logi::~Logi() = default;
@@ -241,7 +241,7 @@ void Logi::updateIDforTracking() {
     tgui::Panel::Ptr p1 = WidgetSingleton<tgui::Panel>::get(*this, "t_panel");
     p1->setPosition(890, 10);
     p1->setSize(280, 16);
-    p1->setBackgroundColor(sf::Color::Transparent);
+    p1->getRenderer()->setBackgroundColor(sf::Color::Transparent);
 
     int32_t j = 0;
     for (auto i = tab_nazwy.begin(); i != tab_nazwy.end(); ++i, ++j) {
@@ -250,9 +250,21 @@ void Logi::updateIDforTracking() {
         button->setSize(95, 16);
         button->setPosition(j * 105, 0);
         button->setText("Tab " + Game_api::convertInt(i->first));
-        button->setCallbackId(100 + j);
-        button->bindCallbackEx(std::bind(&Logi::callback, this, std::placeholders::_1),
-                               tgui::Button::LeftMouseClicked);
+        button->connect("Pressed", [&, id = j, widget = button]() {
+
+            int32_t j = 0;
+            for (auto i = tab_nazwy.begin(); i != tab_nazwy.end(); ++i, ++j) {
+                this->get<tgui::Button>("t" + Game_api::convertInt(j))->getRenderer()->setTextColor(
+                        sf::Color(0, 0, 0, 255));
+                this->get<tgui::Panel>("b" + Game_api::convertInt(j))->setVisible(false);
+            }
+            std::dynamic_pointer_cast<tgui::Button>(widget)->getRenderer()->setTextColor(sf::Color(255, 0, 0, 255));
+            this->get<tgui::Panel>("b" + Game_api::convertInt(id))->setVisible(true);
+
+            ///usun i dodaj labels
+
+            onValueChange.emit(this);
+        });
 
 
 
@@ -262,12 +274,12 @@ void Logi::updateIDforTracking() {
         tgui::Panel::Ptr p2 = WidgetSingleton<tgui::Panel>::get(*this, "b" + Game_api::convertInt(j));
         p2->setPosition(890, 30);
         p2->setSize(200, 280);
-        p2->setBackgroundColor(sf::Color::Transparent);
+        p2->getRenderer()->setBackgroundColor(sf::Color::Transparent);
 
         int32_t z = 0;
         for (auto k : i->second) ///lista id w tab_nazwy
         {
-            tgui::Checkbox::Ptr ch = WidgetSingleton<tgui::Checkbox>::get(*p2,
+            tgui::CheckBox::Ptr ch = WidgetSingleton<tgui::CheckBox>::get(*p2,
                                                                           "ch" + Game_api::convertInt(std::get<0>(k)) +
                                                                           "-"
                                                                           + Game_api::convertInt(std::get<3>(k)));
@@ -275,29 +287,29 @@ void Logi::updateIDforTracking() {
             ch->setPosition(0, 0 + z * 25);
             ch->setSize(12, 12);
             ch->setText(std::get<1>(k));
-            ch->setTextColor(std::get<2>(k));
+            ch->getRenderer()->setTextColor(std::get<2>(k));
             ch->setTextSize(12);
-            ch->check();
+            ch->setChecked(true);
 
             ++z;
         }
 
-        p2->hide();
+        p2->setVisible(false);
     }
 
-    tgui::Callback call;
-    call.id = 100;
-    call.widget = this->get("t0", true).get();
-
-    callback(call);
+    this->get<tgui::Button>("t0")->onPress.emit(this->get("t0").get(), "");
 }
 
-void Logi::initialize(Container *const container) {
-    this->Panel::initialize(container);
+tgui::Signal &Logi::getSignal(std::string signalName) {
+    if (signalName == tgui::toLower(onValueChange.getName()))
+        return onValueChange;
+    else
+        return tgui::Panel::getSignal(std::move(signalName));
+}
 
+void Logi::initialize() {
     tgui::Scrollbar::Ptr scrollbar = WidgetSingleton<tgui::Scrollbar>::get(*this, "scr");
     //scrollbar->load(THEME_CONFIG_FILE);
-    scrollbar->setVerticalScroll(false);
     scrollbar->setPosition(10, 10);
     scrollbar->setSize(855, 20);
 
@@ -317,29 +329,30 @@ void Logi::initialize(Container *const container) {
         button->setSize(95, 16);
         button->setPosition(1090, 30 + i * 25);
         button->setText(std::get<0>(wartosci[i]));
-        button->bindCallbackEx([this, i, button](const tgui::Callback &) -> void {
-                                   czas = std::get<1>(wartosci[i]);
-                                   for (int32_t j = 0; j < 6; ++j) {
-                                       this->get<tgui::Button>("time" + Game_api::convertInt(j))->setTextColor(sf::Color(0, 0, 0, 255));
-                                   }
+        button->connect("Pressed", [this, i, button]() -> void {
+            czas = std::get<1>(wartosci[i]);
+            for (int32_t j = 0; j < 6; ++j) {
+                this->get<tgui::Button>(
+                        "time" + Game_api::convertInt(j))->getRenderer()->setTextColor(
+                        sf::Color(0, 0, 0, 255));
+            }
 
-                                   button->setTextColor(sf::Color::Red);
+            button->getRenderer()->setTextColor(sf::Color::Red);
 
-                                   this->calculateScrollbar();
-                               },
-                               tgui::Button::LeftMouseClicked);
+            this->calculateScrollbar();
+        });
 
-        if (std::get<1>(wartosci[i]) == this->czas) { button->setTextColor(sf::Color::Red); }
+        if (std::get<1>(wartosci[i]) == this->czas) { button->getRenderer()->setTextColor(sf::Color::Red); }
     }
 }
 
-void Logi::update() {
+void Logi::update(sf::Time elapsedTime) {
     calculateScrollbar();
 }
 
 void Logi::calculateScrollbar() {
     tgui::Scrollbar::Ptr scrollbar = this->get<tgui::Scrollbar>("scr");
-    scrollbar->setLowValue(15);///rozmiar jednej strony
+    scrollbar->setViewportSize(15);///rozmiar jednej strony
 
 
     time_t minn = time(nullptr);
@@ -368,71 +381,29 @@ void Logi::calculateScrollbar() {
 }
 
 void Logi::draw(sf::RenderTarget &target, sf::RenderStates states) const {
-    // Don't draw when the texture wasn't created
-    if (!m_Loaded)
-        return;
+    states.transform.translate(getPosition());
 
-    const sf::View &view = target.getView();
-
-    // Calculate the scale factor of the view
-    float scaleViewX = target.getSize().x / view.getSize().x;
-    float scaleViewY = target.getSize().y / view.getSize().y;
-
-    // Get the global position
-    sf::Vector2f topLeftPosition = sf::Vector2f(
-            ((getAbsolutePosition().x - view.getCenter().x + (view.getSize().x / 2.f)) * view.getViewport().width) +
-            (view.getSize().x * view.getViewport().left),
-            ((getAbsolutePosition().y - view.getCenter().y + (view.getSize().y / 2.f)) * view.getViewport().height) +
-            (view.getSize().y * view.getViewport().top));
-    sf::Vector2f bottomRightPosition = sf::Vector2f(
-            (getAbsolutePosition().x + m_Size.x - view.getCenter().x + (view.getSize().x / 2.f)) *
-            view.getViewport().width + (view.getSize().x * view.getViewport().left),
-            (getAbsolutePosition().y + m_Size.y - view.getCenter().y + (view.getSize().y / 2.f)) *
-            view.getViewport().height + (view.getSize().y * view.getViewport().top));
-
-    // Get the old clipping area
-    GLint scissor[4];
-    glGetIntegerv(GL_SCISSOR_BOX, scissor);
-
-    // Calculate the clipping area
-    GLint scissorLeft = TGUI_MAXIMUM(static_cast<GLint>(topLeftPosition.x * scaleViewX), scissor[0]);
-    GLint scissorTop = TGUI_MAXIMUM(static_cast<GLint>(topLeftPosition.y * scaleViewY),
-                                    static_cast<GLint>(target.getSize().y) - scissor[1] - scissor[3]);
-    GLint scissorRight = TGUI_MINIMUM(static_cast<GLint>(bottomRightPosition.x * scaleViewX), scissor[0] + scissor[2]);
-    GLint scissorBottom = TGUI_MINIMUM(static_cast<GLint>(bottomRightPosition.y * scaleViewY),
-                                       static_cast<GLint>(target.getSize().y) - scissor[1]);
-
-    // If the widget outside the window then don't draw anything
-    if (scissorRight < scissorLeft)
-        scissorRight = scissorLeft;
-    else if (scissorBottom < scissorTop)
-        scissorTop = scissorBottom;
-
-    // Set the clipping area
-    glScissor(scissorLeft, target.getSize().y - scissorBottom, scissorRight - scissorLeft, scissorBottom - scissorTop);
-
-    // Set the transform
-    states.transform *= getTransform();
-
-    // Draw the background
-    if (m_BackgroundColor != sf::Color::Transparent) {
-        sf::RectangleShape background(m_Size);
-        background.setFillColor(m_BackgroundColor);
-        target.draw(background, states);
+    // Draw the borders
+    if (m_bordersCached != tgui::Borders{0}) {
+        drawBorders(target, states, m_bordersCached, getSize(), m_borderColorCached);
+        states.transform.translate({m_bordersCached.getLeft(), m_bordersCached.getTop()});
     }
 
-    // Draw the background texture if there is one
-    if (m_Texture)
-        target.draw(m_Sprite, states);
+    // Draw the background
+    const sf::Vector2f innerSize = {getSize().x - m_bordersCached.getLeft() - m_bordersCached.getRight(),
+                                    getSize().y - m_bordersCached.getTop() - m_bordersCached.getBottom()};
+    drawRectangleShape(target, states, innerSize, m_backgroundColorCached);
 
-    // Draw the widgets
+    states.transform.translate(m_paddingCached.getLeft(), m_paddingCached.getTop());
+    const sf::Vector2f contentSize = {innerSize.x - m_paddingCached.getLeft() - m_paddingCached.getRight(),
+                                      innerSize.y - m_paddingCached.getTop() - m_paddingCached.getBottom()};
+
+    // Draw the child widgets
+    const tgui::Clipping clipping{target, states, {}, contentSize};
     drawWidgetContainer(&target, states);
 
     //Draw log
     drawLogi(target, states);
-
-    // Reset the old clipping area
-    glScissor(scissor[0], scissor[1], scissor[2], scissor[3]);
 }
 
 void Logi::drawLogi(sf::RenderTarget &target, sf::RenderStates states) const {
@@ -471,14 +442,14 @@ void Logi::drawLogi(sf::RenderTarget &target, sf::RenderStates states) const {
     int32_t j = 0;
     for (auto i = tab_nazwy.begin(); i != tab_nazwy.end(); ++i, ++j) ///aktywna strona
     {
-        if (this->get<tgui::Button>("t" + Game_api::convertInt(j), true)->getTextColor() == sf::Color::Red) {
+        if (this->get<tgui::Button>("t" + Game_api::convertInt(j))->getRenderer()->getTextColor() == sf::Color::Red) {
             strona = i->first;
         }
     }
 
 
     sf::Text text;
-    text.setFont(this->getGlobalFont());
+    text.setFont(*m_fontCached.getFont());
     sf::RenderStates st = states;
     sf::VertexArray tab(sf::Lines, 2);
     tab[0].position = sf::Vector2f(1, 0);
@@ -588,8 +559,8 @@ void Logi::drawLogi(sf::RenderTarget &target, sf::RenderStates states) const {
     if (strona != -1 && tab_nazwy.find(strona) != tab_nazwy.end())
         for (const auto &it : tab_nazwy.find(strona)->second) ///jakie wykresy
         {
-            if (!this->get<tgui::Checkbox>("ch" + Game_api::convertInt(std::get<0>(it)) + "-"
-                                           + Game_api::convertInt(std::get<3>(it)), true)->isChecked()) { continue; }
+            if (!this->get<tgui::CheckBox>("ch" + Game_api::convertInt(std::get<0>(it)) + "-"
+                                           + Game_api::convertInt(std::get<3>(it)))->isChecked()) { continue; }
 
             const auto &obj = dane[{std::get<0>(it), std::get<3>(it)}];
 
@@ -611,7 +582,8 @@ void Logi::drawLogi(sf::RenderTarget &target, sf::RenderStates states) const {
                 }
 
                 vertex.position.x =
-                        (size.x - 25) - (time(NULL) - d->time) * scala.x / (40.0 * this->czas) - przesuniecie * scala.x;
+                        (size.x - 25) - (time(nullptr) - d->time) * scala.x / (40.0 * this->czas) -
+                        przesuniecie * scala.x;
 
                 vertex.position.y = ((static_cast<float>(temperature_max) - d->wartosc) / temperature_scale) * scala.y;
 
@@ -637,21 +609,3 @@ void Logi::drawLogi(sf::RenderTarget &target, sf::RenderStates states) const {
     glScissor(m_scissor[0], m_scissor[1], m_scissor[2], m_scissor[3]);
 }
 
-void Logi::callback(const tgui::Callback &callback) {
-    if (callback.id / 100 == 1) ///tab
-    {
-        ///kolorowanie tab
-        ///howanie i pokazywanie p...
-        int32_t j = 0;
-        for (auto i = tab_nazwy.begin(); i != tab_nazwy.end(); ++i, ++j) {
-            this->get<tgui::Button>("t" + Game_api::convertInt(j), true)->setTextColor(sf::Color(0, 0, 0, 255));
-            this->get<tgui::Panel>("b" + Game_api::convertInt(j))->hide();
-        }
-        dynamic_cast<tgui::Button *>(callback.widget)->setTextColor(sf::Color(255, 0, 0, 255));
-        this->get<tgui::Panel>("b" + Game_api::convertInt(callback.id % 100))->show();
-
-        ///usun i dodaj labels
-    }
-    m_Callback.trigger = Logi::ValueChanged;
-    addCallback();
-}

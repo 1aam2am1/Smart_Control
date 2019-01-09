@@ -13,6 +13,6 @@ Przelacznik_b::~Przelacznik_b() = default;
 void Przelacznik_b::change(const std::map<int, int> &dane, tgui::Container *gui) const {
     auto i = dane.find(id);
     if (i == dane.end()) { return; }
-    gui->get<tgui::Button>(nazwa)->setTextColor(
+    gui->get<tgui::Button>(nazwa)->getRenderer()->setTextColor(
             sf::Color(static_cast<sf::Uint8>(255 * (i->second & flaga ? 1 : 0)), 0, 0, 255));
 }

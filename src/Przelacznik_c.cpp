@@ -14,7 +14,6 @@ void Przelacznik_c::change(const std::map<int, int> &dane, tgui::Container *gui)
     auto i = dane.find(id);
     if (i == dane.end()) { return; }
 
-    if (i->second & flaga) { gui->get<tgui::Checkbox>(nazwa)->check(); }
-    else { gui->get<tgui::Checkbox>(nazwa)->uncheck(); }
+    gui->get<tgui::CheckBox>(nazwa)->setChecked((i->second & flaga) != 0);
 
 }

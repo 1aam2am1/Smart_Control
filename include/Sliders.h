@@ -1,13 +1,13 @@
 #ifndef SCROLLBARS_H
 #define SCROLLBARS_H
 
-#include <TGUI/Panel.hpp>
-#include <TGUI/SharedWidgetPtr.hpp>
+#include <TGUI/Widgets/Panel.hpp>
+
 #include <map>
 
 class Sliders : public tgui::Panel {
 public:
-    typedef tgui::SharedWidgetPtr<Sliders> Ptr;
+    typedef std::shared_ptr<Sliders> Ptr;
 
     Sliders();
 
@@ -18,17 +18,15 @@ public:
     std::map<int, int> getChanged();
 
 protected:
-    virtual void initialize(Container *const) override;
+    tgui::Signal &getSignal(std::string signalName) override;
+
+    void initialize();
 
 public:
-    enum SlidersCallbacks {
-        ValueChanged = PanelCallbacksCount * 1,     ///< Value changed
-        AllSlidersCallbacks = PanelCallbacksCount * 2 - 1, ///< All triggers defined in Button and its base classes
-        SlidersCallbacksCount = PanelCallbacksCount * 2
-    };
+    tgui::Signal onValueChange = {"ValueChanged"};
 
 private:
-    void callback(const tgui::Callback &);
+    bool callback_block;
 
     struct Scroll {
         std::string name;

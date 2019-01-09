@@ -1,14 +1,13 @@
 #ifndef ACTION_H
 #define ACTION_H
 
-#include <TGUI/Panel.hpp>
-#include <TGUI/SharedWidgetPtr.hpp>
+#include <TGUI/Widgets/Panel.hpp>
 #include <map>
 #include <Action_data_struct.h>
 
 class Action : public tgui::Panel {
 public:
-    typedef tgui::SharedWidgetPtr<Action> Ptr;
+    typedef std::shared_ptr<Action> Ptr;
 
     Action();
 
@@ -19,20 +18,18 @@ public:
     Action_data_struct getData();
 
 protected:
-    virtual void initialize(Container *const) override;
+    tgui::Signal &getSignal(std::string signalName) override;
+
+    void initialize();
 
 public:
-    enum SlidersCallbacks {
-        ValueChanged = PanelCallbacksCount * 1,     ///< Value changed
-        Delete = PanelCallbacksCount * 2,     ///< Delete event
-        AllSlidersCallbacks = PanelCallbacksCount * 4 - 1, ///< All triggers defined in Button and its base classes
-        SlidersCallbacksCount = PanelCallbacksCount * 4
-    };
+    tgui::Signal onValueChange = {"ValueChanged"};
+    tgui::Signal onDelete = {"Deleted"};
 
 private:
-    bool callback_b;
+    bool callback_block;
 
-    void callback(const tgui::Callback &);
+    void callback(const int);
 
     void checkData();
 

@@ -2,7 +2,7 @@
 #include <getopt.h>
 #include <cstdio>
 #include <cstdlib>
-#include <string>
+#include <cstring>
 #include "Funkcje_str.h"
 #include "Console.h"
 

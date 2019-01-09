@@ -1,14 +1,14 @@
 #ifndef DAY_H
 #define DAY_H
 
-#include <TGUI/Panel.hpp>
-#include <TGUI/SharedWidgetPtr.hpp>
+#include <TGUI/Widgets/Panel.hpp>
+
 #include <map>
 #include <Action_data_struct.h>
 
 class Day : public tgui::Panel {
 public:
-    typedef tgui::SharedWidgetPtr<Day> Ptr;
+    typedef std::shared_ptr<Day> Ptr;
 
     Day();
 
@@ -25,27 +25,23 @@ public:
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     /// \internal
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    virtual void mouseWheelMoved(int delta, int x, int y);
+    virtual bool mouseWheelScrolled(float delta, tgui::Vector2f pos) override;
 
     void addAction(const Action_data_struct &);
 
 protected:
-    virtual void initialize(Container *const) override;
+    tgui::Signal &getSignal(std::string signalName) override;
+
+    void initialize();
 
     void calculateScrollbar();
 
-    void delAction(tgui::Widget *);
+    void delAction(const tgui::Widget::Ptr &);
 
 public:
-    enum SlidersCallbacks {
-        ValueChanged = PanelCallbacksCount * 1,     ///< Value changed
-        AllSlidersCallbacks = PanelCallbacksCount * 2 - 1, ///< All triggers defined in Button and its base classes
-        SlidersCallbacksCount = PanelCallbacksCount * 2
-    };
+    tgui::Signal onValueChange = {"ValueChanged"};
 
 private:
-    void callback(const tgui::Callback &);
-
     uint32_t action_cout;
     int32_t old_value_scrollbar;
 };
