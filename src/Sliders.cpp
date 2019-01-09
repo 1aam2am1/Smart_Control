@@ -4,28 +4,28 @@
 #include "WidgetSingleton.h"
 
 Sliders::Sliders()
-        : scroll{{"Max temperatura",         -20, 80,  0},
-                 {"Bypass czerpnia",         -20, 40,  2},
-                 {"Bypass wyrzutnia",        -20, 40,  3},
-                 {"Odmrazanie",              -20, 40,  4},
-                 {"Dogrzewanie",             -20, 40,  5},
-                 {"Czas odmrazania",         1,   60,  14},
-                 {"Przerwa odmrazania",      1,   180, 15},
-                 {"Moc odmrazania",          0,   100, 17},
+        : scroll{{"Max temperatura",            45,  55,  0},
+                 {"Bypass czerpnia (minimum)",  14,  20,  2},
+                 {"Bypass wyrzutnia (maximum)", 21,  26,  3},
+                 {"Odmrazanie",                 -5,  5,   4},
+                 {"Dogrzewanie",                18,  26,  5},
+                 {"Czas odmrazania",            1,   60,  14},
+                 {"Przerwa odmrazania",         1,   180, 15},
+                 {"Moc odmrazania",             0,   100, 17},
 
-                 {"Predkosc serwa",          1,   10,  6},
-                 {"S. wyrzut zamkniete",     0,   250, 7},
-                 {"S. wyrzut otwarte",       0,   250, 8},
-                 {"S. nawiew zamkniete",     0,   250, 9},
-                 {"S. nawiew otwarte",       0,   250, 10},
-                 {"S. bypas zamkniete",      0,   250, 11},
-                 {"S. bypas otwarte",        0,   250, 12},
-                 {"",                        0,   0,   -1},
+                 {"Predkosc serwa",             1,   10,  6},
+                 {"S. wyrzut zamkniete",        0,   250, 7},
+                 {"S. wyrzut otwarte",          0,   250, 8},
+                 {"S. nawiew zamkniete",        0,   250, 9},
+                 {"S. nawiew otwarte",          0,   250, 10},
+                 {"S. bypas zamkniete",         0,   250, 11},
+                 {"S. bypas otwarte",           0,   250, 12},
+                 {"",                           0,   0,   -1},
 
-                 {"Moc wentylacji (reczny)", 0,   100, 1},
-                 {"Odmrazanie standard",     -40, 40,  16},
-                 {"Nastawa potencjometru",   0,   100, 46},
-                 {"Cholodzenie",             13,  26,  -1}
+                 {"Moc wentylacji (reczny)",    0,   100, 1},
+                 {"Odmrazanie standard",        -40, 40,  16},
+                 {"Nastawa potencjometru",      0,   100, 46},
+                 {"Cholodzenie",                14,  24,  -1}
 } {
 
 }
