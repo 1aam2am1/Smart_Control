@@ -187,6 +187,28 @@ namespace Game_api {
             return result;
         }
 
+        std::vector<std::string> dirF(std::string gdzie) {
+            DIR *dir;
+            dirent *drnt;
+            std::vector<std::string> result;
+
+            if (gdzie.empty()) { gdzie = "."; }
+
+            if ((dir = opendir(gdzie.c_str())) != nullptr) //otwieram folder
+            {
+                drnt = readdir(dir); //czytam 1
+
+                while (drnt != nullptr) {
+                    if (drnt->d_type != DT_DIR) { result.emplace_back(drnt->d_name); } //czytam nazwe
+                    drnt = readdir(dir);
+                }
+
+                closedir(dir); //zamykam folder
+            }
+
+            return result;
+        }
+
         bool mkdir(std::string jaki) {
             if (::mkdir(jaki.c_str(), 770)) {
                 switch (errno) {

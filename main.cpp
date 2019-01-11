@@ -6,6 +6,11 @@
 
 #undef MessageBox
 #endif
+#ifdef __linux__
+
+#include <unistd.h>
+
+#endif
 
 #include <memory>
 #include "icona.h"
@@ -55,6 +60,10 @@ int main(int argc, char **argv) {
                                                             Version::GIT_SHA + " " +
                                                             Version::DATE).c_str());
     }
+#ifdef __linux__
+    Console::printf(Console::MESSAGE, "We need root privileges to open rs232 port %i\n", setuid(0));
+
+#endif // _linux_
 
     sf::RenderWindow window;
     window.create(sf::VideoMode(static_cast<uint32_t>(options.getOptions().size.x),
@@ -206,9 +215,16 @@ int main(int argc, char **argv) {
                 sf::String str = gui.get<tgui::ComboBox>("COM", true)->getSelectedItem();
 
                 if (str != "-") {
+#ifdef _WIN32
                     if (!com->connect(str)) {
                         gui.get<tgui::ComboBox>("COM", true)->setSelectedItem("-");
                     }
+#endif // _WIN32
+#ifdef __linux__
+                    if (!com->connect("/dev/" + str)) {
+                        gui.get<tgui::ComboBox>("COM", true)->setSelectedItem("-");
+                    }
+#endif // _linux_
                 } else {
                     com->close();
                 }

@@ -4,6 +4,7 @@
 #include <windows.h>
 
 
+
 #define MAX_VALUE_NAME 16383
 
 std::list<std::string> Com::getComList() {
@@ -59,10 +60,21 @@ std::list<std::string> Com::getComList() {
 }
 
 #else
+
+#include <regex>
+#include "Funkcje_str.h"
+
 std::list<std::string> Com::getComList() {
     std::list<std::string> tab;
-    // Todo Add implementation for com list in linux
+    std::regex txt_regex("[a-z]*S[0-9]*");
+    auto vtab = Game_api::plik::dirF("/dev");
 
+    for (const auto &it : vtab) {
+
+        if (std::regex_match(it, txt_regex)) {
+            tab.push_back(it);
+        }
+    }
 
     return tab;
 }
