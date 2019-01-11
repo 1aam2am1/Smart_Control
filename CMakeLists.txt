@@ -10,12 +10,16 @@ add_definitions(-D_WIN32_WINNT=0x0501)
 
 # Add cmake_modules path
 set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake_modules" ${CMAKE_MODULE_PATH})
-set(SFML_STATIC_LIBRARIES TRUE)
+if (WIN32)
+    set(SFML_STATIC_LIBRARIES TRUE)
 
-if (NOT DEFINED $ENV{TGUI_ROOT})
-    set(TGUI_ROOT
-            "C:/Dropbox/TGUI-0.6.10"
-            "D:/Dropbox/TGUI-0.6.10")
+    if (NOT DEFINED $ENV{TGUI_ROOT})
+        set(TGUI_ROOT
+                "C:/Dropbox/TGUI-0.6.10"
+                "D:/Dropbox/TGUI-0.6.10")
+    endif ()
+else ()
+    set(TGUI_ROOT "/home/michal/tgui")
 endif ()
 
 #Find any version 0.6 of tgui
@@ -57,10 +61,27 @@ endif ()
 # Define sources and executable
 include_directories(${CMAKE_SOURCE_DIR})
 include_directories(${CMAKE_SOURCE_DIR}/include)
+include_directories(${CMAKE_SOURCE_DIR}/src)
 
 file(GLOB_RECURSE GENERATED_SOURCES ${CMAKE_SOURCE_DIR}/src/*.cpp)
-file(GLOB_RECURSE GENERATED_HEADERS ${CMAKE_SOURCE_DIR}/include/*.h)
-file(GLOB_RECURSE GENERATED_RC_FILES ${CMAKE_SOURCE_DIR}/include/*.rc)
+file(GLOB_RECURSE GENERATED_HEADERS ${CMAKE_SOURCE_DIR}/include/*.h ${CMAKE_SOURCE_DIR}/src/*.h)
+
+if (WIN32)
+    list(FILTER GENERATED_HEADERS EXCLUDE REGEX ".*/Unix/.*")
+    list(FILTER GENERATED_SOURCES EXCLUDE REGEX ".*/Unix/.*")
+    file(GLOB_RECURSE GENERATED_RC_FILES ${CMAKE_SOURCE_DIR}/include/*.rc)
+endif ()
+
+
+if (UNIX)
+    list(FILTER GENERATED_HEADERS EXCLUDE REGEX ".*/Win32/.*")
+    list(FILTER GENERATED_SOURCES EXCLUDE REGEX ".*/Win32/.*")
+    set(GENERATED_RC_FILES "")
+
+    target_link_libraries(${PROJECT_NAME} "GLU")
+    target_link_libraries(${PROJECT_NAME} "GL")
+    target_link_libraries(${PROJECT_NAME} "pthread")
+endif ()
 
 target_sources(${PROJECT_NAME} PRIVATE main.cpp ${GENERATED_SOURCES} ${GENERATED_RC_FILES} ${GENERATED_HEADERS})
 set_target_properties(${PROJECT_NAME} PROPERTIES OUTPUT_NAME "${EXECUTABLE_NAME}")

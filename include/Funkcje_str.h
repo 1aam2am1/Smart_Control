@@ -10,6 +10,9 @@
 #endif // _WIN32
 #ifdef __linux__
 #include <sys/dir.h>
+#include <sys/types.h>
+#include <dirent.h>
+#include <sys/stat.h>
 #endif // __linux__
 
 #include <string>

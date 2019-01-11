@@ -93,6 +93,9 @@ bool Argv_options::process(int argc, char **argv) {
                                     long_options[i].name,
                                     long_options[i].has_arg ? "Arg" : "");
                 }
+#ifndef _WIN32
+                Console::printf(Console::ERROR_MESSAGE, "\nLinux console option use xterm\n");
+#endif
                 exit(EXIT_FAILURE);
             case '?':
                 Console::printf(Console::ERROR_MESSAGE, "ERROR Bad Option\n");

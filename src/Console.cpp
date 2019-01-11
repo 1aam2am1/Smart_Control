@@ -1,12 +1,25 @@
 #include "Console.h"
+
+#if defined(_WIN32)
 #include "windows.h"
+
+#else
+
+#include <cstdlib>
+#include <cstdio>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <unistd.h>
+#include <errno.h>
+#include <cstring>
+#endif
 #include <cstdio>
 #include <fcntl.h>
 #include <fstream>
 
 #include "Asynchronous_write.h"
 
-
+#if defined(_WIN32)
 // maximum mumber of lines the output console should have
 static const WORD MAX_CONSOLE_LINES = 500;
 
@@ -52,6 +65,27 @@ void Console::RedirectIOToConsole() {
     }
 }
 
+#else
+void Console::RedirectIOToConsole() {
+    int master = posix_openpt(O_RDWR);
+    char *slavename, buf[64];
+
+    grantpt(master);
+    unlockpt(master);
+    slavename = ptsname(master);
+
+    snprintf(buf, sizeof buf, "-S%s/%d", strrchr(slavename, '/') + 1, master);
+    if (!fork()) {
+        execlp("xterm", "xterm", buf, (char *) 0);
+        _exit(1);
+    }
+    freopen(slavename, "w", stdout);
+
+    // make cout, wcout, cin, wcin, wcerr, cerr, wclog and clog
+// point to console as well
+    std::ios::sync_with_stdio();
+}
+#endif
 /*
 void Console::printf(const char *str, ...) {
     Asynchronous_write::message m;
@@ -90,8 +124,10 @@ void Console::printf(Message_level level, const char *str, ...) {
     va_list v1;
     va_start(v1, str);
 
-    while (vsnprintf(&v[0], v.size(), str, v1) < 0) {
+    while (vsnprintf(&v[0], v.size(), str, v1) >= v.size()) {
+        va_end(v1);
         v.resize(v.size() * 2);
+        va_start(v1, str);
     }
 
     m.str = &v[0];

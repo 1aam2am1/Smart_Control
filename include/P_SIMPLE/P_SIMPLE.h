@@ -4,7 +4,15 @@
 #include "Device.h"
 #include <thread>
 #include <SFML/System/Clock.hpp>
-#include <windows.h>
+#include <SFML/System/Mutex.hpp>
+
+#if defined(_WIN32)
+
+#include "P_SIMPLE/Win32/P_COMImpl.h"
+
+#else
+#include "P_SIMPLE/Unix/P_COMImpl.h"
+#endif
 
 class P_SIMPLE : public Device {
 public:
@@ -40,7 +48,7 @@ public:
 
 private:
     std::thread wsk;
-    HANDLE hCom;
+    P_COMImpl serial_port;
 
     std::map<int, int> parsed_data;         ///dane odebrane
     std::map<int, int> send_data;           ///dane do wyslania
@@ -58,9 +66,6 @@ private:
     bool needReceiveDateData;
     Modes_data_struct modes_data;
     Date_data_struct date_data;
-
-    OVERLAPPED FileEvent;
-    std::vector<char> tab_receive_buffer;
 
     void main();
 

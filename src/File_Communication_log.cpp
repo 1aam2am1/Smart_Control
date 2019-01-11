@@ -3,6 +3,7 @@
 #include "Console.h"
 #include <list>
 #include "Asynchronous_write.h"
+#include <ctime>
 
 File_Communication_log::File_Communication_log(std::string dir)
         : directory(dir),
@@ -78,7 +79,11 @@ void File_Communication_log::open() {
     tm buf;
 
     time(&now);
+#if defined(_WIN32)
     gmtime_s(&buf, &now);
+#else
+    gmtime_r(&now, &buf);
+#endif
 
     if (open_time.tm_yday == buf.tm_yday && open_time.tm_mon == buf.tm_mon && open_time.tm_year == buf.tm_year &&
         file != nullptr) { return; }
@@ -120,7 +125,11 @@ void File_Communication_log::time_write() {
     tm buf;
 
     time(&now);
+#if defined(_WIN32)
     gmtime_s(&buf, &now);
+#else
+    gmtime_r(&now, &buf);
+#endif
 
     char buffer[80] = "\n";
     //if (!was_new_line) {

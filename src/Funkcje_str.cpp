@@ -163,44 +163,64 @@ namespace Game_api {
 #endif // _WIN32
 #ifdef __linux__
 
-        std::string dir(std::string gdzie)
+        std::vector<std::string> dirD(std::string gdzie)
         {
             DIR *dir;
             dirent *drnt;
-            std::string result = "";
+            std::vector<std::string> result;
 
-            if(gdzie.empty() == 1){gdzie = ".";}
-            //if(gdzie.back() != '/'){gdzie += "/";}
-            //if(gdzie.back() == '/'){gdzie += "*";}
+            if(gdzie.empty()){gdzie = ".";}
 
-            if( (dir = opendir(gdzie)) != NULL) //otwieram folder
+            if( (dir = opendir(gdzie.c_str())) != nullptr) //otwieram folder
             {
                 drnt = readdir( dir ); //czytam 1
 
-                while(drnt != NULL)
+                while(drnt != nullptr)
                 {
-                    result += drnt->d_name; //czytam nazwe
-                    if((drnt = readdir( dir )) != NULL){result += '\n';}
+                    if(drnt->d_type == DT_DIR){result.emplace_back(drnt->d_name);} //czytam nazwe
+                    drnt = readdir( dir );
                 }
 
                 closedir(dir); //zamykam folder
             }
-            else
+
+            return result;
+        }
+
+        std::vector<std::string> dirF(std::string gdzie) {
+            DIR *dir;
+            dirent *drnt;
+            std::vector<std::string> result;
+
+            if (gdzie.empty()) { gdzie = "."; }
+
+            if ((dir = opendir(gdzie.c_str())) != nullptr) //otwieram folder
             {
-                switch( errno )
-                {
-                case DT_UNKNOWN: std::cout << "Nieznany typ, nie wszystkie systemy rozr�niaja typy, czesto jest zwracana ta wartosc" << '\n';break;
-                case DT_REG: std::cout << "Regularny plik" << '\n';break;
-                case DT_DIR: std::cout << "Katalog" << '\n';break;
-                case DT_FIFO: std::cout << "Potok nazwany" << '\n';break;
-                case DT_SOCK: std::cout << "Lokalne gniazdo" << '\n';break;
-                case DT_CHR: std::cout << "Urz�dzenie znakowe 'A character device'" << '\n';break;
-                case DT_BLK: std::cout << "Urzadzenie blokowe 'A block device'" << '\n';break;
-                case DT_LNK: std::cout << "Dowiazanie symboliczne" << '\n';break;
-                };
+                drnt = readdir(dir); //czytam 1
+
+                while (drnt != nullptr) {
+                    if (drnt->d_type != DT_DIR) { result.emplace_back(drnt->d_name); } //czytam nazwe
+                    drnt = readdir(dir);
+                }
+
+                closedir(dir); //zamykam folder
             }
 
             return result;
+        }
+
+        bool mkdir(std::string jaki) {
+            if (::mkdir(jaki.c_str(), 770)) {
+                switch (errno) {
+                    case EEXIST:
+                        return true;
+                    case ENOENT:
+                        return false;
+                    default:
+                        return false;
+                }
+            }
+            return true;
         }
 
 #endif // __linux__

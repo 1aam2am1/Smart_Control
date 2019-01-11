@@ -1,8 +1,16 @@
 #include <SFML/Graphics.hpp>
 #include <TGUI/TGUI.hpp>
+
+#if defined(_WIN32)
 #include <windows.h>
 
 #undef MessageBox
+#endif
+#ifdef __linux__
+
+#include <unistd.h>
+
+#endif
 
 #include <memory>
 #include "icona.h"
@@ -22,20 +30,11 @@
 void load(tgui::Gui *, const Argv_options &);
 
 int main(int argc, char **argv) {
+    Argv_options options;
     std::shared_ptr<Device> com;
     const std::string log_file_name = "Zapis.txt";
 
-    sf::RenderWindow window;
-
-    Argv_options options;
     options.process(argc, argv);
-    window.create(sf::VideoMode(static_cast<uint32_t>(options.getOptions().size.x),
-                                static_cast<uint32_t>(options.getOptions().size.y)),
-                  "Smart Control " + Version::GIT_TAG + " " +
-                  (Version::GIT_DIRTY.empty() ? "" : (Version::GIT_SHA + " " +
-                                                      Version::DATE)),
-                  sf::Style::Default);
-    window.setView(sf::View(sf::FloatRect(0, 0, 1200, 820)));
 
     Console::setMessage_level(Console::ALL & ~(!options.getOptions().debug_message ? Console::LOG : 0));
 
@@ -63,6 +62,19 @@ int main(int argc, char **argv) {
                                                             Version::GIT_SHA + " " +
                                                             Version::DATE).c_str());
     }
+#ifdef __linux__
+    Console::printf(Console::MESSAGE, "We need root privileges to open rs232 port %i\n", setuid(0));
+
+#endif // _linux_
+
+    sf::RenderWindow window;
+    window.create(sf::VideoMode(static_cast<uint32_t>(options.getOptions().size.x),
+                                static_cast<uint32_t>(options.getOptions().size.y)),
+                  "Smart Control " + Version::GIT_TAG + " " +
+                  (Version::GIT_DIRTY.empty() ? "" : (Version::GIT_SHA + " " +
+                                                      Version::DATE)),
+                  sf::Style::Default);
+    window.setView(sf::View(sf::FloatRect(0, 0, 1200, 820)));
 
     sf::Clock send_clock;
     bool send_bool = false;
@@ -70,7 +82,7 @@ int main(int argc, char **argv) {
     sf::Clock com_refresh_clock;
     bool start_refresh_clock = true;
 
-#if defined(SFML_SYSTEM_WINDOWS)
+#if defined(_WIN32)
     HICON hIcon = LoadIcon(GetModuleHandle(nullptr), MAKEINTRESOURCE(IDI_IKONA));
     if (hIcon) {
         SendMessage(window.getSystemHandle(), WM_SETICON, ICON_BIG, (LPARAM) hIcon);
@@ -205,9 +217,16 @@ int main(int argc, char **argv) {
                 sf::String str = gui.get<tgui::ComboBox>("COM", true)->getSelectedItem();
 
                 if (str != "-") {
+#ifdef _WIN32
                     if (!com->connect(str)) {
                         gui.get<tgui::ComboBox>("COM", true)->setSelectedItem("-");
                     }
+#endif // _WIN32
+#ifdef __linux__
+                    if (!com->connect("/dev/" + str)) {
+                        gui.get<tgui::ComboBox>("COM", true)->setSelectedItem("-");
+                    }
+#endif // _linux_
                 } else {
                     com->close();
                 }
