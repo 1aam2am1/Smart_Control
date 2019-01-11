@@ -663,7 +663,7 @@ void create_message(uint8_t begining, uint8_t adres, const std::vector<uint8_t> 
     }
 
     result.clear();
-    result.assign(4 + 2 * data2.size() + 3, 0);///66 00 dane  0C \r
+    result.assign(4 + 2 * data2.size() + 3 + 1, 0);///66 00 dane  0C \r
 
     write += sprintf(result.data(), "%02hX%02hX", begining, adres);
 
@@ -674,6 +674,7 @@ void create_message(uint8_t begining, uint8_t adres, const std::vector<uint8_t> 
     write += sprintf(result.data() + write, "%02hX", crc8(data2.data(), data2.size()));///crc
     sprintf(result.data() + write, "\r");
 
+    result.resize(result.size() - 1);
 }
 
 int P_SIMPLE::receive(std::string &r_data, std::vector<uint8_t> &result, sf::Time time) {

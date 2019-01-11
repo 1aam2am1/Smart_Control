@@ -124,8 +124,10 @@ void Console::printf(Message_level level, const char *str, ...) {
     va_list v1;
     va_start(v1, str);
 
-    while (vsnprintf(&v[0], v.size(), str, v1) < 0) {
+    while (vsnprintf(&v[0], v.size(), str, v1) >= v.size()) {
+        va_end(v1);
         v.resize(v.size() * 2);
+        va_start(v1, str);
     }
 
     m.str = &v[0];
