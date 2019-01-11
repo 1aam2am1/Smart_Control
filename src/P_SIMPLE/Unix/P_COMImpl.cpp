@@ -79,6 +79,7 @@ void P_COMImpl::close() {
 int P_COMImpl::writeCom(const std::vector<char> &data) {
     int sended = static_cast<int>(write(fd, data.data(), data.size()));
     communication_log.w_write(data.data(), data.size());
+    Console::printf(Console::DATA_FUNCTION_LOG, "Data write: %.*s\n", sended, data.data());
     return sended;
 }
 
@@ -109,6 +110,7 @@ int P_COMImpl::receive(std::string &r_data, sf::Time time) {
     tym.resize(static_cast<unsigned long>(readed));
 
     communication_log.r_write(tym.data(), static_cast<uint32_t>(tym.size()));
+    Console::printf(Console::DATA_FUNCTION_LOG, "Read: %.*s\n", (int) tym.size(), tym.data());
     r_data.append({tym.data(), tym.size()});
     tym.clear();
 

@@ -353,6 +353,10 @@ void P_SIMPLE::main() {
                     } else if (result[3] == 0x20)///podtrzymanie komunikacji
                     {
                         if ((result[4] & 7) == 6) { rzadanie_danych = true; }//stan sterownika zostal zmieniony
+                        if ((result[4] & 7) == 7) {
+                            needCalendarData = true;
+                            rzadanie_danych = true;
+                        }//v5 rzadanie danych gdyz sie nieaktualizuje
                         if (result[1] == 255) { break; }//brodcast nie potrzebny dalej
 
                         bool calendar = (needCalendarData | needSendCalendarActive | needSendCalendarDay |
