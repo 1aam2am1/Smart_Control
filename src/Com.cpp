@@ -66,7 +66,7 @@ std::list<std::string> Com::getComList() {
 
 std::list<std::string> Com::getComList() {
     std::list<std::string> tab;
-    std::regex txt_regex("[a-z]*S[0-9]*");
+    std::regex txt_regex("[a-z]*S[0-9]");
     auto vtab = Game_api::plik::dirF("/dev");
 
     for (const auto &it : vtab) {

@@ -24,7 +24,7 @@ public:
     int receive(std::string &r_data, sf::Time time);
 
 private:
-
+    int fd;
 };
 
 
