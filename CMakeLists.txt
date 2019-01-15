@@ -64,6 +64,9 @@ else ()
     set(EXECUTABLE_NAME "Smart_Control-${GIT_BRANCH}")
 endif ()
 
+string(REPLACE "/" "-" EXECUTABLE_NAME ${EXECUTABLE_NAME})
+string(REPLACE "\\" "-" EXECUTABLE_NAME ${EXECUTABLE_NAME})
+
 # Define sources and executable
 include_directories(${CMAKE_SOURCE_DIR})
 include_directories(${CMAKE_SOURCE_DIR}/include)

@@ -681,51 +681,93 @@ void create_message(uint8_t begining, uint8_t adres, const std::vector<uint8_t> 
     result.resize(result.size() - 1);
 }
 
-int P_SIMPLE::receive(std::string &r_data, std::vector<uint8_t> &result, sf::Time time) {
-    {
-        int x;
-        if ((x = serial_port.receive(r_data, time)) <= 0) { return x; }
-    }
-
-    Console::printf(Console::LOG, "PARSE()\n");
-    std::size_t found = r_data.rfind('\r'); ///ostatni znak ramki
-    if (found == std::string::npos) {
-        return 0;
-    }
-
-    std::string str = r_data.substr(0, found + 1); ///kopiowanie z \r
-    r_data.erase(0, found + 1);
-
-    ///szukaj 55 od konca dopuki validate nie zwruci true lub po false found2 wynosi 0
-    std::size_t found2 = found;
-    while (true) {
-        {///pierwszy znak ramki
-            std::size_t found55 = str.rfind("55", found2 - 1);
-            std::size_t found66 = str.rfind("66", found2 - 1);
-            //found2 = ( (found55 == std::string::npos) ? found66 : ((found55 > found66) ? found55 : found66) ); ///wylicz najdalszy poczatek ramki i nie npos jeżeli mozna
-            if (found55 == std::string::npos) {
-                found2 = found66;
-            } else if (found66 == std::string::npos) {
-                found2 = found55;
-            } else {
-                found2 = ((found55 > found66) ? found55 : found66);
+int P_SIMPLE::receive(std::shared_ptr <P_SIMPLE_Imp::P_SIMPLE_Message> &result, sf::Time time) {
+    static auto ret_func = [&]() -> int {
+        if (messages.empty()) { return 0; }
+        for (auto it = messages.begin(); it != messages.end(); ++it) {
+            if (it->first->address == 0xff) {
+                result = it->first;
+                int ret_val = it->second;
+                messages.erase(messages.begin(), it);///delete all messages a0...ff
+                return ret_val;
+            }
+            if (it->first->address == 0x1f && messages.back().first.get() == it->first.get()) {
+                result = it->first;
+                int ret_val = it->second;
+                messages.clear();///delete all messages a0...ff
+                return ret_val;
+            }
+            if (messages.back().first.get() == it->first.get()) {
+                result = it->first;
+                int ret_val = it->second;
+                messages.clear();///delete all messages a0...ff
+                return ret_val;
             }
         }
 
-        if (found2 == std::string::npos) { break; }
+    };
 
-        int va = validate(str.substr(found2, found - found2 + 1), result); ///od 55 do \r wlacznie
-        if (va != 0) {
-            Console::printf(Console::DATA_FUNCTION_LOG, "Parsowanie: %s\n",
-                            str.substr(found2, found - found2 + 1).c_str());
-            ///ramka prawidłowa lub z błędnym crc
-            return va;
-        } else {
-            if (found2 == 0) { break; }
+    {
+        int x;
+        if ((x = serial_port.receive(r_data, time)) < 0) { return x; }
+        if (x == 0) { return ret_func(); }
+    }
+
+    Console::printf(Console::LOG, "PARSE()\n");
+    while (true) {
+        std::size_t found = r_data.find('\r'); ///ostatni znak ramki
+        //r_char = found + 1;
+        if (found == std::string::npos) {
+            break;
+        }
+
+        std::string str = r_data.substr(0, found + 1); ///kopiowanie z \r
+        r_data.erase(0, found + 1);
+        //todo: 55ff if it old move it on
+        ///szukaj 55 od konca dopuki validate nie zwruci true lub po false found2 wynosi 0
+        std::size_t found2 = 0;
+        while (true) {
+            {///pierwszy znak ramki
+                std::size_t found55 = str.find("55", found2);
+                std::size_t found66 = str.find("66", found2);
+                //found2 = ( (found55 == std::string::npos) ? found66 : ((found55 > found66) ? found55 : found66) ); ///wylicz najdalszy poczatek ramki i nie npos jeżeli mozna
+                if (found55 == std::string::npos) {
+                    found2 = found66;
+                } else if (found66 == std::string::npos) {
+                    found2 = found55;
+                } else {
+                    found2 = ((found55 < found66) ? found55 : found66);
+                }
+            }
+
+            if (found2 == std::string::npos) { break; }
+            //if (found2 == 0) { break; }
+
+            std::string match_str;
+            match_str.insert(0, str, found2, std::string::npos);
+
+            found2 += 1;
+            if (match_str.size() < 11) { continue; }
+            for (uint32_t i = 0; i < (match_str.size() - 1); ++i) {
+                if (!isxdigit(match_str[i])) { continue; }///all are hex or transmission error
+            }
+            Console::printf(Console::DATA_FUNCTION_LOG, "Parsowanie: %s\n", match_str.c_str());
+            auto m = alloc_message();
+            int x;
+            if ((x = P_SIMPLE_Imp::P_SIMPLE_Message::create(match_str, m)) != 0) {
+                messages.emplace_back(m, x);
+            }
+
         }
     }
 
-    result.clear();
-    return 0;
+    return ret_func();
 }
 
+P_SIMPLE_Imp::P_SIMPLE_Message::Ptr &P_SIMPLE::alloc_message() {
+    for (auto &wsk : created_messages) {
+        if (wsk.use_count() == 1) { return wsk; }
+    }
+
+    return *created_messages.emplace(created_messages.end(), std::make_shared<P_SIMPLE_Imp::P_SIMPLE_Message>());
+}

@@ -5,6 +5,7 @@
 #include <thread>
 #include <SFML/System/Clock.hpp>
 #include <SFML/System/Mutex.hpp>
+#include "P_SIMPLE/P_SIMPLE_Message.h"
 
 #if defined(_WIN32)
 
@@ -16,7 +17,7 @@
 
 class P_SIMPLE : public Device {
 public:
-    P_SIMPLE(bool usb = false);
+    explicit P_SIMPLE(bool usb = false);
 
     virtual ~P_SIMPLE();
 
@@ -75,9 +76,17 @@ private:
 
     int writeCom(const std::string &);
 
-    int receive(std::string &, std::vector<uint8_t> &, sf::Time);
+    int receive(std::shared_ptr<P_SIMPLE_Imp::P_SIMPLE_Message> &, sf::Time);
 
-    std::vector<char> last_message;
+    std::string r_data;
+
+    P_SIMPLE_Imp::P_SIMPLE_Message::Ptr last_message;
+
+    std::deque<std::pair<P_SIMPLE_Imp::P_SIMPLE_Message::Ptr, int>> messages;
+
+    std::vector<P_SIMPLE_Imp::P_SIMPLE_Message::Ptr> created_messages;
+
+    P_SIMPLE_Imp::P_SIMPLE_Message::Ptr &alloc_message();
 
     bool usb;
 };
