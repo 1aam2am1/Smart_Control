@@ -18,6 +18,12 @@ if (WIN32)
                 "C:/Dropbox/TGUI-0.6.10"
                 "D:/Dropbox/TGUI-0.6.10")
     endif ()
+
+    if (NOT DEFINED $ENV{SFML_DIR})
+        set(SFML_DIR
+                "C:/Dropbox/SFML-2.5.1/lib/cmake/SFML"
+                "D:/Dropbox/SFML-2.5.1/lib/cmake/SFML")
+    endif ()
 else ()
     set(TGUI_ROOT "/home/michal/tgui")
 endif ()
