@@ -23,7 +23,7 @@
 // maximum mumber of lines the output console should have
 static const WORD MAX_CONSOLE_LINES = 500;
 
-BOOL CtrlHandler(DWORD fdwCtrlType) {
+WINBOOL WINAPI CtrlHandler(DWORD fdwCtrlType) {
     switch (fdwCtrlType) {
         // Handle the CTRL-C signal.
         case CTRL_C_EVENT:
@@ -47,7 +47,7 @@ void Console::RedirectIOToConsole() {
     coninfo.dwSize.Y = MAX_CONSOLE_LINES;
     SetConsoleScreenBufferSize(GetStdHandle(STD_OUTPUT_HANDLE), coninfo.dwSize);
 
-    AttachConsole(GetCurrentProcessId());
+    // AttachConsole(GetCurrentProcessId());
     freopen("CON", "w", stdout);
     freopen("CON", "r", stdin);
     freopen("CON", "w", stderr);
@@ -56,7 +56,8 @@ void Console::RedirectIOToConsole() {
 // point to console as well
     std::ios::sync_with_stdio();
 
-    SetConsoleCtrlHandler((PHANDLER_ROUTINE) CtrlHandler, TRUE);
+    //SetConsoleCtrlHandler((PHANDLER_ROUTINE) CtrlHandler, TRUE);
+    SetConsoleCtrlHandler(nullptr, TRUE);
 
     HWND hwnd = GetConsoleWindow();
     if (hwnd != nullptr) {
@@ -124,9 +125,11 @@ void Console::printf(Message_level level, const char *str, ...) {
     va_list v1;
     va_start(v1, str);
 
-    while (vsnprintf(&v[0], v.size(), str, v1) >= v.size()) {
+    int result;
+    while ((result = vsnprintf(&v[0], v.size(), str, v1)) >= v.size()) {
         va_end(v1);
-        v.resize(v.size() * 2);
+        if (result < 0) { return; }
+        v.resize((v.size() * 2 > result) ? v.size() * 2 : result);
         va_start(v1, str);
     }
 
@@ -170,8 +173,12 @@ Console::Printf_block &Console::Printf_block::printf(Console::Message_level leve
     va_list v1;
     va_start(v1, str);
 
-    while (vsnprintf(&v[0], v.size(), str, v1) < 0) {
-        v.resize(v.size() * 2);
+    int result;
+    while ((result = vsnprintf(&v[0], v.size(), str, v1)) >= v.size()) {
+        va_end(v1);
+        if (result < 0) { return *this; }
+        v.resize((v.size() * 2 > result) ? v.size() * 2 : result);
+        va_start(v1, str);
     }
 
     va_end(v1);
