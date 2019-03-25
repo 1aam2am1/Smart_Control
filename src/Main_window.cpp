@@ -6,6 +6,7 @@
 #include "Przelacznik_b.h"
 #include "Przelacznik_c.h"
 #include "Przelacznik_e.h"
+#include "Przelacznik_e_hysteresis.h"
 #include "Przelacznik_v.h"
 #include "Przelacznik_el.h"
 #include "Przelacznik_s.h"
@@ -75,7 +76,7 @@ void Main_window::change(const std::map<int, int> &dane) {
 
              std::make_shared<Przelacznik_el>("p_moc", std::vector<int32_t>{42, 43},
                                               std::vector<int32_t>{27, 29}), ///srodek
-             std::make_shared<Przelacznik_e>("odz_1", 37),
+             std::make_shared<Przelacznik_e_hysteresis>("odz_1", 37, 99, 70),
              std::make_shared<Przelacznik_e>("odz_2", 38),
              std::make_shared<Przelacznik_e>("moc_s1", 26),
              std::make_shared<Przelacznik_obroty>("obr_s1", 27),
