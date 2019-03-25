@@ -11,6 +11,7 @@ Date::~Date() = default;
 
 void Date::setDateData(const Date_data_struct &date) {
     this->unbindGlobalCallback();
+    this->bindGlobalCallback([](const tgui::Callback &) -> void {});
 
     this->result = date;
 

@@ -38,6 +38,7 @@ Modes_data_struct Modes_window::getChanged() {
 
 void Modes_window::setModesData(const Modes_data_struct &data) {
     this->unbindGlobalCallback();
+    this->bindGlobalCallback([](const tgui::Callback &) -> void {});
 
     for (uint32_t j = 0; j < modes.size(); ++j) {
         uint32_t value = data.data[j] & 0b01111111;
