@@ -8,3 +8,7 @@ struct Version {
     static const std::string GIT_TAG;
     static const std::string DATE;
 };
+
+struct DeviceVersion {
+    static const std::string number;
+};

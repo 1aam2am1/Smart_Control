@@ -270,6 +270,16 @@ int main(int argc, char **argv) {
             if (callback.id == 1 && callback.trigger == Menu::GetCalendarData) {
                 com->getCalendarDataSignal();
             }
+            if (callback.id == 1 && callback.trigger == Menu::OldVersion) {
+                tgui::MessageBox::Ptr box = WidgetSingleton<tgui::MessageBox>::get(gui.getContainer());
+
+                box->setText("The program may not support the current version of the driver software.");
+                box->addButton("Ok");
+                box->setPosition((sf::Vector2f(window.getView().getSize()) - box->getFullSize()) / 2.f);
+                box->bindCallbackEx(
+                        [box](const tgui::Callback &) -> void { box->getParent()->remove(box); },
+                        tgui::MessageBox::ButtonClicked);
+            }
 
             event_flag = true;
         }

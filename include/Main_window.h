@@ -26,8 +26,9 @@ public:
         COMChanged = PanelCallbacksCount * 2,     ///< COM changed
         MODBUSChanged = PanelCallbacksCount * 4,     ///< MODBUS changed
         SaveLogs = PanelCallbacksCount * 8,     ///< Save changed
-        AllMain_windowCallbacks = PanelCallbacksCount * 16 - 1, ///< All triggers defined in Button and its base classes
-        Main_windowCallbacksCount = PanelCallbacksCount * 16
+        OldVersion = PanelCallbacksCount * 16,  ///< Old version
+        AllMain_windowCallbacks = PanelCallbacksCount * 32 - 1, ///< All triggers defined in Button and its base classes
+        Main_windowCallbacksCount = PanelCallbacksCount * 32
     };
 
 private:

@@ -131,6 +131,9 @@ void Menu::callback(const tgui::Callback &callback) {
             case Main_window::SaveLogs:
                 m_Callback.trigger = Menu::SaveLogs;
                 break;
+            case Main_window::OldVersion:
+                m_Callback.trigger = Menu::OldVersion;
+                break;
             default:
                 Console::printf(Console::ERROR_MESSAGE, "Something goes wrong menu main_window trigger case\n");
                 return;

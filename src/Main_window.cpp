@@ -89,11 +89,11 @@ void Main_window::change(const std::map<int, int> &dane) {
              std::make_shared<Przelacznik_e>("wilg_4", 33)
             };
 
+    this->bindGlobalCallback(std::bind(&Main_window::callback, this, std::placeholders::_1));
+
     for (auto &&wsk : tab) {
         wsk->change(dane, this);
     }
-
-    this->bindGlobalCallback(std::bind(&Main_window::callback, this, std::placeholders::_1));
 }
 
 std::map<int, int> Main_window::getChanged() {
@@ -186,6 +186,10 @@ void Main_window::callback(const tgui::Callback &callback) {
     if (callback.id == 20) ///slider
     {
         m_Callback.trigger = Main_window::ValueChanged;
+    }
+    if (callback.id == 30) ///Przelacznik
+    {
+        m_Callback.trigger = Main_window::OldVersion;
     }
     Console::printf(Console::DATA_FUNCTION_LOG, "Callback id: %i, value: %i, text: %s\n", callback.id, callback.value,
                     callback.text.toAnsiString().c_str());

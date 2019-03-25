@@ -36,8 +36,9 @@ public:
         MODBUSChanged = PanelCallbacksCount * 4,     ///< MODBUS changed
         SaveLogs = PanelCallbacksCount * 8,     ///< Save changed
         GetCalendarData = PanelCallbacksCount * 16,     ///< Get Calendar Data
-        AllMenuCallbacks = PanelCallbacksCount * 32 - 1, ///< All triggers defined in Button and its base classes
-        MenuCallbacksCount = PanelCallbacksCount * 32
+        OldVersion = PanelCallbacksCount * 32,  ///< Old version
+        AllMenuCallbacks = PanelCallbacksCount * 64 - 1, ///< All triggers defined in Button and its base classes
+        MenuCallbacksCount = PanelCallbacksCount * 64
     };
 
 private:

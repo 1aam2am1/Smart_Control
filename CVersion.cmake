@@ -30,4 +30,6 @@ file(WRITE "${CMAKE_BINARY_DIR}/version.cpp"
         "const std::string Version::GIT_DIRTY = \"${DIRTY}\";"
         "const std::string Version::GIT_SHA = \"${_GIT_HASH}\";"
         "const std::string Version::GIT_TAG = \"${_GIT_DESCRIBE}\";"
-        "const std::string Version::DATE = \"${_TIME}\";")
+        "const std::string Version::DATE = \"${_TIME}\";"
+        ""
+        "const std::string DeviceVersion::number = \"1753\";")

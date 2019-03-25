@@ -1,5 +1,5 @@
 #include "version.h"
-
+///Moved to CVersion.cmake generated
 
 const std::string Version::GIT_DIRTY = "@DIRTY@";
 const std::string Version::GIT_SHA = "@_GIT_HASH@";

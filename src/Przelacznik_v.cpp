@@ -1,5 +1,6 @@
 #include "Przelacznik_v.h"
 #include "Funkcje_str.h"
+#include "version.h"
 #include <utility>
 
 Przelacznik_v::Przelacznik_v(std::string _nazwa, int32_t _id)
@@ -21,4 +22,12 @@ void Przelacznik_v::change(const std::map<int, int> &dane, tgui::Container *gui)
 
     str.insert(str.size() - 3, ".");
     gui->get<tgui::EditBox>(nazwa)->setText(str);
+
+    if (i->second < Game_api::convertString(DeviceVersion::number)) {
+        tgui::Callback callback;
+        callback.id = 30;
+        callback.widget = gui->get<tgui::EditBox>(nazwa).get();
+
+        gui->get<tgui::EditBox>(nazwa)->getParent()->addChildCallback(callback);
+    }
 }
