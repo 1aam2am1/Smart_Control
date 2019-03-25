@@ -18,6 +18,7 @@ void Menu::change(const std::map<int, int> &dane) {
     this->unbindGlobalCallback();
 
     this->get<Main_window>("p0")->change(dane);
+    this->get<Modes_window>("p2")->change(dane);
 
     this->bindGlobalCallback(std::bind(&Menu::callback, this, std::placeholders::_1));
 }
@@ -26,6 +27,10 @@ std::map<int, int> Menu::getChanged() {
     std::map<int, int> result;
 
     result = this->get<Main_window>("p0")->getChanged();
+    auto d = this->get<Modes_window>("p2")->getChanged();
+    for (const auto it : d) {
+        result[it.first] = it.second;
+    }
 
     return result;
 }
@@ -83,7 +88,7 @@ void Menu::initialize(Container *const container) {
     Modes_window::Ptr modes(*this, "p2");
     modes->setPosition(0, 20);
     //modes->setSize(1200, 800);
-    modes->bindCallback(Modes_window::ValueChanged);
+    modes->bindCallback(Modes_window::ValueChanged | Modes_window::ValueChangedSimple);
     modes->setCallbackId(400);
 
 /*

@@ -8,7 +8,7 @@ Sliders::Sliders()
                  {"Bypass czerpnia (minimum)",  14,  20,  2},
                  {"Bypass wyrzutnia (maximum)", 21,  26,  3},
                  {"Odmrazanie",                 -5,  5,   4},
-                 {"Dogrzewanie",                18,  26,  5},
+                 {"Dogrzewanie",                16,  28,  5},
                  {"Czas odmrazania",            1,   60,  14},
                  {"Przerwa odmrazania",         1,   180, 15},
                  {"Moc odmrazania",             0,   100, 17},
@@ -24,8 +24,8 @@ Sliders::Sliders()
 
                  {"Moc wentylacji (reczny)",    0,   100, 1},
                  {"Odmrazanie standard",        -40, 40,  16},
-                 {"Nastawa potencjometru",      0,   100, 46},
-                 {"Cholodzenie",                14,  24,  -1}
+                 {"Moc wentylacji (modbus)",    0,   100, 46},
+                 {"Cholodzenie",                13,  26,  -1}
 } {
 
 }

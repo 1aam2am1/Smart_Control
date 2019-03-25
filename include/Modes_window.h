@@ -13,18 +13,23 @@ public:
 
     virtual ~Modes_window();
 
+    void change(const std::map<int, int> &);
+
+    std::map<int, int> getChanged();
+
     void setModesData(const Modes_data_struct &);
 
-    Modes_data_struct getChanged();
+    Modes_data_struct getChangedModes();
 
 protected:
     virtual void initialize(Container *const) override;
 
 public:
     enum SlidersCallbacks {
-        ValueChanged = PanelCallbacksCount * 1,     ///< Value changed
-        AllSlidersCallbacks = PanelCallbacksCount * 2 - 1, ///< All triggers defined in Button and its base classes
-        SlidersCallbacksCount = PanelCallbacksCount * 2
+        ValueChanged = PanelCallbacksCount * 1,     ///< Value changed (modes_data_struct
+        ValueChangedSimple = PanelCallbacksCount * 2,     ///< Value changed simple
+        AllSlidersCallbacks = PanelCallbacksCount * 4 - 1, ///< All triggers defined in Button and its base classes
+        SlidersCallbacksCount = PanelCallbacksCount * 4
     };
 
 private:
@@ -34,6 +39,7 @@ private:
         std::string name;
         int32_t minimum;
         int32_t maximum;
+        std::string min_opis;
         std::string max_opis;
     };
 

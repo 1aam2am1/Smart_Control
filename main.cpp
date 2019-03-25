@@ -194,7 +194,7 @@ int main(int argc, char **argv) {
                                   send_clock.getElapsedTime() > sf::seconds(0.5f))) {
                     auto i = gui.get<Menu>("menu")->getChanged();
                     auto data = gui.get<Menu>("menu")->getCalendar()->getChanged();
-                    auto data1 = gui.get<Menu>("menu")->getModes()->getChanged();
+                    auto data1 = gui.get<Menu>("menu")->getModes()->getChangedModes();
                     auto data2 = gui.get<Menu>("menu")->getDate()->getChanged();
 
                     com->toSendData(i);

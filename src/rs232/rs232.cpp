@@ -126,7 +126,12 @@ std::map<int, int> rs232::getData() {
 
 void rs232::toSendData(const std::map<int, int> &dane) {
     std::map<int, int> dane2 = dane;
-    dane2.erase(46);
+    //dane2.erase(46);
+    while (true) {
+        auto it = dane2.upper_bound(45);
+        if (it == dane2.end()) { break; }
+        dane2.erase(it);
+    }
     if (static_cast<uint32_t>((dane2.rbegin()->first - dane2.begin()->first) + 1) != dane2.size()) {
         Console::printf(Console::ERROR_MESSAGE, "Brak wszystkich danych z paskow ERROR\n");
 

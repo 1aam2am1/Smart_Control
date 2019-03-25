@@ -4,18 +4,54 @@
 #include "WidgetSingleton.h"
 
 Modes_window::Modes_window()
-        : modes{{"Tryb boost",                       1,  60,  "60m"},
-                {"Wietrzenie",                       1,  12,  "12h"},
-                {"Sen",                              1,  12,  "12h"},
-                {"Urlop",                            1,  30,  "30d"},
-                {"Ograniczenie wydajnosci centrali", 50, 100, "100%"}
+        : modes{{"Tryb boost",                          1,  60,  "1m",  "60m"},
+                {"Wietrzenie",                          1,  12,  "1h",  "12h"},
+                {"Sen",                                 1,  12,  "1h",  "12h"},
+                {"Kominek",                             1,  60,  "1m",  "60m"},
+                {"Ograniczenie wydajnosci centrali",    50, 100, "50%", "100%"},
+                {"Ograniczenie wentylatora nawiewnego", 50, 100, "50%", "100%"},
+                {"Ograniczenie wentylatora wywiewnego", 50, 100, "50%", "100%"},
 } {
-    this->setSize(315, 250);
+    this->setSize(315, 350);
 }
 
 Modes_window::~Modes_window() = default;
 
-Modes_data_struct Modes_window::getChanged() {
+void Modes_window::change(const std::map<int, int> &data) {
+    this->unbindGlobalCallback();
+    this->bindGlobalCallback([](const tgui::Callback &) -> void {});
+
+    auto it = data.find(59);
+    if (it != data.end()) {
+        this->get<tgui::EditBox>("e5")->
+                setText(Game_api::convertInt(it->second));
+
+        this->get<tgui::Slider>("s5")->
+                setValue(static_cast<unsigned int>(it->second - modes[5].minimum));
+    }
+
+    it = data.find(60);
+    if (it != data.end()) {
+        this->get<tgui::EditBox>("e6")->
+                setText(Game_api::convertInt(it->second));
+
+        this->get<tgui::Slider>("s6")->
+                setValue(static_cast<unsigned int>(it->second - modes[5].minimum));
+    }
+
+    this->bindGlobalCallback(std::bind(&Modes_window::callback, this, std::placeholders::_1));
+}
+
+std::map<int, int> Modes_window::getChanged() {
+    std::map<int, int> result;
+
+    result[59] = Game_api::convertString(this->get<tgui::EditBox>("e5")->getText());
+    result[60] = Game_api::convertString(this->get<tgui::EditBox>("e6")->getText());
+
+    return result;
+}
+
+Modes_data_struct Modes_window::getChangedModes() {
     Modes_data_struct result;
     result.boost_value = Game_api::convertString(this->get<tgui::EditBox>("e0")->getText());
     result.boost_en = this->get<tgui::Checkbox>("c0")->isChecked();
@@ -40,7 +76,7 @@ void Modes_window::setModesData(const Modes_data_struct &data) {
     this->unbindGlobalCallback();
     this->bindGlobalCallback([](const tgui::Callback &) -> void {});
 
-    for (uint32_t j = 0; j < modes.size(); ++j) {
+    for (uint32_t j = 0; j < 5; ++j) {
         uint32_t value = data.data[j] & 0b01111111;
 
         this->get<tgui::EditBox>("e" + Game_api::convertInt(j))->
@@ -82,18 +118,21 @@ void Modes_window::initialize(Container *const container) {
         ch->setSize(12, 12);
         ch->bindCallback(tgui::Checkbox::Checked | tgui::Checkbox::Unchecked);
         ch->setCallbackId(100 + j);
-/*
+        if (j == 5 || j == 6) {
+            ch->hide();
+        }
+
         tgui::Label::Ptr minimum = WidgetSingleton<tgui::Label>::get(*this);
         //minimum->load(THEME_CONFIG_FILE);
-        minimum->setText(Game_api::convertInt(scroll[j].minimum));
-        minimum->setPosition(5, 25 + j * 50);
+        minimum->setText(modes[j].min_opis);
+        minimum->setPosition(20, 25 + j * 50);
         minimum->setTextColor(sf::Color(0, 0, 0, 255));
         minimum->setTextSize(12);
-*/
+
         tgui::Slider::Ptr scr = WidgetSingleton<tgui::Slider>::get(*this, "s" + Game_api::convertInt(j));
         //scr->load(THEME_CONFIG_FILE);
-        scr->setPosition(35, 25 + j * 50);
-        scr->setSize(240, 14);
+        scr->setPosition(55, 25 + j * 50);
+        scr->setSize(220, 14);
         scr->setMaximum(modes[j].maximum - modes[j].minimum);
         scr->setMinimum(0);
         scr->bindCallback(tgui::Slider::ValueChanged);
@@ -135,6 +174,10 @@ void Modes_window::callback(const tgui::Callback &callback) {
                 setValue(Game_api::convertString(callback.text) - modes[scroll_id].minimum);
     }
 
-    m_Callback.trigger = Modes_window::ValueChanged;
+    if (callback.id % 100 == 5 || callback.id % 100 == 6) {
+        m_Callback.trigger = Modes_window::ValueChangedSimple;
+    } else {
+        m_Callback.trigger = Modes_window::ValueChanged;
+    }
     addCallback();
 }
