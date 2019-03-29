@@ -10,16 +10,16 @@
 
 
 P_SIMPLE::P_SIMPLE(bool u)
-        : needCalendarData(true),
-          needSendCalendarActive(false),
-          needSendCalendarDay(0),
+        : needRequestCalendarData(true),
+          needSendCalendarActiveDays(false),
+          needSendCalendarActions(0),
           needSendModesData(false),
           needSendDateData(false),
           needReceiveDateData(false),
-          usb(u) {
-    Event e;
-    e.type = Event::Create;
-    event.push(e);
+          usb(u),
+          thread_work(ThreadState::Rest) {
+
+    event.push(Event::Create);
 }
 
 P_SIMPLE::~P_SIMPLE() {
@@ -32,21 +32,19 @@ bool P_SIMPLE::connect(std::string port) {
     this->close();
     event.back().type = Event::DisConnected;
 
-    parsed_data.clear();
-    send_data.clear();
-    processed_data.clear();
+    data_received.clear();
+    data_to_send.clear();
+    data_in_transfer.clear();
     act_data.clear();
 
     if (!serial_port.connect(port, usb ? 115200 : 9600)) { return false; }
 
-    thread_work = 1;
+    thread_work = ThreadState::Work;
     wsk = std::thread(std::bind(&P_SIMPLE::main, this));
 
     Console::printf(Console::MESSAGE, "Polaczono z: %s\n", port.c_str());
 
-    Event e;
-    e.type = Event::Open;
-    event.push(e);
+    event.push(Event::Open);
 
     return true; //koniec ustawienia portu
 }
@@ -55,12 +53,12 @@ void P_SIMPLE::close() /// =>w watku jest to samo :)
 {
     mutex.lock();
 
-    if (thread_work == 1) {
-        thread_work = 0;
+    if (thread_work == ThreadState::Work) {
+        thread_work = ThreadState::Rest;
 
         serial_port.close();
 
-        for (int32_t i = 0; i < 10 && thread_work != 3; ++i) ///koniec watku
+        for (int32_t i = 0; i < 10 && thread_work != ThreadState::StopedWorking; ++i) ///koniec watku
         {
             mutex.unlock();
 
@@ -68,15 +66,13 @@ void P_SIMPLE::close() /// =>w watku jest to samo :)
 
             mutex.lock();
         }
-        thread_work = 0;
+        thread_work = ThreadState::Rest;
     }
 
     if (wsk.joinable()) { wsk.detach(); }
     wsk = std::thread();
 
-    Event e;
-    e.type = Event::Close;
-    event.push(e);
+    event.push(Event::Close);
 
     mutex.unlock();
 
@@ -86,36 +82,37 @@ void P_SIMPLE::close() /// =>w watku jest to samo :)
 std::map<int, int> P_SIMPLE::getData() {
     sf::Lock lock(mutex);
 
-    auto result = std::move(parsed_data);
-    parsed_data.clear();
+    auto result = std::move(data_received);
+    data_received.clear();
     return result;
 }
 
-void P_SIMPLE::toSendData(const std::map<int, int> &dane) {
+void P_SIMPLE::toSendData(const std::map<int, int> &new_data) {
     sf::Lock lock(mutex);
 
     auto block = Console::Printf_block::beginWrite();
     block.printf(Console::FUNCTION_LOG, "P_SIMPLE::toSendData:\n");
 
-    for (auto it = dane.begin(); it != dane.end(); ++it) {
-        auto it_act = act_data.find(it->first);
+    for (const auto &new_data_it : new_data) {
+        auto it_act = act_data.find(new_data_it.first);
         if (it_act != act_data.end())///jezeli id do wyslania jest w aktualnych danych
         {
-            if (it_act->second != static_cast<uint8_t>(it->second))///jezeli nowe sa rozne od aktualnych
+            if (it_act->second != new_data_it.second)///jezeli nowe sa rozne od aktualnych
             {
-                block.printf(Console::DATA_FUNCTION_LOG, "%i -> %i %i\n", it->first, it_act->second, it->second);
-                send_data[it->first] = it->second;
+                block.printf(Console::DATA_FUNCTION_LOG, "%i -> %i %i\n", new_data_it.first, it_act->second,
+                             new_data_it.second);
+                data_to_send[new_data_it.first] = new_data_it.second;
             } else {
-                auto it_send = send_data.find(it->first);
+                auto it_send = data_to_send.find(new_data_it.first);
                 if (it_send !=
-                    send_data.end())///jezeli aktualne i nowe sa takie same sprawc czy do wyslania nie sa pomylone :)
+                    data_to_send.end())///jezeli aktualne i nowe sa takie same sprawc czy do wyslania nie sa pomylone :)
                 {
-                    send_data[it->first] = it->second;
+                    data_to_send[new_data_it.first] = new_data_it.second;
                 }
             }
         } else {
-            block.printf(Console::DATA_FUNCTION_LOG, "%i -> %i\n", it->first, it->second);
-            send_data[it->first] = it->second;
+            block.printf(Console::DATA_FUNCTION_LOG, "%i -> %i\n", new_data_it.first, new_data_it.second);
+            data_to_send[new_data_it.first] = new_data_it.second;
         }
     }
     block.endWrite();
@@ -128,7 +125,7 @@ CAL_STATE P_SIMPLE::getCAL_STATE() {
 
 void P_SIMPLE::getCalendarDataSignal() {
     sf::Lock lock(this->mutex);
-    this->needCalendarData = true;
+    this->needRequestCalendarData = true;
 }
 
 uint8_t P_SIMPLE::getCalendarActiveDays() {
@@ -141,18 +138,18 @@ std::map<int, std::vector<Action_data_struct>> P_SIMPLE::getCalendarData() {
     return this->calendar_data.second;
 }
 
-void P_SIMPLE::sendCalendarData(const std::pair<uint8_t, std::map<int, std::vector<Action_data_struct>>> &data) {
+void P_SIMPLE::sendCalendarData(const std::pair<uint8_t, day_to_actions> &data) {
     sf::Lock lock(mutex);
     if (this->calendar_data.first != data.first) ///active day
     {
         this->calendar_data.first = data.first;
-        this->needSendCalendarActive = true;
+        this->needSendCalendarActiveDays = true;
     }
 
     for (auto &&it : data.second) {
         if (it.second != this->calendar_data.second[it.first]) {
             this->calendar_data.second[it.first] = it.second;
-            this->needSendCalendarDay |= 1 << (it.first + 1);
+            this->needSendCalendarActions |= 1 << (it.first + 1);
         }
     }
 
@@ -181,107 +178,93 @@ void P_SIMPLE::sendDateData(const Date_data_struct &d) {
     needSendDateData = true;
 }
 
-int P_SIMPLE::writeCom(const std::string &data) {
-    std::vector<char> v;
-    v.insert(v.end(), data.begin(), data.end());
-    return writeCom(v);
-}
-
-int P_SIMPLE::writeCom(std::vector<char> data) {
+int P_SIMPLE::sendMessage(const std::string &data) {
+    lastSendMessage.resize(data.size());
     {
         uint32_t j = 0;
-        for (uint32_t i = 0; i < data.size(); ++i) {
-            if (data[i] != ' ') {
-                if (i != j) { data[j] = data[i]; }
+        for (char i : data) {
+            if (i != ' ') {
+                lastSendMessage[j] = i;
                 ++j;
             }
         }
-        data.resize(j);
+        lastSendMessage.resize(j);
     }
-
-
-    if (data.empty() || data.back() != '\r') { data.push_back('\r'); }
-
-    last_message = data; ///kopiuj ostatnia wiadomosc
+    if (lastSendMessage.empty() || lastSendMessage.back() != '\r') { lastSendMessage.push_back('\r'); }
 
     sf::Lock lock(mutex);
-    return serial_port.writeCom(data);
+    return serial_port.writeCom(lastSendMessage);
 }
 
-int validate(const std::string &message, std::vector<uint8_t> &result);
+int P_SIMPLE::sendMessage(const std::shared_ptr<P_SIMPLE_Message> &data) {
+    data->parse_protocol_message(lastSendMessage);
 
-void calculate(const std::string &message, std::vector<uint8_t> &result);
-
-void create_message(uint8_t begining, uint8_t adres, const std::vector<uint8_t> &info, std::vector<char> &result);
+    sf::Lock lock(mutex);
+    return serial_port.writeCom(lastSendMessage);
+}
 
 void P_SIMPLE::main() {
     sf::Clock clock;
     sf::Clock second120clock;
     sf::Clock needReceiveDateDataClock;
-    std::string temporary_data;
-    std::vector<uint8_t> result;
+    std::shared_ptr<P_SIMPLE_Message> result;
 
     bool boot = true;
     bool second120 = false;
-    bool rzadanie_danych = true;
-    this->needCalendarData = true;
+    bool needRequestStateDeviceData = true;
+    this->needRequestCalendarData = true;
 
 
-    while (thread_work == 1) {
-        int re = receive(temporary_data, result, sf::milliseconds(20));
-        auto block = Console::Printf_block::beginWrite();
+    while (thread_work == ThreadState::Work) {
+        auto re = receiveMessage(result, sf::milliseconds(20));
+        auto messageBlock = Console::Printf_block::beginWrite();
 
-        if (thread_work != 1) { break; }
+        if (thread_work != ThreadState::Work) { break; }
 
         switch (re) {
-            case -2: ///blad hCom
+            case Receive_result::Serial_port_Error: ///blad hCom
             { ///close :)
-                block.printf(Console::ERROR_MESSAGE, "Blad portu\n");
+                messageBlock.printf(Console::ERROR_MESSAGE, "Blad portu\n");
 
-                mutex.lock(); ///1
+                sf::Lock lock(mutex);
 
-                thread_work = 0;
+                thread_work = ThreadState::Rest;
                 if (wsk.joinable()) { wsk.detach(); }
                 wsk = std::thread();
 
-
                 serial_port.close();
 
-                Event e{Event::Close};
-                event.push(e);
-
-                mutex.unlock();///2
+                event.push(Event::Close);
                 return;
             }
-                break;
-            case -1: ///blad crc
-                block.printf(Console::ERROR_MESSAGE, "Blad crc\n");
+            case Receive_result::CRC_error: ///blad crc
+                messageBlock.printf(Console::ERROR_MESSAGE, "Blad crc\n");
 
                 clock.restart();
 
-                if (result[1] == 31) ///pytanie do mnie?
+                if (result->address == 31) ///pytanie do mnie?
                 {
-                    writeCom(
-                            {"66 00 03 10 01 56\r"});///66 rozpoczecie 00 adres 03 dlugosc 10 podstawowe potwierdzenie 01 ze blad 56 crc
+                    sendMessage(
+                            {"66 00 03 10 01 56"});///66 rozpoczecie 00 adres 03 dlugosc 10 podstawowe potwierdzenie 01 ze blad 56 crc
                 }
                 break;
-            case 0: ///brak zadnej wiadmosci
+            case Receive_result::No_Message: ///brak zadnej wiadmosci
                 if ((second120clock.getElapsedTime() > sf::seconds(130)) && !boot) {
                     clock.restart();
                     second120clock.restart();
                     needReceiveDateDataClock.restart();
                     boot = true;
                     second120 = false;
-                    rzadanie_danych = true;
-                    this->needCalendarData = true;
+                    needRequestStateDeviceData = true;
+                    this->needRequestCalendarData = true;
 
-                    event.push({Event::DisConnected});
+                    event.push(Event::DisConnected);
                 }
                 if (second120clock.getElapsedTime() < sf::seconds(120) && boot && second120) {
                     clock.restart();
                 }
                 if ((clock.getElapsedTime() > sf::milliseconds(120)) && boot) {
-                    if (!usb) { writeCom({"66 00 02 01 cf\r"}); }
+                    if (!usb) { sendMessage({"66 00 02 01 cf"}); }
                     second120 = true;
                     second120clock.restart();
                     //boot = false;
@@ -290,88 +273,88 @@ void P_SIMPLE::main() {
                     needReceiveDateData = true;
                 }
                 break;
-            case 1:///wiadmosc jest poprawna
-                block.printf(Console::DATA_FUNCTION_LOG, "Przetwarzanie wiadmosci\n");
+            case Receive_result::Message:///wiadmosc jest poprawna
+                messageBlock.printf(Console::DATA_FUNCTION_LOG, "Przetwarzanie wiadmosci\n");
 
                 clock.restart();
 
-                block.printf(Console::DATA_FUNCTION_LOG, "Adres: %02x\n", result[1]);
+                messageBlock.printf(Console::DATA_FUNCTION_LOG, "Adres: %02x\n", result->address);
 
-                if (result[1] == 31 || result[1] == 255) ///pytanie do mnie i adres rozgloszeniowy
+                if (result->address == 31 || result->address == 255) ///pytanie do mnie i adres rozgloszeniowy
                 {
-                    block.printf(Console::DATA_FUNCTION_LOG, "Wiadmosc do mnie\n");
+                    messageBlock.printf(Console::DATA_FUNCTION_LOG, "Wiadmosc do mnie\n");
                     sf::Lock lock(mutex);
 
-                    if (result[1] == 31) {
+                    if (result->address == 31) {
                         boot = false;
                         second120 = false;
                         second120clock.restart();
-                        Event e{Event::Connected};
-                        event.push(e);
+
+                        event.push(Event::Connected);
                     }
 
-                    if (!processed_data.empty() && (result[3] != 0x10)) ///naprawiam dane nie wyslane
+                    if (!data_in_transfer.empty() && (result->command != 0x10)) ///naprawiam dane nie wyslane
                     {
-                        std::swap(send_data, processed_data);
-                        toSendData(processed_data);
-                        processed_data.clear();
+                        std::swap(data_to_send, data_in_transfer);
+                        toSendData(data_in_transfer);
+                        data_in_transfer.clear();
                     }
 
-                    if (result[3] == 0x00)///reset
+                    if (result->command == 0x00)///reset
                     {
-                        block.printf(Console::DATA_FUNCTION_LOG, "Reset\n");
+                        messageBlock.printf(Console::DATA_FUNCTION_LOG, "Reset\n");
 
-                        Event e;
-                        e.type = Event::Reset;
-                        event.push(e);
-                    } else if (result[3] == 0x01)///searching devices
+                        event.push(Event::Reset);
+                    } else if (result->command == 0x01)///searching devices
                     {
-                        block.printf(Console::DATA_FUNCTION_LOG, "Wyszukiwanie urzadzen\n");
+                        messageBlock.printf(Console::DATA_FUNCTION_LOG, "Wyszukiwanie urzadzen\n");
 
                         second120clock.restart();
-                    } else if (result[3] == 0x10)///odpowiedz
+                    } else if (result->command == 0x10)///odpowiedz
                     {
-                        if (result[1] == 255) { break; }
+                        if (result->address == 255) { break; }
 
-                        if (result[4] == 0x01) ///blad komunikacji crc
+                        if (result->data[0] == 0x01) ///blad komunikacji crc
                         {
-                            block.printf(Console::DATA_FUNCTION_LOG, "Ponowne wysylanie wiadmosci\n");
+                            messageBlock.printf(Console::DATA_FUNCTION_LOG, "Ponowne wysylanie wiadmosci\n");
 
-                            writeCom(last_message);
-                        } else if (result[4] == 0x00) {
-                            block.printf(Console::DATA_FUNCTION_LOG, "Potwierdzenie otrzymania danych\n");
+                            serial_port.writeCom(lastSendMessage);
+                        } else if (result->data[0] == 0x00) {
+                            messageBlock.printf(Console::DATA_FUNCTION_LOG, "Potwierdzenie otrzymania danych\n");
 
-                            if (!processed_data.empty()) {
-                                for (auto &it : processed_data)///dodawanie danych
+                            if (!data_in_transfer.empty()) {
+                                for (auto &it : data_in_transfer)///dodawanie danych
                                 {
                                     act_data[it.first] = it.second;
                                 }
-                                processed_data.clear();
+                                data_in_transfer.clear();
                             }
                         }
                         ///printf("Komunikacja jest bledna\nOdpowiedz mimo braku zapytania\n");
-                    } else if (result[3] == 0x20)///podtrzymanie komunikacji
+                    } else if (result->command == 0x20)///podtrzymanie komunikacji
                     {
-                        if ((result[4] & 7) == 6) { rzadanie_danych = true; }//stan sterownika zostal zmieniony
-                        if ((result[4] & 7) == 7) {
-                            needCalendarData = true;
-                            rzadanie_danych = true;
+                        if ((result->data[0] & 7) ==
+                            6) { needRequestStateDeviceData = true; }//stan sterownika zostal zmieniony
+                        if ((result->data[0] & 7) == 7) {
+                            needRequestCalendarData = true;
+                            needRequestStateDeviceData = true;
                         }//v5 rzadanie danych gdyz sie nieaktualizuje
-                        if (result[1] == 255) { break; }//brodcast nie potrzebny dalej
+                        if (result->address == 255) { break; }//brodcast nie potrzebny dalej
 
-                        bool calendar = (needCalendarData | needSendCalendarActive | needSendCalendarDay |
+                        bool calendar = (needRequestCalendarData | needSendCalendarActiveDays |
+                                         needSendCalendarActions |
                                          needSendModesData | needSendDateData | needReceiveDateData);
-                        block
+                        messageBlock
                                 .printf(Console::DATA_FUNCTION_LOG, "Rzadanie danych: %s\n",
-                                        rzadanie_danych ? "true" : "false")
+                                        needRequestStateDeviceData ? "true" : "false")
                                 .printf(Console::DATA_FUNCTION_LOG, "Rzadanie kalendarza: %s\n",
                                         calendar ? "true" : "false")
-                                .printf(Console::DATA_FUNCTION_LOG, "needCalendarData: %s\n",
-                                        needCalendarData ? "true" : "false")
-                                .printf(Console::DATA_FUNCTION_LOG, "needSendCalendarActive: %s\n",
-                                        needSendCalendarActive ? "true" : "false")
-                                .printf(Console::DATA_FUNCTION_LOG, "needSendCalendarDay: %s\n",
-                                        needSendCalendarDay ? "true" : "false")
+                                .printf(Console::DATA_FUNCTION_LOG, "needRequestCalendarData: %s\n",
+                                        needRequestCalendarData ? "true" : "false")
+                                .printf(Console::DATA_FUNCTION_LOG, "needSendCalendarActiveDays: %s\n",
+                                        needSendCalendarActiveDays ? "true" : "false")
+                                .printf(Console::DATA_FUNCTION_LOG, "needSendCalendarActions: %s\n",
+                                        needSendCalendarActions ? "true" : "false")
                                 .printf(Console::DATA_FUNCTION_LOG, "needSendModesData: %s\n",
                                         needSendModesData ? "true" : "false")
                                 .printf(Console::DATA_FUNCTION_LOG, "needSendDateData: %s\n",
@@ -379,41 +362,42 @@ void P_SIMPLE::main() {
                                 .printf(Console::DATA_FUNCTION_LOG, "needReceiveDateData: %s\n",
                                         needReceiveDateData ? "true" : "false")
                                 .printf(Console::DATA_FUNCTION_LOG, "needSendData: %s\n",
-                                        !send_data.empty() ? "true" : "false");
+                                        !data_to_send.empty() ? "true" : "false");
 
-                        std::vector<char> message;
-                        std::vector<uint8_t> info;
-                        info.resize(2 + 2 * send_data.size() * (usb | (!rzadanie_danych)));
+                        auto info = message.alloc();
+                        info->start_bit = 0x66;
+                        info->address = 0x00;
 
-                        info[0] = (calendar ? 0x20 : 0) + (rzadanie_danych ? 0x10 : 0) + 0x01;
+                        info->ret_data[0] = static_cast<uint8_t>((calendar ? 0x20 : 0) +
+                                                                 (needRequestStateDeviceData ? 0x10 : 0) + 0x01);
 
-                        if (!send_data.empty() && (usb | (!rzadanie_danych)))///mam dane do wyslania
+                        uint32_t j = 1;
+                        if (!data_to_send.empty() && (usb | (!needRequestStateDeviceData)))///mam dane do wyslania
                         {
-                            block.printf(Console::DATA_FUNCTION_LOG, "Mam dane do wyslania\n");
+                            messageBlock.printf(Console::DATA_FUNCTION_LOG, "Mam dane do wyslania\n");
 
-                            processed_data = std::move(send_data);
-                            send_data.clear();
+                            data_in_transfer = std::move(data_to_send);
+                            data_to_send.clear();
 
-                            uint32_t j = 1;
-                            for (auto &it : processed_data)///dodawanie danych
+                            for (auto &it : data_in_transfer)///dodawanie danych
                             {
-                                info[j++] = it.first;
-                                info[j++] = it.second;
+                                info->ret_data[j++] = static_cast<uint8_t>(it.first);
+                                info->ret_data[j++] = static_cast<uint8_t>(it.second);
                             }
                         }
 
-                        info.back() = 0x00;///errors
+                        info->ret_data[j++] = 0x00;///errors
+                        info->length = static_cast<uint8_t>(j + 1);
 
-                        create_message(0x66, 0x00, info, message);
-                        writeCom(message);
-                    } else if (result[3] == 0x30)///kalendarz
+                        sendMessage(info);
+                    } else if (result->command == 0x30)///kalendarz
                     {
-                        block.printf(Console::DATA_FUNCTION_LOG, "Kalendarz podstawowa odpowiedz\n");
+                        messageBlock.printf(Console::DATA_FUNCTION_LOG, "Kalendarz podstawowa odpowiedz\n");
 /*
                     if(!(result[5] & 1)) ///timer can't be start
                     {
-                        needCalendarData = false;
-                        needSendCalendarDay = false;
+                        needRequestCalendarData = false;
+                        needSendCalendarActions = false;
                         calendar_data.first = 0;
                         calendar_data.second.clear();
 
@@ -421,309 +405,235 @@ void P_SIMPLE::main() {
                         e.type = Event::CalendarData;
                         event.push(e);
                     }*/
-                        this->stateOfCalendar.data = result[5];
+                        this->stateOfCalendar.data = result->data[1];
 
-                        std::vector<char> message;
-                        std::vector<uint8_t> info;
+                        auto info = message.alloc();
+                        info->start_bit = 0x66;
+                        info->address = 0x00;
 
-                        info.reserve(16); //13
-                        info.resize(2);
+                        if (!needSendCalendarActiveDays) {
+                            this->calendar_data.first = result->data[0];
 
-                        if (!needSendCalendarActive) {
-                            this->calendar_data.first = result[4];
-
-                            Event e;
-                            e.type = Event::CalendarData;
-                            event.push(e);
+                            event.push(Event::CalendarData);
                         }
 
-                        info[0] = this->calendar_data.first;///en
+                        info->ret_data[0] = this->calendar_data.first;///en
 
-                        if (needCalendarData) {
-                            info[1] = 0xFF; ///what days
-                            needCalendarData = false;
-                        } else if (needSendCalendarDay) {
-                            info[1] = needSendCalendarDay; ///what days
-                            needSendCalendarDay = 0;
+                        if (needRequestCalendarData) {
+                            info->ret_data[1] = 0xFF; ///what days
+                            needRequestCalendarData = false;
+                        } else if (needSendCalendarActions) {
+                            info->ret_data[1] = needSendCalendarActions; ///what days
+                            needSendCalendarActions = 0;
                         } else {
-                            info[1] = 0x01; ///what days
+                            info->ret_data[1] = 0x01; ///what days
                         }
 
                         if (!needSendModesData) {
-                            memcpy(modes_data.data, &result[12], 5);
+                            memcpy(modes_data.data, &result->data[8], 5);
 
-                            Event e;
-                            e.type = Event::ModesData;
-                            event.push(e);
+                            event.push(Event::ModesData);
                         }
 
                         {
-                            auto i = info.size();
-                            info.resize(i + 5);
-
-                            memcpy(&info[i], modes_data.data, 5);
+                            memcpy(&info->ret_data[2], modes_data.data, 5);
 
                             needSendModesData = false;
                         }
 
                         if (needSendDateData) {
-                            auto i = info.size();
-                            info.resize(i + 6);
-
                             //memcpy(info.data(), calendar_data.second[result[4]].data(), calendar_data.second[result[4]].size()*6);
 
-                            memcpy(&info[i], date_data.data, 6);
+                            memcpy(&info->ret_data[7], date_data.data, 6);
 
 
                             needSendDateData = false;
                             needReceiveDateData = false;
                             needReceiveDateDataClock.restart();
                         } else {
-                            memcpy(date_data.data, &result[6], 6);
+                            memcpy(date_data.data, &result->data[2], 6);
 
-                            Event e;
-                            e.type = Event::TimeData;
-                            event.push(e);
+                            event.push(Event::TimeData);
 
                             needReceiveDateData = false;
                             needReceiveDateDataClock.restart();
                         }
 
-                        create_message(0x66, 0x00, info, message);
-                        writeCom(message);
+                        sendMessage(info);
 
-                        needSendCalendarActive = false;
-                    } else if (result[3] == 0x31)///save calendar data
+                        needSendCalendarActiveDays = false;
+                    } else if (result->command == 0x31)///save calendar data
                     {
-                        block.printf(Console::DATA_FUNCTION_LOG, "Zapisz dni kalendarza\n");
+                        messageBlock.printf(Console::DATA_FUNCTION_LOG, "Zapisz dni kalendarza\n");
 
-                        uint32_t how_much = (result[2] - 3) / 6;
-                        if ((result[2] - 3) % 6) {
-                            block.printf(Console::ERROR_MESSAGE, "Error save calendar data\n");
+                        auto how_much = static_cast<uint32_t>((result->length - 3) / 6);
+                        if ((result->length - 3) % 6) {
+                            messageBlock.printf(Console::ERROR_MESSAGE, "Error save calendar data\n");
                         }
 
-                        calendar_data.second[result[4]].clear();
-                        calendar_data.second[result[4]].resize(how_much >= 0 ? how_much : 0);
+                        calendar_data.second[result->data[0]].clear();
+                        calendar_data.second[result->data[0]].resize(how_much >= 0 ? how_much : 0);
                         for (uint32_t i = 0; i < how_much; ++i) {
-                            Action_data_struct data;
-                            memcpy(data.data, &result[5 + i * 6], 6);///kopiowanie danych do miejsca +1
-                            calendar_data.second[result[4]][i] = data;
+                            Action_data_struct data{};
+                            memcpy(data.data, &result->data[1 + i * 6], 6);///kopiowanie danych do miejsca +1
+                            calendar_data.second[result->data[0]][i] = data;
                         }
                         //calendar_data.second[result[4]].resize(how_much);
 
                         //memcpy(calendar_data.second[result[4]].data(), &result[5], 6*how_much);
 
-                        Event e;
-                        e.type = Event::CalendarData;
-                        event.push(e);
+                        event.push(Event::CalendarData);
 
-                        writeCom(
+                        sendMessage(
                                 {"66 00 03 10 00 08\r"}); ///66 rozpoczecie 00 adres 03 dlugosc 10 funkcja 00 ans 0C crc
-                    } else if (result[3] == 0x32)///send calendar data
+                    } else if (result->command == 0x32)///send calendar data
                     {
-                        block.printf(Console::DATA_FUNCTION_LOG, "Wyslij dzen: %i\n", result[4]);
+                        messageBlock.printf(Console::DATA_FUNCTION_LOG, "Wyslij dzen: %i\n", result->data[0]);
 
-                        std::vector<char> message;
-                        std::vector<uint8_t> info;
-
-                        info.resize(calendar_data.second[result[4]].size() * 6);
+                        auto info = message.alloc();
+                        info->start_bit = 0x66;
+                        info->address = 0x00;
 
                         //memcpy(info.data(), calendar_data.second[result[4]].data(), calendar_data.second[result[4]].size()*6);
 
-                        for (uint32_t i = 0; i < calendar_data.second[result[4]].size(); ++i) {
-                            memcpy(&info[i * 6], calendar_data.second[result[4]][i].data, 6);
+                        for (uint32_t i = 0; i < calendar_data.second[result->data[0]].size(); ++i) {
+                            memcpy(&info->ret_data[i * 6], calendar_data.second[result->data[0]][i].data, 6);
                         }
 
-                        create_message(0x66, 0x00, info, message);
-                        writeCom(message);
-                    } else if (result[3] == 0x40)///prosba o parametry (wszystkie)
+                        info->length = static_cast<uint8_t>(calendar_data.second[result->data[0]].size() * 6 + 1);
+                        sendMessage(info);
+                    } else if (result->command == 0x40)///prosba o parametry (wszystkie)
                     {
-                        block.printf(Console::DATA_FUNCTION_LOG, "Prosba o parametry\n");
+                        messageBlock.printf(Console::DATA_FUNCTION_LOG, "Prosba o parametry\n");
 
-                        if (result[1] == 255) {
-                            block.printf(Console::ERROR_MESSAGE, "Error brodcast prosi o parametry\n");
+                        if (result->address == 255) {
+                            messageBlock.printf(Console::ERROR_MESSAGE, "Error brodcast prosi o parametry\n");
                             break;
                         }
-                        std::vector<char> message;
-                        std::vector<uint8_t> info;
+                        auto info = message.alloc();
+                        info->start_bit = 0x66;
+                        info->address = 0x00;
 
                         ///processed_data = std::move(send_data);
                         ///send_data.clear();
 
-                        for (auto &it : send_data) {
+                        for (auto &it : data_to_send) {
                             act_data[it.first] = it.second;
                         }
 
-                        processed_data = act_data;
-                        send_data.clear();
+                        data_in_transfer = act_data;
+                        data_to_send.clear();
 
                         {
-                            info.resize(2 * processed_data.size());
-
                             uint32_t j = 0;
-                            for (auto &it : processed_data)///dodawanie danych
+                            for (auto &it : data_in_transfer)///dodawanie danych
                             {
-                                info[j++] = it.first;
-                                info[j++] = it.second;
+                                info->ret_data[j++] = static_cast<uint8_t>(it.first);
+                                info->ret_data[j++] = static_cast<uint8_t>(it.second);
                             }
-                            processed_data.clear(); ///!!! ja nie pragne potwierdzenia
+                            data_in_transfer.clear(); ///!!! ja nie pragne potwierdzenia
                         }
 
-                        create_message(0x66, 0x00, info, message);
+                        info->length = static_cast<uint8_t>(2 * data_in_transfer.size() + 1);
+                        sendMessage(info);
 
-                        writeCom(message);
-
-                    } else if (result[3] == 0x50)///zapisz dane
+                    } else if (result->command == 0x50)///zapisz dane
                     {
-                        block.printf(Console::DATA_FUNCTION_LOG, "Zapisz dane\n");
+                        messageBlock.printf(Console::DATA_FUNCTION_LOG, "Zapisz dane\n");
 
-                        rzadanie_danych = false;
+                        needRequestStateDeviceData = false;
 
                         std::map<int, uint32_t> tym;
-                        for (uint32_t i = 4; i < (result.size() - 1); i += 2) {
-                            uint8_t id = result[i];
-                            uint8_t value = result[i + 1];
+                        for (uint32_t i = 0; i < (result->length - 2); i += 2) {
+                            uint8_t id = result->data[i];
+                            uint8_t value = result->data[i + 1];
                             tym[id] = (tym[id] << 8) | value;
                         }
 
                         for (auto &it : tym) {
-                            parsed_data[it.first] = it.second;///dane ktore odbiera gui
-                            send_data.erase(it.first);///usuwam z danych do wyslania
+                            data_received[it.first] = it.second;///dane ktore odbiera gui
+                            data_to_send.erase(it.first);///usuwam z danych do wyslania
                             act_data[it.first] = it.second;///dodaje do danych aktualnych
-                            block.printf(Console::DATA_FUNCTION_LOG, "%i -> %i\n", it.first, it.second);
+                            messageBlock.printf(Console::DATA_FUNCTION_LOG, "%i -> %i\n", it.first, it.second);
                         }
 
-                        Event e;
-                        e.type = Event::Data;
-                        event.push(e);
+                        event.push(Event::Data);
 
-                        writeCom(
+                        sendMessage(
                                 {"66 00 03 10 00 08\r"}); ///66 rozpoczecie 00 adres 03 dlugosc 10 funkcja 00 ans 0C crc
                     } else {
-                        block.printf(Console::DATA_FUNCTION_LOG, "Funkcja %i brak implementacji\n", result[3]);
+                        messageBlock.printf(Console::DATA_FUNCTION_LOG, "Funkcja %i brak implementacji\n",
+                                            result->command);
                     }
                 } else ///nie moj watek
                 {
                     sf::Lock lock(mutex);
-                    if (!processed_data.empty())///naprawiam dane nie wyslane
+                    if (!data_in_transfer.empty())///naprawiam dane nie wyslane
                     {
-                        std::swap(send_data, processed_data);
-                        toSendData(processed_data);
-                        processed_data.clear();
+                        std::swap(data_to_send, data_in_transfer);
+                        toSendData(data_in_transfer);
+                        data_in_transfer.clear();
                     }
                 }
                 break;
             default:
-                block.printf(Console::ERROR_MESSAGE, "Cos poszlo nie tak %s %i\n", __FILE__, __LINE__);
+                messageBlock.printf(Console::ERROR_MESSAGE, "Cos poszlo nie tak %s %i\n", __FILE__, __LINE__);
         }
 
-        block.endWrite();
+        messageBlock.endWrite();
     }
 
-    thread_work = 3; ///zaznaczanie konca watku
+    thread_work = ThreadState::StopedWorking; ///zaznaczanie konca watku
 }
 
-int validate(const std::string &str, std::vector<uint8_t> &result) {
-    if (str.size() < 9) { return 0; }///tekstowo 55 addres len fun crc \r
-    for (uint32_t i = 0; i < (str.length() - 1); ++i) {
-        if (!isxdigit(str[i])) { return 0; }///czy wszystkie znaki sa znakami hex? jezeli nie błąd transmisji
-    }
-    if ((str[0] != '5' || str[1] != '5') && (str[0] != '6' || str[1] != '6')) { return 0; }///poczatek komedy
-
-    if (str[str.length() - 1] != '\r') { return 0; }///czy koniec zawiera \r
-
-    /**Paczatek obrabiania danych**/
-
-    calculate(str, result);
-    if (3u + result[2] != ((str.size() - 1) / 2)) {
-        result.clear();
-        return 0;
-    }///55 adres rozmiar + dane w tym crc
-
-    if (crc8(result.data() + 2, result[2]) != result[result.size() - 1]) { return -1; }///suma crc
-
-    return 1;
-}
-
-void calculate(const std::string &str, std::vector<uint8_t> &result) {
-    result.clear();
-    result.resize((str.size() - 1) / 2);
-
-    for (uint32_t i = 0; i < ((str.length() - 1) / 2); ++i) {
-        uint16_t wartosc;///hhx => warning uint8_t :/
-        sscanf(str.c_str() + 2 * i, "%2hx", &wartosc);///co dwa znaki
-
-        result[i] = (static_cast<unsigned char &&>(wartosc));
-    }
-}
-
-void create_message(uint8_t begining, uint8_t adres, const std::vector<uint8_t> &info, std::vector<char> &result) {
-    std::vector<uint8_t> data2;
-    data2.resize(info.size() + 1);
-    uint32_t write = 0;
-    {
-        memcpy(&data2[1], info.data(), info.size());///kopiowanie danych do miejsca +1
-        data2[0] = info.size() + 1; ///+1 za crc
-    }
-
-    result.clear();
-    result.assign(4 + 2 * data2.size() + 3 + 1, 0);///66 00 dane  0C \r
-
-    write += sprintf(result.data(), "%02hX%02hX", begining, adres);
-
-    for (unsigned char i : data2) {
-        write += sprintf(result.data() + write, "%02hX", i);
-    }
-
-    write += sprintf(result.data() + write, "%02hX", crc8(data2.data(), data2.size()));///crc
-    sprintf(result.data() + write, "\r");
-
-    result.resize(result.size() - 1);
-}
-
-int P_SIMPLE::receive(std::shared_ptr <P_SIMPLE_Imp::P_SIMPLE_Message> &result, sf::Time time) {
-    static auto ret_func = [&]() -> int {
-        if (messages.empty()) { return 0; }
+P_SIMPLE::Receive_result P_SIMPLE::receiveMessage(std::shared_ptr<P_SIMPLE_Message> &result, sf::Time time) {
+    static auto ret_func = [&]() -> Receive_result {
+        if (messages.empty()) { return Receive_result::No_Message; }
         for (auto it = messages.begin(); it != messages.end(); ++it) {
             if (it->first->address == 0xff) {
                 result = it->first;
-                int ret_val = it->second;
+                auto ret_val = it->second;
                 messages.erase(messages.begin(), it);///delete all messages a0...ff
                 return ret_val;
             }
             if (it->first->address == 0x1f && messages.back().first.get() == it->first.get()) {
                 result = it->first;
-                int ret_val = it->second;
+                auto ret_val = it->second;
                 messages.clear();///delete all messages a0...ff
                 return ret_val;
             }
             if (messages.back().first.get() == it->first.get()) {
                 result = it->first;
-                int ret_val = it->second;
+                auto ret_val = it->second;
                 messages.clear();///delete all messages a0...ff
                 return ret_val;
             }
         }
 
+        ///??????????????????????///=>end of function clion error
+        result = messages.back().first;
+        auto ret_val = messages.back().second;
+        messages.clear();///delete all messages a0...ff
+        return ret_val;
     };
 
     {
         int x;
-        if ((x = serial_port.receive(r_data, time)) < 0) { return x; }
+        if ((x = serial_port.receive(unusedReceivedData, time)) < 0) { return Receive_result::Serial_port_Error; }
         if (x == 0) { return ret_func(); }
     }
 
     Console::printf(Console::LOG, "PARSE()\n");
     while (true) {
-        std::size_t found = r_data.find('\r'); ///ostatni znak ramki
+        std::size_t found = unusedReceivedData.find('\r'); ///ostatni znak ramki
         //r_char = found + 1;
         if (found == std::string::npos) {
             break;
         }
 
-        std::string str = r_data.substr(0, found + 1); ///kopiowanie z \r
-        r_data.erase(0, found + 1);
-        //todo: 55ff if it old move it on
+        std::string str = unusedReceivedData.substr(0, found + 1); ///kopiowanie z \r
+        unusedReceivedData.erase(0, found + 1);
+
         ///szukaj 55 od konca dopuki validate nie zwruci true lub po false found2 wynosi 0
         std::size_t found2 = 0;
         while (true) {
@@ -746,16 +656,12 @@ int P_SIMPLE::receive(std::shared_ptr <P_SIMPLE_Imp::P_SIMPLE_Message> &result, 
             std::string match_str;
             match_str.insert(0, str, found2, std::string::npos);
 
-            found2 += 1;
-            if (match_str.size() < 11) { continue; }
-            for (uint32_t i = 0; i < (match_str.size() - 1); ++i) {
-                if (!isxdigit(match_str[i])) { continue; }///all are hex or transmission error
-            }
+            found2 += 2;
             Console::printf(Console::DATA_FUNCTION_LOG, "Parsowanie: %s\n", match_str.c_str());
-            auto m = alloc_message();
+            auto m = message.alloc();
             int x;
             if ((x = P_SIMPLE_Imp::P_SIMPLE_Message::create(match_str, m)) != 0) {
-                messages.emplace_back(m, x);
+                messages.emplace_back(m, x == 1 ? Receive_result::Message : Receive_result::CRC_error);
             }
 
         }
@@ -764,7 +670,7 @@ int P_SIMPLE::receive(std::shared_ptr <P_SIMPLE_Imp::P_SIMPLE_Message> &result, 
     return ret_func();
 }
 
-P_SIMPLE_Imp::P_SIMPLE_Message::Ptr &P_SIMPLE::alloc_message() {
+P_SIMPLE_Imp::P_SIMPLE_Message::Ptr &P_SIMPLE::MESSAGEMANAGEMENT::alloc() {
     for (auto &wsk : created_messages) {
         if (wsk.use_count() == 1) { return wsk; }
     }

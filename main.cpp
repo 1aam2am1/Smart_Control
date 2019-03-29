@@ -305,7 +305,8 @@ void load(tgui::Gui *gui, const Argv_options &op) {
     Menu::Ptr menu(*gui, "menu");
     menu->setPosition(0, 0);
     menu->bindCallback(
-            Menu::ValueChanged | Menu::COMChanged | Menu::MODBUSChanged | Menu::SaveLogs | Menu::GetCalendarData);
+            Menu::ValueChanged | Menu::COMChanged | Menu::MODBUSChanged | Menu::SaveLogs | Menu::GetCalendarData |
+            Menu::OldVersion);
     menu->setCallbackId(1);
 
     auto modbus = gui->get<tgui::Checkbox>("MODBUS", true);

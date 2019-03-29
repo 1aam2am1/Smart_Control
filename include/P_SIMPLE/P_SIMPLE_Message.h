@@ -29,6 +29,11 @@ namespace P_SIMPLE_Imp {
                 uint8_t data[253]; //> size = length - 2
                 uint8_t CRC;
             };
+            struct {
+                unsigned :3;
+                uint8_t ret_data[254]; //> size = length - 2
+                unsigned :1;
+            };
             uint8_t header[258];
         };
 #pragma pack(pop)
@@ -39,7 +44,7 @@ namespace P_SIMPLE_Imp {
         /// \return -1 crc error
         /// \return 0 error in length this is not all needed data
         /// \return 1 package is successfully  created
-        static int create(const std::vector<char> &str, P_SIMPLE_Message::Ptr message);
+        static int create(const std::vector<char> &str, const P_SIMPLE_Message::Ptr &message);
 
         /// Translate protocol_message and validate it
         /// \param str String to validate and translate
@@ -47,7 +52,7 @@ namespace P_SIMPLE_Imp {
         /// \return -1 crc error
         /// \return 0 error in length this is not all needed data
         /// \return 1 package is successfully  created
-        static int create(const std::string &str, P_SIMPLE_Message::Ptr message);
+        static int create(const std::string &str, const P_SIMPLE_Message::Ptr &message);
 
         class check_type {
         public:
@@ -107,17 +112,18 @@ namespace P_SIMPLE_Imp {
                         uint8_t('0') + (maskLetter & uint8_t('A' - '0' - 10)) + (maskSmall & uint8_t('a' - 'A'));
                 return b - offset;
             };
-            value = (hex_to_dec(str.data() + 2 * i) * uint8_t(10)) + hex_to_dec(str.data() + 2 * i + 1);
+            value = (hex_to_dec(str.data() + 2 * i) * uint8_t(16)) + hex_to_dec(str.data() + 2 * i + 1);
 
 
             result->header[i] = value;
+            printf("%i -> %02hX\n", i, value);
         }
 
         if (3u + result->length != ((str.size() - 1) / 2)) {
             return 0;
         }///55 adres rozmiar + dane w tym crc
 
-        result->CRC = result->header[3 + result->length]; ///66 00 len {com-dane OC}=len \r
+        result->CRC = result->header[2 + result->length]; ///66 00 len {com-dane OC}=len \r
 
         if ((type & check_type::CRC) &&
             crc8(result->header + 2, result->length) != result->CRC) { return -1; }///suma crc

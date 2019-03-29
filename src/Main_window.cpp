@@ -25,6 +25,7 @@ Main_window::~Main_window() = default;
 
 void Main_window::change(const std::map<int, int> &dane) {
     this->unbindGlobalCallback();
+    this->bindGlobalCallback([](const tgui::Callback &) -> void {});
 
     this->get<Sliders>("sli")->change(dane);
     this->get<Logi>("logi")->change(dane);
@@ -64,7 +65,7 @@ void Main_window::change(const std::map<int, int> &dane) {
              std::make_shared<Przelacznik_typ>("tryb_1", 39),
              std::make_shared<Przelacznik_odmrazanie>("odm_1", 30), ///brak flag
              std::make_shared<Przelacznik_dogrzewanie>("dog_1", 30, 1 << 7),
-             std::make_shared<Przelacznik_v>("soft_1", 32),
+             std::make_shared<Przelacznik_v>("soft_1", 32, 58),
              std::make_shared<Przelacznik_sekmin>("czas_1", 40),
              std::make_shared<Przelacznik_sekmin>("przer_1", 41),
 

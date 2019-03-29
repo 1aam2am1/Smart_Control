@@ -9,12 +9,12 @@ P_SIMPLE_Imp::P_SIMPLE_Message::P_SIMPLE_Message() :
 
 }
 
-int P_SIMPLE_Imp::P_SIMPLE_Message::create(const std::vector<char> &str, P_SIMPLE_Message::Ptr result) {
-    return create(str, std::move(result), check_type::All);
+int P_SIMPLE_Imp::P_SIMPLE_Message::create(const std::vector<char> &str, const P_SIMPLE_Message::Ptr &result) {
+    return create(str, result, check_type::All);
 }
 
-int P_SIMPLE_Imp::P_SIMPLE_Message::create(const std::string &str, P_SIMPLE_Message::Ptr result) {
-    return create(str, std::move(result), check_type::All);
+int P_SIMPLE_Imp::P_SIMPLE_Message::create(const std::string &str, const P_SIMPLE_Message::Ptr &result) {
+    return create(str, result, check_type::All);
 }
 
 void P_SIMPLE_Imp::P_SIMPLE_Message::parse_protocol_message(std::vector<char> &protocol_message) {

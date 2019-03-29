@@ -14,6 +14,8 @@
 
 class Device {
 public:
+    typedef std::map<int, std::vector<Action_data_struct>> day_to_actions; ///<[0-pn]={action},{action},{action}...
+
     Device();
 
     virtual ~Device();
@@ -36,7 +38,7 @@ public:
 
     virtual std::map<int, std::vector<Action_data_struct>> getCalendarData() = 0;
 
-    virtual void sendCalendarData(const std::pair<uint8_t, std::map<int, std::vector<Action_data_struct>>> &) = 0;
+    virtual void sendCalendarData(const std::pair<uint8_t, day_to_actions> &) = 0;
 
     virtual Modes_data_struct getModesData() = 0;
 

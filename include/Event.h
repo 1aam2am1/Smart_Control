@@ -5,8 +5,6 @@
 
 class Event {
 public:
-
-
     enum EventType {
         Create = 0,
         Open = 1,
@@ -17,8 +15,13 @@ public:
         CalendarData = 6,
         ModesData = 7,
         TimeData = 8,
-        Reset = 100
+        Reset = 100,
+        Null = 255
     };
+
+    Event();
+
+    Event(EventType type);
 
     EventType type;
 };

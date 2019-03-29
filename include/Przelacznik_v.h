@@ -6,7 +6,7 @@
 
 class Przelacznik_v : public Przelacznik {
 public:
-    Przelacznik_v(std::string nazwa, int32_t id);
+    Przelacznik_v(std::string nazwa, int32_t id, int32_t id2); ///<16bit value id1id2
 
     virtual ~Przelacznik_v();
 
@@ -14,7 +14,8 @@ public:
 
 private:
     std::string nazwa;
-    int32_t id;
+    int32_t id1;
+    int32_t id2;
 };
 
 #endif // PRZELACZNIK_V_H

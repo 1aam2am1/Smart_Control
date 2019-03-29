@@ -15,12 +15,8 @@ Menu::Menu() {
 Menu::~Menu() = default;
 
 void Menu::change(const std::map<int, int> &dane) {
-    this->unbindGlobalCallback();
-
     this->get<Main_window>("p0")->change(dane);
     this->get<Modes_window>("p2")->change(dane);
-
-    this->bindGlobalCallback(std::bind(&Menu::callback, this, std::placeholders::_1));
 }
 
 std::map<int, int> Menu::getChanged() {
@@ -76,7 +72,8 @@ void Menu::initialize(Container *const container) {
     main_window->setPosition(0, 20);
     main_window->setSize(1200, 800);
     main_window->bindCallback(
-            Main_window::ValueChanged | Main_window::COMChanged | Main_window::MODBUSChanged | Main_window::SaveLogs);
+            Main_window::ValueChanged | Main_window::COMChanged | Main_window::MODBUSChanged | Main_window::SaveLogs |
+            Main_window::OldVersion);
     main_window->setCallbackId(200);
 
     Calendar::Ptr calendar(*this, "p1");
