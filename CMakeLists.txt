@@ -15,12 +15,12 @@ if (WIN32)
     set(SFML_STATIC_LIBRARIES TRUE)
     set(TGUI_STATIC_LIBRARIES TRUE)
 
-    #if (NOT DEFINED $ENV{TGUI_DIR}) #TODO: Uncomment this part. When we port whole application to 0.8 version.
+    if (NOT DEFINED $ENV{TGUI_DIR})
         set(TGUI_ROOT
                 "C:/Dropbox/TGUI-0.8.2/lib/cmake/TGUI"
                 "D:/Dropbox/TGUI-0.8.2/lib/cmake/TGUI")
-    set(TGUI_DIR TGUI_ROOT)
-    #endif ()
+        set(TGUI_DIR TGUI_ROOT)
+    endif ()
 
     if (NOT DEFINED $ENV{SFML_DIR})
         set(SFML_DIR
@@ -28,7 +28,14 @@ if (WIN32)
                 "D:/Dropbox/SFML-2.5.1/lib/cmake/SFML")
     endif ()
 else ()
-    set(TGUI_ROOT "/home/michal/tgui-0.8/lib/cmake/TGUI")
+    if (NOT DEFINED $ENV{TGUI_ROOT})
+        set(TGUI_ROOT "/home/michal/tgui-0.8/lib/cmake/TGUI")
+    endif ()
+
+    if (NOT DEFINED $ENV{SFML_DIR})
+        set(SFML_DIR "/home/michal/sfml/lib/cmake/SFML")
+    endif ()
+
 endif ()
 
 #Find any version 0.8 of tgui
